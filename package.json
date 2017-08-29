@@ -1,0 +1,16 @@
+{
+  "name": "layer-atom",
+  "main": "./lib/layer-atom.js",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "keywords": [],
+  "repository": "https://github.com/atom/layer-atom",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "@types/atom": "^0.0.39"
+  },
+  "devDependencies": {}
+}

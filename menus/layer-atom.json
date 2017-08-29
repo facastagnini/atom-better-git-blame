@@ -1,0 +1,26 @@
+{
+  "context-menu": {
+    "atom-text-editor": [
+      {
+        "label": "Toggle Layer",
+        "command": "layer-atom:toggle"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "Layer",
+          "submenu": [
+            {
+              "label": "Toggle",
+              "command": "layer-atom:toggle"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
