@@ -12,6 +12,7 @@ export function activate(state) {
       outgoing.send(event);
     });
   });
+  atom.workspace.onDidChangeActivePaneItem(outgoing.onFocus.bind(outgoing));
 }
 
 export function deactivate() {

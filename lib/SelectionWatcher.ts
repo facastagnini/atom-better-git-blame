@@ -1,15 +1,20 @@
 
 import IEditor = AtomCore.IEditor;
+import { CompositeDisposable } from 'atom';
 import { debounce } from 'lodash';
 
 export default class SelectionWatcher {
 
   editor: IEditor;
   selectionHandler: Function;
+  subscriptions: Array<any>;
 
   constructor(editor: IEditor){
+    this.subscriptions = new CompositeDisposable();
     this.editor = editor;
-    this.watchSelections();
+    this.subscriptions.add(this.editor.onDidChangeSelectionRange(() => {
+      this.getSelections();
+    }));
   }
 
   onSelection(selectionsCallback){
@@ -20,13 +25,11 @@ export default class SelectionWatcher {
     }
   }
 
-  watchSelections() {
-    this.editor.onDidChangeSelectionRange(() => {
-      let selectionRanges = this.editor.selections.map((selection) => {
-        return selection.getBufferRange();
-      });
-      this.selectionHandler(selectionRanges);
+  getSelections() {
+    let selectionRanges = this.editor.selections.map((selection) => {
+      return selection.getBufferRange();
     });
+    this.selectionHandler(selectionRanges);
   }
 
 }

@@ -1,12 +1,9 @@
 'use babel';
 
-import { CompositeDisposable } from 'atom';
 import { Socket, createSocket } from 'dgram';
 import fs from 'fs';
 
 export default class StepsizeOutgoing {
-
-  private subscriptions;
   private pluginId;
   private DEBUG: boolean;
   private UDP_HOST: string;
@@ -15,7 +12,6 @@ export default class StepsizeOutgoing {
   private MERGE_CALLED: boolean;
 
   constructor() {
-    this.subscriptions = new CompositeDisposable();
     this.pluginId = 'atom_v0.0.2';
     this.DEBUG = false;
     this.UDP_HOST = '127.0.0.1';
@@ -74,6 +70,16 @@ export default class StepsizeOutgoing {
       'plugin_id': this.pluginId,
       selections,
     };
+  }
+
+  public onFocus(item) {
+    // HACK(tarak): Check to see if the item is in fact a TextEditor object by
+    // checking if it has the "buffer" property. This ensures we only handle focus
+    // events on editor objects, instead of Settings, etc. which return DOM elements for
+    // this event.
+    if (item && item.buffer) {
+      this.send(this.buildEvent(item, "focus"));
+    }
   }
 
   // pointToOffet takes the contents of the buffer and a point object
