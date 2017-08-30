@@ -1,19 +1,21 @@
 'use babel';
 
-import { CompositeDisposable } from 'atom';
-import SelectionWatcher from './selectionWatcher';
+import SelectionWatcher from './SelectionWatcher';
+import StepsizeOutgoing from './StepsizeOutgoing';
 
-let subscriptions = null;
 export function activate(state) {
-  this.subscriptions = new CompositeDisposable();
+  let outgoing = new StepsizeOutgoing();
   atom.workspace.observeTextEditors((editor) => {
-    console.log(editor);
-    let watcher = new SelectionWatcher(editor)
+    let watcher = new SelectionWatcher(editor);
+    watcher.onSelection(function(selections){
+      const event = outgoing.buildEvent(editor, 'selection');
+      outgoing.send(event);
+    });
   });
 }
 
 export function deactivate() {
-  this.subscriptions.dispose();
+ return;
 }
 
 export function serialize() {

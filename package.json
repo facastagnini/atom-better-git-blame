@@ -10,7 +10,8 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "@types/atom": "^0.0.39"
+    "@types/atom": "^0.0.39",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {}
 }

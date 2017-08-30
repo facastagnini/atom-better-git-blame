@@ -3,7 +3,6 @@
     "target": "ES5",
     "removeComments": true,
     "preserveConstEnums": true,
-    "inlineSourceMap": true,
-    "inlineSources": true
+    "sourceMap": false
   }
 }
