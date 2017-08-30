@@ -55,31 +55,24 @@ export default class StepsizeOutgoing {
     this.send(event);
   };
 
-  // buildEvent constructs an event from the provided editor. It sets the
-  // "action" field of the event to the provided value.
-  public buildEvent(editor, action) {
+  buildEvent(editor, action) {
     const text = editor.getText();
-    const cursorPoint = editor.getCursorBufferPosition();
-    const cursorOffset = StepsizeOutgoing.pointToOffset(text, cursorPoint);
-    let selectedLineNumbers = editor.getSelectedBufferRanges().reduce((acc, range) => {
-      if (range.start.row === range.end.row && range.start.column === range.end.column) return acc;
-      if (range.end.column === 0 && range.end.row > 0) range.end.row -= 1;
-      let numbers = [...Array(range.end.row - range.start.row + 1)]
-        .map(key => key + range.start.row + 1);
-      acc.push(...numbers);
-      return acc;
-    }, []);
+
+    const selections = editor.selections.map((selection) => {
+      const range = selection.getBufferRange();
+      return {
+        start: StepsizeOutgoing.pointToOffset(text, range.start),
+        end: StepsizeOutgoing.pointToOffset(text, range.end)
+      }
+    });
+
     return {
       "source": "atom",
       "action": action,
       "filename": editor.getPath(),
-      "selections": [{
-        "start": cursorOffset,
-        "end": cursorOffset,
-      }],
       "selected": editor.getSelectedText(),
       'plugin_id': this.pluginId,
-      selectedLineNumbers,
+      selections,
     };
   }
 
