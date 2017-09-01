@@ -62,6 +62,17 @@ export default class StepsizeOutgoing {
       }
     });
 
+    const selectedLineNumbers = editor.selections.map((selection) => {
+      const range = selection.getBufferRange();
+      let numbers = [];
+      for(let i = range.start.row; i < range.end.row; i = i + 1){
+        numbers.push(i);
+      }
+      return numbers;
+    }).reduce((acc, val) => {
+      return acc.concat(val);
+    }, []);
+
     return {
       "source": "atom",
       "action": action,
@@ -69,17 +80,8 @@ export default class StepsizeOutgoing {
       "selected": editor.getSelectedText(),
       'plugin_id': this.pluginId,
       selections,
+      selectedLineNumbers,
     };
-  }
-
-  public onFocus(item) {
-    // HACK(tarak): Check to see if the item is in fact a TextEditor object by
-    // checking if it has the "buffer" property. This ensures we only handle focus
-    // events on editor objects, instead of Settings, etc. which return DOM elements for
-    // this event.
-    if (item && item.buffer) {
-      this.send(this.buildEvent(item, "focus"));
-    }
   }
 
   // pointToOffet takes the contents of the buffer and a point object

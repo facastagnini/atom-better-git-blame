@@ -9,10 +9,10 @@ export function activate(state) {
     let watcher = new SelectionWatcher(editor);
     watcher.onSelection(function(selections){
       const event = outgoing.buildEvent(editor, 'selection');
+      console.log(event);
       outgoing.send(event);
     });
   });
-  atom.workspace.onDidChangeActivePaneItem(outgoing.onFocus.bind(outgoing));
 }
 
 export function deactivate() {
