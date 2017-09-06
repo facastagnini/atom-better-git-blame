@@ -1,6 +1,6 @@
 {
   "name": "layer-atom",
-  "main": "./lib/layer-atom.js",
+  "main": "./dist/index.js",
   "version": "0.0.0",
   "description": "A short description of your package",
   "keywords": [],
@@ -10,8 +10,17 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "@types/atom": "^0.0.39",
-    "lodash": "^4.17.4"
+    "axios": "^0.16.2",
+    "color-rainbow": "^0.0.0",
+    "git-url-parse": "^7.0.0",
+    "lodash": "^4.17.4",
+    "tslib": "^1.7.1",
+    "uuid": "^3.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/atom": "^0.0.39",
+    "ts-loader": "^2.3.4",
+    "typescript": "^2.5.2",
+    "webpack": "^3.5.5"
+  }
 }

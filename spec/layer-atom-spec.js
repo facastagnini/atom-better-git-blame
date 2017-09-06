@@ -1,6 +1,6 @@
 'use babel';
 
-import LayerAtom from '../lib/layer-atom';
+import LayerAtom from '../lib/index';
 
 // Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 //

@@ -2,6 +2,7 @@
 
 import { Socket, createSocket } from 'dgram';
 import fs from 'fs';
+import StepsizeHelper from './StepsizeHelper';
 
 export default class StepsizeOutgoing {
   private pluginId;
@@ -9,7 +10,6 @@ export default class StepsizeOutgoing {
   private UDP_HOST: string;
   private UDP_PORT: number;
   private OUTGOING_SOCK: Socket;
-  private MERGE_CALLED: boolean;
 
   constructor() {
     this.pluginId = 'atom_v0.0.2';
@@ -17,11 +17,12 @@ export default class StepsizeOutgoing {
     this.UDP_HOST = '127.0.0.1';
     this.UDP_PORT = 49369;
     this.OUTGOING_SOCK = createSocket('udp4');
-    this.MERGE_CALLED = false;
+    this.OUTGOING_SOCK.on('message', (msg, info) => {
+      console.log('MESSAGE', msg, info);
+    });
   }
 
-  public send(event) {
-    console.log('Send event to socket', event);
+  public send(event, callback?) {
     let msg = JSON.stringify(event);
     this.OUTGOING_SOCK.send(
       msg,
@@ -29,9 +30,7 @@ export default class StepsizeOutgoing {
       msg.length,
       this.UDP_PORT,
       this.UDP_HOST,
-      function(err){
-        if(err) throw err;
-      }
+      callback,
     );
   }
 
@@ -46,53 +45,43 @@ export default class StepsizeOutgoing {
       'action': "error",
       'filename': fs.realpathSync(editor.getPath()),
       'selected': JSON.stringify(data),
-      'plugin_id': this.pluginId
+      'plugin_id': this.pluginId,
     };
     this.send(event);
   };
 
-  buildEvent(editor, action) {
+  buildSelectionEvent(editor) {
+    const ranges = editor.selections.map((selection) => {
+      return selection.getBufferRange();
+    });
+    return this.buildEvent(editor, ranges, 'selection');
+  }
+
+  buildEvent(editor, ranges, action, forRenderer = true) {
     const text = editor.getText();
 
-    const selections = editor.selections.map((selection) => {
-      const range = selection.getBufferRange();
+    const transformedSelections = ranges.map((range) => {
       return {
-        start: StepsizeOutgoing.pointToOffset(text, range.start),
-        end: StepsizeOutgoing.pointToOffset(text, range.end)
-      }
+        start: StepsizeHelper.pointToOffset(text, range.start),
+        end: StepsizeHelper.pointToOffset(text, range.end),
+      };
     });
 
-    const selectedLineNumbers = editor.selections.map((selection) => {
-      const range = selection.getBufferRange();
-      let numbers = [];
-      for(let i = range.start.row; i < range.end.row; i = i + 1){
-        numbers.push(i);
-      }
-      return numbers;
-    }).reduce((acc, val) => {
-      return acc.concat(val);
-    }, []);
+    const selectedLineNumbers = StepsizeHelper.rangesToSelectedLineNumbers(ranges);
+
+    const selectedText = ranges.map((range) => {
+      return editor.getTextInBufferRange(range);
+    }).join('');
 
     return {
       "source": "atom",
       "action": action,
       "filename": editor.getPath(),
-      "selected": editor.getSelectedText(),
-      'plugin_id': this.pluginId,
-      selections,
+      "selected": selectedText,
+      "plugin_id": this.pluginId,
+      "selections": transformedSelections,
       selectedLineNumbers,
+      "forRenderer": forRenderer,
     };
-  }
-
-  // pointToOffet takes the contents of the buffer and a point object
-  // representing the cursor, and returns a byte-offset for the cursor
-  static pointToOffset(text, point) {
-    const lines = text.split("\n");
-    let total = 0;
-    for (let i = 0; i < lines.length && i < point.row; i++) {
-      total += lines[i].length;
-    }
-    total += point.column + point.row; // we add point.row to add in all newline characters
-    return total;
   }
 }

@@ -1,8 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "removeComments": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "jsx": "react",
+    "lib": ["es6", "dom"],
+    "module": "commonjs",
+    "noLib": false,
+    "outDir": "./dist",
     "preserveConstEnums": true,
-    "sourceMap": false
+    "reactNamespace": "dom",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es6"
   }
 }
