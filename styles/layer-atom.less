@@ -4,5 +4,44 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
-.layer-atom {
+atom-text-editor {
+  .gutter[gutter-name="layer"] {
+    border-right: 1px solid @base-border-color;
+  }
+
+  .layer-gutter {
+    width: 100%;
+    &.layer-odd {
+      background-color: rgba(255, 255, 255, 0.02)
+    }
+
+    &.layer-even {
+      background-color: rgba(0, 0, 0, 0.02)
+    }
+    .layer-gutter-item {
+
+      padding: 0 5px 0 5px;
+
+      box-sizing: border-box;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow-x: hidden;
+      width: 100%;
+      text-align: left;
+
+      transition: 0.3s background;
+
+      &:hover {
+        padding-right: calc(~"12px + 2em");
+        .icon {
+          display: block;
+        }
+      }
+
+      &.highlight {
+        background-color: rgba(128, 128, 128, 0.15);
+      }
+    }
+  }
 }

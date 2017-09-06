@@ -6,6 +6,7 @@ import { CompositeDisposable } from 'atom';
 import StepsizeHelper from './StepsizeHelper';
 import GitHelper from './GitHelper';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import GutterRange from './GutterRange';
 import GutterItem from './interface/GutterItem';
 
@@ -13,47 +14,66 @@ export default class GutterView {
 
   private editor: IEditor;
   private pullRequests;
+  private commits;
   private metadata;
   private blame;
   private ranges;
   private width;
+  private boundResizeListener;
+  private previousResize: number = 0;
+  private firstCommitDate: Date;
 
   constructor(editor) {
     this.editor = editor;
-    this.fetchGutterData().then(() => {
+    this.editor.addGutter({ name: 'layer' });
+    this.setGutterWidth(210);
+    this.boundResizeListener = this.resizeListener.bind(this);
+    Promise.all([
+      GitHelper.getFirstCommitDateForRepo(editor.getPath()),
+      this.fetchGutterData()
+    ]).then((results) => {
+      this.firstCommitDate = results[0];
       this.drawGutter();
-      this.setGutterWidth(100);
-    });
+    }).catch((e) => {
+      throw e;
+    })
   }
 
   private drawGutter() {
-    this.editor.addGutter({ name: 'layer' });
-
-    const uniquePrNumbers = _.uniq(_.map(this.ranges, 'pullRequestNumber'));
-    const colourMultiplier = 255 / (uniquePrNumbers.length - 1);
-    const prColours = uniquePrNumbers.reduce((acc, prNumber, index) => {
-      acc[prNumber] = `rgba(${Math.round(index * colourMultiplier)}, 70, 70, 0.7)`;
+    const totalDays = (((Date.now() - this.firstCommitDate) / 1000) / 3600) / 24;
+    console.log(totalDays);
+    const uniqueIdentifiers = _.uniq(_.map(this.ranges, 'identifier'))
+    const colourMultiplier = 255 / (uniqueIdentifiers.length);
+    const itemColours = uniqueIdentifiers.reduce((acc, identifier, index) => {
+      acc[identifier] = `rgba(${Math.round(index * colourMultiplier)}, 70, 70, 0.7)`;
       return acc;
     }, {});
 
     for (let i = 0; i < this.ranges.length; i++) {
       const range = this.ranges[i];
       const item = new GutterItem();
-      item.className = 'pull-request';
-      if (range.pullRequestNumber === -1) {
-        item.setBackground('rgba(120, 120, 120, 0.5)');
-        item.setContent('Commit');
-      } else {
-        item.setBackground(prColours[range.pullRequestNumber]);
-        item.setContent(`PR #${range.pullRequestNumber}`);
-      }
+      item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener)
+      item.resizeEmitter.on('resizeHandleReleased', () => {
+        this.previousResize = 0;
+      })
+      item.setIndicator(itemColours[range.identifier]);
+      const date = moment(this.commits[range.identifier].commitedAt).format('YYYY-MM-DD');
+      const author = this.commits[range.identifier].author;
+      item.setContent(`${date} ${author}`);
       let marker = this.editor.markBufferRange(range.toAtomRange());
+      const oddEven = i % 2 === 0 ? 'layer-even' : 'layer-odd';
       let decoration = this.editor.decorateMarker(marker, {
         type: 'gutter',
+        class: `layer-gutter ${oddEven}`,
         gutterName: 'layer',
         item: item.element(),
       });
     }
+  }
+
+  resizeListener(resizeOffset) {
+    this.setGutterWidth(this.width + (resizeOffset - this.previousResize));
+    this.previousResize = resizeOffset;
   }
 
   static gutterStyle() {
@@ -92,6 +112,14 @@ export default class GutterView {
       this.blame = metadataAndBlame[1];
       this.pullRequests = response.data.pullRequests;
       this.ranges = this.buildGutterRanges();
+      this.commits = this.blame.reduce((acc, line) => {
+        const parsed = GitHelper.parseBlameLine(line);
+        if(acc[parsed.commitHash]){
+          return acc;
+        }
+        acc[parsed.commitHash] = parsed;
+        return acc;
+      }, {});
     } catch (e) {
       throw e;
     }
@@ -121,36 +149,26 @@ export default class GutterView {
 
   buildGutterRanges() {
     const pullRequests = this.transformedPullRequestArray();
-    let pullRequestLineRanges = Array < GutterRange >;
+    let lineRanges = [];
 
     for (let i = 0; i < this.blame.length; i++) {
       const line = this.blame[i];
       const commitHash = line.split(' ')[0];
 
-      // Find pull request for commit
-      let pullRequest = _.find(pullRequests, (obj) => {
-        return obj.hashes.includes(commitHash);
-      });
-      if (!pullRequest) {
-        // Set the pull request number to -1 if no PR exists for that line.
-        // We will replace this with the blame data later
-        pullRequest = { number: -1 };
-      }
-
-      // Build array of ranges for pull request display
-      if (pullRequestLineRanges.length == 0) { // No ranges exist
-        pullRequestLineRanges.push(new GutterRange(pullRequest, i));
+      // Build array of ranges
+      if (lineRanges.length == 0) { // No ranges exist
+        lineRanges.push(new GutterRange(i, commitHash));
       } else {
-        const currentRange = pullRequestLineRanges[pullRequestLineRanges.length - 1]; // Get last range
-        if (currentRange.pullRequestNumber === pullRequest.number) {
+        const currentRange = lineRanges[lineRanges.length - 1]; // Get last range
+        if (currentRange.identifier === commitHash) {
           currentRange.incrementRange();
         } else { // Add new range
-          pullRequestLineRanges.push(new GutterRange(pullRequest, i));
+          lineRanges.push(new GutterRange(i, commitHash));
         }
       }
     }
 
-    return _.sortBy(pullRequestLineRanges, 'pullRequestNumber');
+    return lineRanges;
   }
 
 }

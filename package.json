@@ -14,11 +14,13 @@
     "color-rainbow": "^0.0.0",
     "git-url-parse": "^7.0.0",
     "lodash": "^4.17.4",
+    "moment": "^2.18.1",
     "tslib": "^1.7.1",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@types/atom": "^0.0.39",
+    "@types/lodash": "^4.14.74",
     "ts-loader": "^2.3.4",
     "typescript": "^2.5.2",
     "webpack": "^3.5.5"

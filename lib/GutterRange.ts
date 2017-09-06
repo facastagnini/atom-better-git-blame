@@ -1,19 +1,19 @@
 export default class GutterRange {
 
-  public pullRequestNumber: number;
+  public identifier: string | number;
   public range: {
     start: number;
     end: number;
   };
 
-  constructor(pullRequest?, currentLine) {
-    if (pullRequest) {
-      this.pullRequestNumber = pullRequest.number;
-      this.range = {
-        start: currentLine,
-        end: currentLine,
-      };
+  constructor(currentLine: number, identifier?) {
+    if (identifier) {
+      this.identifier = identifier;
     }
+    this.range = {
+      start: currentLine,
+      end: currentLine,
+    };
   }
 
   public incrementRange() {

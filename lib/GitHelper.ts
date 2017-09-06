@@ -21,11 +21,9 @@ export default class GitHelper {
    * @param   {Number[]} selectedLineNumbers  Line numbers array returned by the plugin
    * @returns {String[]} git blame output data
    */
-  static getGitBlameOutput(
-    absolutePath,
-    selectedLineNumbers,
-    retryOnOutOfRange = true
-  ): Promise<Array<string>> {
+  static getGitBlameOutput(absolutePath,
+                           selectedLineNumbers,
+                           retryOnOutOfRange = true): Promise<Array<string>> {
     const dirPath = path.dirname(absolutePath);
     const relFilePath = path.relative(dirPath, absolutePath);
     console.log(relFilePath, dirPath, absolutePath);
@@ -96,6 +94,35 @@ export default class GitHelper {
       // We don't expect any errors here since the path has been validated
       child.on('error', error => reject(new Error(`Unexpected error: ${error}`)));
     });
+  }
+
+  static getFirstCommitDateForRepo(repoPath): Promise<Date> {
+    return new Promise((resolve, reject) => {
+      const dirPath = path.dirname(repoPath);
+      const args = ['-c', 'git log --reverse --date-order --pretty=%ad | head -n 1'];
+      const child = childProcess.spawn('sh', args, { cwd: dirPath });
+      let stdOut = '';
+      let stdErr = '';
+      let date;
+      child.stdout.on('data', (data) => {
+        stdOut = stdOut + data;
+      });
+      child.stderr.on('data', (data) => {
+        stdErr = stdErr + data;
+      });
+      child.on('exit', () => {
+        if (stdErr.length > 0) {
+          return reject(new Error('Could not fetch first commit date, make sure you supply a git repo path'));
+        } else {
+          try {
+            date = new Date(stdOut);
+          } catch (e) {
+            return reject(e);
+          }
+          return resolve(date);
+        }
+      });
+    })
   }
 
   /**
@@ -202,6 +229,29 @@ export default class GitHelper {
     return uniq(blame.map((line) => {
       return line.split(' ')[0];
     }));
+  }
+
+  static parseBlameLine(blameLine) {
+    /*
+                        Commit Hash     Original Line Number               Date                                            Timezone Offset                 Line
+                              ^     File Path    ^       Author              ^                           Time                     ^          Line Number     ^
+                              |         ^        |          ^                |                             ^                      |               ^          |
+                              |         |        |          |                |                             |                      |               |          |
+                         |---------|  |---|   |------|    |--|   |--------------------------|  |--------------------------|  |------------|   |--------|  |----|    */
+    const blameRegex = /^([a-z0-9]+)\s(\S+)\s+([0-9]+)\s\((.+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([+-][0-9]{4})\s+([0-9]+)\)\s(.+|$)/;
+    const matched = blameLine.match(blameRegex);
+    if (!matched) {
+      throw new Error('Couldn\'t parse blame line');
+    }
+    return {
+      commitHash: matched[1].trim(),
+      filePath: matched[2].trim(),
+      originalLineNumber: matched[3].trim(),
+      lineNumber: matched[8].trim(),
+      author: matched[4].trim(),
+      commitedAt: new Date(`${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`),
+      line: matched[9],
+    };
   }
 
 }
