@@ -8,7 +8,7 @@ export default class GutterResizeHandle {
   boundMouseDownListener: EventListener;
   boundMouseUpListener: EventListener;
   boundMouseMoveListener: EventListener;
-  emitter: Emitter
+  emitter: Emitter;
 
   constructor() {
     this.handleElement = document.createElement('div');
@@ -20,31 +20,30 @@ export default class GutterResizeHandle {
       right: 0,
       top: 0,
       bottom: 0,
-      cursor: 'col-resize'
+      cursor: 'col-resize',
     });
     this.emitter = new Emitter();
     this.boundMouseDownListener = this.mouseDownListener.bind(this);
     this.boundMouseUpListener = this.mouseUpListener.bind(this);
     this.boundMouseMoveListener = this.mouseMoveListener.bind(this);
-    this.handleElement.addEventListener('mousedown', this.boundMouseDownListener)
+    this.handleElement.addEventListener('mousedown', this.boundMouseDownListener);
   }
 
   private mouseDownListener(event: MouseEvent) {
     this.initialPosition = event.screenX;
-    console.log(this.handleElement);
     document.addEventListener('mouseup', this.boundMouseUpListener);
     document.addEventListener('mousemove', this.boundMouseMoveListener);
-    this.emitter.emit('resizeHandleClicked', event.screenX)
+    this.emitter.emit('resizeHandleClicked', event.screenX);
   }
 
   private mouseUpListener() {
-    document.removeEventListener('mousemove', this.boundMouseMoveListener)
+    document.removeEventListener('mousemove', this.boundMouseMoveListener);
     document.removeEventListener('mouseup', this.boundMouseUpListener);
-    this.emitter.emit('resizeHandleReleased', event.screenX)
+    this.emitter.emit('resizeHandleReleased', event.screenX);
   }
 
   private mouseMoveListener(event: MouseEvent) {
-    this.emitter.emit('resizeHandleDragged', event.screenX - this.initialPosition)
+    this.emitter.emit('resizeHandleDragged', event.screenX - this.initialPosition);
   }
 
   public element() {

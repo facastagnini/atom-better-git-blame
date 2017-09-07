@@ -26,7 +26,6 @@ export default class GitHelper {
                            retryOnOutOfRange = true): Promise<Array<string>> {
     const dirPath = path.dirname(absolutePath);
     const relFilePath = path.relative(dirPath, absolutePath);
-    console.log(relFilePath, dirPath, absolutePath);
     const blameRanges = GitHelper.convertLineNumbersToBlameRangeFormat(selectedLineNumbers);
     const gitArgs = [
       'blame',          // the git command to run
@@ -96,9 +95,9 @@ export default class GitHelper {
     });
   }
 
-  static getFirstCommitDateForRepo(repoPath): Promise<Date> {
+  static getFirstCommitDateForRepo(repoPath: string): Promise<Date> {
     return new Promise((resolve, reject) => {
-      const dirPath = path.dirname(repoPath);
+      const dirPath = repoPath;
       const args = ['-c', 'git log --reverse --date-order --pretty=%ad | head -n 1'];
       const child = childProcess.spawn('sh', args, { cwd: dirPath });
       let stdOut = '';
@@ -252,6 +251,34 @@ export default class GitHelper {
       commitedAt: new Date(`${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`),
       line: matched[9],
     };
+  }
+
+  /**
+   * getRepoRootPath() returns a git repo's root path based on a path to a file in the repo
+   *
+   * Note: this function doesn't validate the file path. Compose this function with `validateFilePath`
+   * if needed.
+   * It also expects that it's known a priori that this file is indeed in a git repo.
+   *
+   * Note: we originally used `git rev-parse --show-toplevel` but changed it to use `--show-cdup` with
+   * some additional gymnastics because this doesn't resolve symlinks (which can lead to issues, see
+   * https://github.com/Stepsize/layer_desktop/issues/92).
+   *
+   * @param   {String} filePath  Absolute path to a file in the git repo
+   * @returns {String} Absolute path to the repo's root directory
+   */
+  static getRepoRootPath(filePath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const fileDir = path.parse(filePath).dir;
+      childProcess.exec(
+        `cd ${fileDir} && echo $(cd $(git rev-parse --show-cdup) .; pwd)`,
+        (error, stdout, stderr) => {
+          if (error) reject(new Error(`getRepoRootPath(0) unexpected error with message: "${error.message}" & stack trace "${error.stack}"`));
+          else if (stderr) reject(new Error(`getRepoRootPath(1) unexpected error: ${stderr}`));
+          resolve(stdout.trim());
+        }
+      );
+    });
   }
 
 }

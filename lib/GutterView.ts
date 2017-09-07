@@ -9,57 +9,60 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import GutterRange from './GutterRange';
 import GutterItem from './interface/GutterItem';
+import { colorScale } from './ColourScale';
+import IEditor = AtomCore.IEditor;
 
 export default class GutterView {
 
   private editor: IEditor;
-  private pullRequests;
-  private commits;
-  private metadata;
-  private blame;
-  private ranges;
-  private width;
-  private boundResizeListener;
+  private pullRequests: Array<any>;
+  private commits: { [prop: string]: any };
+  private metadata: any;
+  private blame: Array<string>;
+  private ranges: Array<any>;
+  private width: number;
+  private boundResizeListener: EventListener;
   private previousResize: number = 0;
   private firstCommitDate: Date;
 
-  constructor(editor) {
+  constructor(editor: IEditor) {
     this.editor = editor;
     this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(210);
     this.boundResizeListener = this.resizeListener.bind(this);
     Promise.all([
-      GitHelper.getFirstCommitDateForRepo(editor.getPath()),
-      this.fetchGutterData()
+      GitHelper.getRepoRootPath(this.editor.getPath()).then((repoPath) => {
+        return GitHelper.getFirstCommitDateForRepo(repoPath)
+      }),
+      this.fetchGutterData(),
     ]).then((results) => {
       this.firstCommitDate = results[0];
       this.drawGutter();
     }).catch((e) => {
       throw e;
-    })
+    });
   }
 
   private drawGutter() {
-    const totalDays = (((Date.now() - this.firstCommitDate) / 1000) / 3600) / 24;
-    console.log(totalDays);
-    const uniqueIdentifiers = _.uniq(_.map(this.ranges, 'identifier'))
-    const colourMultiplier = 255 / (uniqueIdentifiers.length);
-    const itemColours = uniqueIdentifiers.reduce((acc, identifier, index) => {
-      acc[identifier] = `rgba(${Math.round(index * colourMultiplier)}, 70, 70, 0.7)`;
-      return acc;
-    }, {});
-
     for (let i = 0; i < this.ranges.length; i++) {
       const range = this.ranges[i];
       const item = new GutterItem();
-      item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener)
+      item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
       item.resizeEmitter.on('resizeHandleReleased', () => {
         this.previousResize = 0;
-      })
-      item.setIndicator(itemColours[range.identifier]);
-      const date = moment(this.commits[range.identifier].commitedAt).format('YYYY-MM-DD');
+      });
+      const date = this.commits[range.identifier].commitedAt;
+      const formattedDate = moment(date).format('YYYY-MM-DD');
       const author = this.commits[range.identifier].author;
-      item.setContent(`${date} ${author}`);
+      const commitDay = Math.floor((((date - this.firstCommitDate.getTime()) / 1000) / 3600) / 24);
+      item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
+      colorScale(this.editor).then((scale) => {
+        if(scale[commitDay]){
+          const color = scale[commitDay].rgb().string();
+          item.setIndicator(color);
+        }
+      });
+      item.setContent(`${formattedDate} ${author}`);
       let marker = this.editor.markBufferRange(range.toAtomRange());
       const oddEven = i % 2 === 0 ? 'layer-even' : 'layer-odd';
       let decoration = this.editor.decorateMarker(marker, {
@@ -71,7 +74,7 @@ export default class GutterView {
     }
   }
 
-  resizeListener(resizeOffset) {
+  resizeListener(resizeOffset: number) {
     this.setGutterWidth(this.width + (resizeOffset - this.previousResize));
     this.previousResize = resizeOffset;
   }
@@ -98,23 +101,13 @@ export default class GutterView {
   }
 
   private async fetchGutterData() {
-    const metadata = this.getRepoMetadata();
-    const blame = this.getGitBlame();
-
-    // Execute the async functions together in parallel 🏃💨
-    const metadataAndBlame = [await metadata, await blame];
+    const blame = await this.getGitBlame();
     try {
-      const response = await StepsizeHelper.fetchIntegrationData(
-        metadataAndBlame[0],
-        GitHelper.getHashesFromBlame(metadataAndBlame[1]),
-      );
-      this.metadata = metadataAndBlame[0];
-      this.blame = metadataAndBlame[1];
-      this.pullRequests = response.data.pullRequests;
+      this.blame = blame;
       this.ranges = this.buildGutterRanges();
       this.commits = this.blame.reduce((acc, line) => {
         const parsed = GitHelper.parseBlameLine(line);
-        if(acc[parsed.commitHash]){
+        if (acc[parsed.commitHash]) {
           return acc;
         }
         acc[parsed.commitHash] = parsed;
@@ -123,6 +116,15 @@ export default class GutterView {
     } catch (e) {
       throw e;
     }
+  }
+
+  private async getIntegrationData() {
+    const response = await StepsizeHelper.fetchIntegrationData(
+      this.blame,
+      GitHelper.getHashesFromBlame(await this.getRepoMetadata()),
+    );
+    this.pullRequests = response.data.pullRequests;
+    return response;
   }
 
   private async getRepoMetadata() {
@@ -138,7 +140,9 @@ export default class GutterView {
   }
 
   private transformedPullRequestArray() {
-    return _.reduce(this.pullRequests, (acc, pullRequest, key) => {
+    return _.reduce(this.pullRequests, (acc: Array<{ number: string, hashes: string[] }>,
+                                        pullRequest,
+                                        key) => {
       acc.push({
         number: key,
         hashes: _.map(pullRequest.commits, 'commitHash'),
