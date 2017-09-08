@@ -294,14 +294,15 @@ class GitHelper {
 
   static parseBlameLine(blameLine) {
     /*
-                        Commit Hash     Original Line Number               Date                                            Timezone Offset                 Line
-                              ^     File Path    ^       Author              ^                           Time                     ^          Line Number     ^
-                              |         ^        |          ^                |                             ^                      |               ^          |
-                              |         |        |          |                |                             |                      |               |          |
-                         |---------|  |---|   |------|    |--|   |--------------------------|  |--------------------------|  |------------|   |--------|  |----|    */
-    const blameRegex = /^([a-z0-9]+)\s(\S+)\s+([0-9]+)\s\((.+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([+-][0-9]{4})\s+([0-9]+)\)\s(.+|$)/;
+                        Commit Hash     Original Line Number               Date                                            Timezone Offset               Line
+                              ^     File Path    ^       Author              ^                           Time                     ^          Line Number   ^
+                              |         ^        |          ^                |                             ^                      |               ^        |
+                              |         |        |          |                |                             |                      |               |        |
+                         |---------|  |---|   |------|    |--|   |--------------------------|  |--------------------------|  |------------|   |--------||----|  */
+    const blameRegex = /^([a-z0-9]+)\s(\S+)\s+([0-9]+)\s\((.+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([+-][0-9]{4})\s+([0-9]+)\)(.+|$)/;
     const matched = blameLine.match(blameRegex);
     if (!matched) {
+      console.log(blameLine);
       throw new Error("Couldn't parse blame line");
     }
     return {

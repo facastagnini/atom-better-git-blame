@@ -8,7 +8,7 @@
     "noLib": false,
     "outDir": "./dist",
     "preserveConstEnums": true,
-    "reactNamespace": "dom",
+    "reactNamespace": "React",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,

@@ -3,6 +3,10 @@
 import GutterResizeHandle from './GutterResizeHandle';
 import StyleHelper from './StyleHelper';
 import { Emitter } from 'atom';
+import ReactDOM from 'react-dom';
+import React from 'react';
+
+import Item from '../components/GutterItem';
 
 class GutterItem {
   itemElement: HTMLDivElement;
@@ -13,9 +17,11 @@ class GutterItem {
   boundMouseLeaveListener: EventListener;
   data: any;
   inidcatorColor: string;
+  text: string;
 
-  constructor(data) {
+  constructor(text, data) {
     this.data = data;
+    this.text = text;
     this.itemElement = document.createElement('div');
     this.itemElement.className = 'layer-gutter-item';
     const style = new StyleHelper(this.itemElement.style);
@@ -67,6 +73,12 @@ class GutterItem {
   }
 
   public element() {
+    ReactDOM.render(
+      React.createElement(Item, {
+        text: this.text,
+      }),
+      this.contentElement
+    );
     return this.itemElement;
   }
 }

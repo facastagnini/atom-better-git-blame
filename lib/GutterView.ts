@@ -66,7 +66,7 @@ class GutterView {
         (date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24
       );
       this.markers[identifier].map(marker => {
-        const item = new GutterItem(commit);
+        const item = new GutterItem(`${formattedDate} ${author}`, commit);
         item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
         item.resizeEmitter.on('resizeHandleReleased', () => {
           this.previousResize = 0;
@@ -81,7 +81,6 @@ class GutterView {
             item.setIndicator(color);
           }
         });
-        item.setContent(`${formattedDate} ${author}`);
         this.editor.decorateMarker(marker, {
           type: 'gutter',
           class: `layer-gutter`,

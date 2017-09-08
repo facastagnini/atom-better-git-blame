@@ -37,9 +37,8 @@ function enableLayerSearch() {
 
 function toggleGutterView() {
   const editor = atom.workspace.getActiveTextEditor();
-  ColorScale.setEditor(editor).then(() => {
-    new GutterView(editor);
-  });
+  new GutterView(editor);
+  ColorScale.setEditor(editor);
 }
 
 export function deactivate() {
