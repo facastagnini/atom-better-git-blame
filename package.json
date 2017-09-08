@@ -3,7 +3,7 @@
   "main": "./dist/index.js",
   "version": "0.0.0",
   "description": "A short description of your package",
-  "keywords": ['stepsize', 'layer', 'blame', 'pull', 'request', 'git', 'jira', 'github'],
+  "keywords": ["stepsize", "layer", "blame", "pull", "request", "git", "jira", "github"],
   "repository": "https://github.com/Stepsize/layer-atom-plugin",
   "license": "MIT",
   "scripts": {
