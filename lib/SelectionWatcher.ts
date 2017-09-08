@@ -5,21 +5,22 @@ import { CompositeDisposable } from 'atom';
 import { debounce } from 'lodash';
 
 class SelectionWatcher {
-
   editor: IEditor;
   selectionHandler: Function;
   subscriptions: Array<any>;
 
-  constructor(editor: IEditor){
+  constructor(editor: IEditor) {
     this.subscriptions = new CompositeDisposable();
     this.editor = editor;
-    this.subscriptions.add(this.editor.onDidChangeSelectionRange(() => {
-      this.getSelections();
-    }));
+    this.subscriptions.add(
+      this.editor.onDidChangeSelectionRange(() => {
+        this.getSelections();
+      })
+    );
   }
 
-  onSelection(selectionsCallback){
-    if(typeof selectionsCallback === 'function'){
+  onSelection(selectionsCallback) {
+    if (typeof selectionsCallback === 'function') {
       this.selectionHandler = debounce(selectionsCallback, 200);
     } else {
       throw new Error('Event listeners must supply a callback');
@@ -27,12 +28,11 @@ class SelectionWatcher {
   }
 
   getSelections() {
-    let selectionRanges = this.editor.selections.map((selection) => {
+    let selectionRanges = this.editor.selections.map(selection => {
       return selection.getBufferRange();
     });
     this.selectionHandler(selectionRanges);
   }
-
 }
 
-export default SelectionWatcher
+export default SelectionWatcher;

@@ -15,15 +15,15 @@ export async function colorScale(editor: IEditor) {
     return cachedGradients[projectDir];
   }
   let firstCommitDate: Date = await datePromises[projectDir];
-  const totalDays = (((Date.now() - firstCommitDate.getTime()) / 1000) / 3600) / 24;
+  const totalDays = (Date.now() - firstCommitDate.getTime()) / 1000 / 3600 / 24;
   const gradient = calculateScale(totalDays);
   cachedGradients[projectDir] = gradient;
   return gradient;
 }
 
-export function setEditor(editor: IEditor){
-  return GitHelper.getRepoRootPath(editor.getPath()).then((projectDir) => {
-    if(editors[projectDir]){
+export function setEditor(editor: IEditor) {
+  return GitHelper.getRepoRootPath(editor.getPath()).then(projectDir => {
+    if (editors[projectDir]) {
       return;
     }
     editors[projectDir] = editor;

@@ -7,7 +7,7 @@ class GutterRange {
     end: number;
   };
 
-  constructor(currentLine: number, identifier? : string | number) {
+  constructor(currentLine: number, identifier?: string | number) {
     if (identifier) {
       this.identifier = identifier;
     }
@@ -24,6 +24,5 @@ class GutterRange {
   public toAtomRange() {
     return [[this.range.start, 0], [this.range.end, 900000]];
   }
-
 }
-export default GutterRange
+export default GutterRange;

@@ -6,7 +6,6 @@ import { uniq } from 'lodash';
 import * as GitUrlParse from 'git-url-parse';
 
 class GitHelper {
-
   /**
    * getGitBlameOutput() takes the selected line numbers, converts them to git blame formatted line
    * ranges and retrieves the git blame output for them.
@@ -23,25 +22,34 @@ class GitHelper {
    * @param   {Number[]} selectedLineNumbers  Line numbers array returned by the plugin
    * @returns {String[]} git blame output data
    */
-  static getGitBlameOutput(absolutePath,
-                           selectedLineNumbers,
-                           retryOnOutOfRange = true): Promise<Array<string>> {
+  static getGitBlameOutput(
+    absolutePath,
+    selectedLineNumbers,
+    retryOnOutOfRange = true
+  ): Promise<Array<string>> {
     const dirPath = path.dirname(absolutePath);
     const relFilePath = path.relative(dirPath, absolutePath);
-    const blameRanges = GitHelper.convertLineNumbersToBlameRangeFormat(selectedLineNumbers);
+    const blameRanges = GitHelper.convertLineNumbersToBlameRangeFormat(
+      selectedLineNumbers
+    );
     const gitArgs = [
-      'blame',          // the git command to run
-      '--show-number',  // show the original line number in the commit
-      '--show-name',    // show original file name - git sometimes adds them automatically, so we
-                        // include this option to have a consistent output across files
-      '-l',             // display the full hash
-      '--root',         // do not display the start caret for boundary commits
-      ...blameRanges,   // range to blame
-      '--',             // to pass the file path
+      'blame', // the git command to run
+      '--show-number', // show the original line number in the commit
+      '--show-name', // show original file name - git sometimes adds them automatically, so we
+      // include this option to have a consistent output across files
+      '-l', // display the full hash
+      '--root', // do not display the start caret for boundary commits
+      ...blameRanges, // range to blame
+      '--', // to pass the file path
       relFilePath,
     ];
     return new Promise((resolve, reject) => {
-      let [stdoutOutput, stderrOutput, stdoutEnd, stderrEnd] = ['', '', false, false];
+      let [stdoutOutput, stderrOutput, stdoutEnd, stderrEnd] = [
+        '',
+        '',
+        false,
+        false,
+      ];
       const child = childProcess.spawn('git', gitArgs, { cwd: dirPath });
 
       // Define the function to complete the promise if we're ready (i.e. stdout & stderr both ended)
@@ -49,7 +57,10 @@ class GitHelper {
         if (stdoutEnd && stderrEnd) {
           if (stderrOutput !== '') {
             const errorMsg = stderrOutput.toString().trim();
-            if (errorMsg === 'fatal: Not a git repository (or any of the parent directories): .git') {
+            if (
+              errorMsg ===
+              'fatal: Not a git repository (or any of the parent directories): .git'
+            ) {
               reject(new Error(`${dirPath}/${relFilePath} is not git-tracked`));
             } else if (
               errorMsg.includes('fatal: file ') &&
@@ -61,21 +72,35 @@ class GitHelper {
                 // "out-of-bound error" which might indicate we're trying to run git blame on the
                 // EOF character line.
                 selectedLineNumbers.pop();
-                resolve(GitHelper.getGitBlameOutput(absolutePath, selectedLineNumbers, false));
+                resolve(
+                  GitHelper.getGitBlameOutput(
+                    absolutePath,
+                    selectedLineNumbers,
+                    false
+                  )
+                );
               } else {
-                reject(new Error(`The selected lines ranges ${blameRanges} are not in the range of the file.`));
+                reject(
+                  new Error(
+                    `The selected lines ranges ${blameRanges} are not in the range of the file.`
+                  )
+                );
               }
             } else {
               reject(new Error(`Unexpected error: ${stderrOutput}`));
             }
           }
-          resolve(stdoutOutput === '' ? [] : stdoutOutput.replace(/\s+$/, '').split('\n'));
+          resolve(
+            stdoutOutput === ''
+              ? []
+              : stdoutOutput.replace(/\s+$/, '').split('\n')
+          );
         }
       };
 
       // Collect the output streamed back from the child process
-      child.stdout.on('data', data => stdoutOutput += data);
-      child.stderr.on('data', data => stderrOutput += data);
+      child.stdout.on('data', data => (stdoutOutput += data));
+      child.stderr.on('data', data => (stderrOutput += data));
 
       // Resolve or reject the promise when a pipe is closed, as long as the other pipe is closed too
       child.stdout.on('end', () => {
@@ -88,32 +113,42 @@ class GitHelper {
       });
 
       // Check for any unexpected exit codes
-      child.on('exit', (code) => {
-        if (code !== 0 && code !== 128) reject(new Error(`Unexpected exit code: ${code}`));
+      child.on('exit', code => {
+        if (code !== 0 && code !== 128)
+          reject(new Error(`Unexpected exit code: ${code}`));
       });
 
       // We don't expect any errors here since the path has been validated
-      child.on('error', error => reject(new Error(`Unexpected error: ${error}`)));
+      child.on('error', error =>
+        reject(new Error(`Unexpected error: ${error}`))
+      );
     });
   }
 
   static getFirstCommitDateForRepo(repoPath: string): Promise<Date> {
     return new Promise((resolve, reject) => {
       const dirPath = repoPath;
-      const args = ['-c', 'git log --reverse --date-order --pretty=%ad | head -n 1'];
+      const args = [
+        '-c',
+        'git log --reverse --date-order --pretty=%ad | head -n 1',
+      ];
       const child = childProcess.spawn('sh', args, { cwd: dirPath });
       let stdOut = '';
       let stdErr = '';
       let date;
-      child.stdout.on('data', (data) => {
+      child.stdout.on('data', data => {
         stdOut = stdOut + data;
       });
-      child.stderr.on('data', (data) => {
+      child.stderr.on('data', data => {
         stdErr = stdErr + data;
       });
       child.on('exit', () => {
         if (stdErr.length > 0) {
-          return reject(new Error('Could not fetch first commit date, make sure you supply a git repo path'));
+          return reject(
+            new Error(
+              'Could not fetch first commit date, make sure you supply a git repo path'
+            )
+          );
         } else {
           try {
             date = new Date(stdOut);
@@ -123,7 +158,7 @@ class GitHelper {
           return resolve(date);
         }
       });
-    })
+    });
   }
 
   /**
@@ -136,12 +171,14 @@ class GitHelper {
    * @param   {Number[]}  selectedLineNumbers  Line numbers array returned by the plugin
    * @returns {String[]}  Array of git blame formated ranges
    */
-  static convertLineNumbersToBlameRangeFormat(selectedLineNumbers: Array<number>) {
+  static convertLineNumbersToBlameRangeFormat(
+    selectedLineNumbers: Array<number>
+  ) {
     const lineRanges = [];
     let left = selectedLineNumbers[0];
     let right = selectedLineNumbers[0] - 1;
-    selectedLineNumbers.forEach((lineNumber) => {
-      if (lineNumber === (right + 1)) right = lineNumber;
+    selectedLineNumbers.forEach(lineNumber => {
+      if (lineNumber === right + 1) right = lineNumber;
       else {
         lineRanges.push(`-L${left},${right}`);
         left = lineNumber;
@@ -167,31 +204,47 @@ class GitHelper {
   static getRepoRemotes(absolutePath: string) {
     const fileDir = path.dirname(absolutePath);
     return new Promise((resolve, reject) => {
-      const child = childProcess.spawn('git', ['remote', '-v'], { cwd: fileDir });
+      const child = childProcess.spawn('git', ['remote', '-v'], {
+        cwd: fileDir,
+      });
       let remotes = '';
-      child.stdout.on('data', data => remotes += data);
+      child.stdout.on('data', data => (remotes += data));
       child.stdout.on('end', () => {
         if (remotes !== '') {
-          resolve(remotes.substring(0, remotes.length - 1).split('\n').map((remote) => {
-            const splitRemote = remote.split('\t');
-            let [name, url, type] = [undefined, undefined, undefined];
-            if (splitRemote.length > 0) {
-              name = splitRemote[0];
-              url = splitRemote[1].split(' ')[0];
-              type = splitRemote[1].split(' ')[1];
-              type = type.substring(1, type.length - 1);
-            }
-            return { name, url, type };
-          }));
+          resolve(
+            remotes
+              .substring(0, remotes.length - 1)
+              .split('\n')
+              .map(remote => {
+                const splitRemote = remote.split('\t');
+                let [name, url, type] = [undefined, undefined, undefined];
+                if (splitRemote.length > 0) {
+                  name = splitRemote[0];
+                  url = splitRemote[1].split(' ')[0];
+                  type = splitRemote[1].split(' ')[1];
+                  type = type.substring(1, type.length - 1);
+                }
+                return { name, url, type };
+              })
+          );
         } else {
           resolve([]);
         }
       });
-      child.stderr.on('data', data => reject(new Error(`getRepoRemotes(0) unexpected stderr: ${data}`)));
-      child.on('exit', (code) => {
-        if (code !== 0 && code !== 128) reject(new Error(`getRepoRemotes(1) unexpected exit code: ${code}`));
+      child.stderr.on('data', data =>
+        reject(new Error(`getRepoRemotes(0) unexpected stderr: ${data}`))
+      );
+      child.on('exit', code => {
+        if (code !== 0 && code !== 128)
+          reject(new Error(`getRepoRemotes(1) unexpected exit code: ${code}`));
       });
-      child.on('error', error => reject(new Error(`getRepoRemotes(2) unexpected error with message "${error.message}" & stack trace ${error.stack}`)));
+      child.on('error', error =>
+        reject(
+          new Error(
+            `getRepoRemotes(2) unexpected error with message "${error.message}" & stack trace ${error.stack}`
+          )
+        )
+      );
     });
   }
 
@@ -204,7 +257,9 @@ class GitHelper {
    * @param   {Array<any>} remotes  Array of remote URLs of the form { url, name, type }
    * @returns {Object}     Object containing the extract repo metadata
    */
-  static extractRepoMetadataFromRemotes(remotes: Array<any>): { [prop: string]: any } {
+  static extractRepoMetadataFromRemotes(
+    remotes: Array<any>
+  ): { [prop: string]: any } {
     if (!Array.isArray(remotes) || remotes.length === 0) return {};
     let parsedUrl;
     try {
@@ -218,7 +273,10 @@ class GitHelper {
       repoSource: parsedUrl.source,
       repoRootUrl: parsedUrl.toString('https').replace('.git', ''),
     };
-    if (repoMetadata.repoSource === 'github.com' || repoMetadata.repoSource === 'gitlab.com') {
+    if (
+      repoMetadata.repoSource === 'github.com' ||
+      repoMetadata.repoSource === 'gitlab.com'
+    ) {
       repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commit`;
     } else if (repoMetadata.repoSource === 'bitbucket.org') {
       repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commits`;
@@ -227,9 +285,11 @@ class GitHelper {
   }
 
   static getHashesFromBlame(blame: Array<string>) {
-    return uniq(blame.map((line) => {
-      return line.split(' ')[0];
-    }));
+    return uniq(
+      blame.map(line => {
+        return line.split(' ')[0];
+      })
+    );
   }
 
   static parseBlameLine(blameLine) {
@@ -242,7 +302,7 @@ class GitHelper {
     const blameRegex = /^([a-z0-9]+)\s(\S+)\s+([0-9]+)\s\((.+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([+-][0-9]{4})\s+([0-9]+)\)\s(.+|$)/;
     const matched = blameLine.match(blameRegex);
     if (!matched) {
-      throw new Error('Couldn\'t parse blame line');
+      throw new Error("Couldn't parse blame line");
     }
     return {
       commitHash: matched[1].trim(),
@@ -250,7 +310,9 @@ class GitHelper {
       originalLineNumber: matched[3].trim(),
       lineNumber: matched[8].trim(),
       author: matched[4].trim(),
-      commitedAt: new Date(`${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`),
+      commitedAt: new Date(
+        `${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`
+      ),
       line: matched[9],
     };
   }
@@ -275,14 +337,19 @@ class GitHelper {
       childProcess.exec(
         `cd ${fileDir} && echo $(cd $(git rev-parse --show-cdup) .; pwd)`,
         (error, stdout, stderr) => {
-          if (error) reject(new Error(`getRepoRootPath(0) unexpected error with message: "${error.message}" & stack trace "${error.stack}"`));
-          else if (stderr) reject(new Error(`getRepoRootPath(1) unexpected error: ${stderr}`));
+          if (error)
+            reject(
+              new Error(
+                `getRepoRootPath(0) unexpected error with message: "${error.message}" & stack trace "${error.stack}"`
+              )
+            );
+          else if (stderr)
+            reject(new Error(`getRepoRootPath(1) unexpected error: ${stderr}`));
           resolve(stdout.trim());
         }
       );
     });
   }
-
 }
 
-export default GitHelper
+export default GitHelper;

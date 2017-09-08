@@ -30,28 +30,28 @@ class StepsizeOutgoing {
       msg.length,
       this.UDP_PORT,
       this.UDP_HOST,
-      callback,
+      callback
     );
   }
 
   // sendError - sends error message to Stepsize
-  sendError = (data) => {
+  sendError = data => {
     let editor = atom.workspace.getActiveTextEditor();
     if (!editor) {
       return;
     }
     let event = {
-      'source': 'atom',
-      'action': "error",
-      'filename': fs.realpathSync(editor.getPath()),
-      'selected': JSON.stringify(data),
-      'plugin_id': this.pluginId,
+      source: 'atom',
+      action: 'error',
+      filename: fs.realpathSync(editor.getPath()),
+      selected: JSON.stringify(data),
+      plugin_id: this.pluginId,
     };
     this.send(event);
   };
 
   buildSelectionEvent(editor) {
-    const ranges = editor.selections.map((selection) => {
+    const ranges = editor.selections.map(selection => {
       return selection.getBufferRange();
     });
     return this.buildEvent(editor, ranges, 'selection');
@@ -60,30 +60,34 @@ class StepsizeOutgoing {
   buildEvent(editor, ranges, action, forRenderer = true) {
     const text = editor.getText();
 
-    const transformedSelections = ranges.map((range) => {
+    const transformedSelections = ranges.map(range => {
       return {
         start: StepsizeHelper.pointToOffset(text, range.start),
         end: StepsizeHelper.pointToOffset(text, range.end),
       };
     });
 
-    const selectedLineNumbers = StepsizeHelper.rangesToSelectedLineNumbers(ranges);
+    const selectedLineNumbers = StepsizeHelper.rangesToSelectedLineNumbers(
+      ranges
+    );
 
-    const selectedText = ranges.map((range) => {
-      return editor.getTextInBufferRange(range);
-    }).join('');
+    const selectedText = ranges
+      .map(range => {
+        return editor.getTextInBufferRange(range);
+      })
+      .join('');
 
     return {
-      "source": "atom",
-      "action": action,
-      "filename": editor.getPath(),
-      "selected": selectedText,
-      "plugin_id": this.pluginId,
-      "selections": transformedSelections,
+      source: 'atom',
+      action: action,
+      filename: editor.getPath(),
+      selected: selectedText,
+      plugin_id: this.pluginId,
+      selections: transformedSelections,
       selectedLineNumbers,
-      "forRenderer": forRenderer,
+      forRenderer: forRenderer,
     };
   }
 }
 
-export default StepsizeOutgoing
+export default StepsizeOutgoing;

@@ -3,7 +3,6 @@
 import * as _ from 'lodash';
 
 class StyleHelper {
-
   sheet: CSSStyleDeclaration;
 
   constructor(sheet) {
@@ -15,7 +14,6 @@ class StyleHelper {
       this.sheet[attribute] = value;
     });
   }
-
 }
 
-export default StyleHelper
+export default StyleHelper;

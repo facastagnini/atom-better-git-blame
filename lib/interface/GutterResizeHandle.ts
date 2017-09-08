@@ -4,7 +4,6 @@ import StyleHelper from './StyleHelper';
 import { Emitter } from 'atom';
 
 class GutterResizeHandle {
-
   handleElement: HTMLDivElement;
   initialPosition: number;
   boundMouseDownListener: EventListener;
@@ -28,7 +27,10 @@ class GutterResizeHandle {
     this.boundMouseDownListener = this.mouseDownListener.bind(this);
     this.boundMouseUpListener = this.mouseUpListener.bind(this);
     this.boundMouseMoveListener = this.mouseMoveListener.bind(this);
-    this.handleElement.addEventListener('mousedown', this.boundMouseDownListener);
+    this.handleElement.addEventListener(
+      'mousedown',
+      this.boundMouseDownListener
+    );
   }
 
   private mouseDownListener(event: MouseEvent) {
@@ -45,13 +47,15 @@ class GutterResizeHandle {
   }
 
   private mouseMoveListener(event: MouseEvent) {
-    this.emitter.emit('resizeHandleDragged', event.screenX - this.initialPosition);
+    this.emitter.emit(
+      'resizeHandleDragged',
+      event.screenX - this.initialPosition
+    );
   }
 
   public element() {
     return this.handleElement;
   }
-
 }
 
-export default GutterResizeHandle
+export default GutterResizeHandle;

@@ -6,6 +6,9 @@
   "keywords": [],
   "repository": "https://github.com/atom/layer-atom",
   "license": "MIT",
+  "scripts": {
+    "pretty" : "./node_modules/.bin/prettier \"lib/**/*.ts\" --write"
+  },
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
@@ -20,6 +23,7 @@
   "devDependencies": {
     "@types/atom": "^0.0.39",
     "@types/lodash": "^4.14.74",
+    "prettier": "^1.6.1",
     "ts-loader": "^2.3.4",
     "typescript": "^2.5.2",
     "webpack": "^3.5.5"

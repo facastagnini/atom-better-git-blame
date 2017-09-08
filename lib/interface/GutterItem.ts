@@ -5,7 +5,6 @@ import StyleHelper from './StyleHelper';
 import { Emitter } from 'atom';
 
 class GutterItem {
-
   itemElement: HTMLDivElement;
   contentElement: HTMLDivElement;
   resizeEmitter: Emitter;
@@ -32,7 +31,10 @@ class GutterItem {
     this.emitter = new Emitter();
     this.boundMouseEnterListener = this.mouseEnterListener.bind(this);
     this.boundMouseLeaveListener = this.mouseLeaveListener.bind(this);
-    this.itemElement.addEventListener('mouseenter', this.boundMouseEnterListener);
+    this.itemElement.addEventListener(
+      'mouseenter',
+      this.boundMouseEnterListener
+    );
   }
 
   public setIndicator(value) {
@@ -50,18 +52,23 @@ class GutterItem {
 
   public mouseEnterListener(event: MouseEvent) {
     this.emitter.emit('mouseEnter', event);
-    this.itemElement.addEventListener('mouseleave', this.boundMouseLeaveListener);
+    this.itemElement.addEventListener(
+      'mouseleave',
+      this.boundMouseLeaveListener
+    );
   }
 
   public mouseLeaveListener(event: MouseEvent) {
     this.emitter.emit('mouseLeave', event);
-    this.itemElement.removeEventListener('mouseleave', this.boundMouseLeaveListener);
+    this.itemElement.removeEventListener(
+      'mouseleave',
+      this.boundMouseLeaveListener
+    );
   }
 
   public element() {
     return this.itemElement;
   }
-
 }
 
 export default GutterItem;
