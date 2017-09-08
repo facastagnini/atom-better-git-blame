@@ -1,9 +1,10 @@
+'use babel';
 
 import IEditor = AtomCore.IEditor;
 import { CompositeDisposable } from 'atom';
 import { debounce } from 'lodash';
 
-export default class SelectionWatcher {
+class SelectionWatcher {
 
   editor: IEditor;
   selectionHandler: Function;
@@ -33,3 +34,5 @@ export default class SelectionWatcher {
   }
 
 }
+
+export default SelectionWatcher

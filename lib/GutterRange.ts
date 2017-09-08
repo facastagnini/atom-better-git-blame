@@ -1,12 +1,13 @@
-export default class GutterRange {
+'use babel';
 
+class GutterRange {
   public identifier: string | number;
   public range: {
     start: number;
     end: number;
   };
 
-  constructor(currentLine: number, identifier?) {
+  constructor(currentLine: number, identifier? : string | number) {
     if (identifier) {
       this.identifier = identifier;
     }
@@ -21,7 +22,8 @@ export default class GutterRange {
   }
 
   public toAtomRange() {
-    return [[this.range.start, 0], [this.range.end, 0]];
+    return [[this.range.start, 0], [this.range.end, 900000]];
   }
 
 }
+export default GutterRange

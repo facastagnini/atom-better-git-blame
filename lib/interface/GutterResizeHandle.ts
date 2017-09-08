@@ -1,7 +1,9 @@
+'use babel';
+
 import StyleHelper from './StyleHelper';
 import { Emitter } from 'atom';
 
-export default class GutterResizeHandle {
+class GutterResizeHandle {
 
   handleElement: HTMLDivElement;
   initialPosition: number;
@@ -36,7 +38,7 @@ export default class GutterResizeHandle {
     this.emitter.emit('resizeHandleClicked', event.screenX);
   }
 
-  private mouseUpListener() {
+  private mouseUpListener(event: MouseEvent) {
     document.removeEventListener('mousemove', this.boundMouseMoveListener);
     document.removeEventListener('mouseup', this.boundMouseUpListener);
     this.emitter.emit('resizeHandleReleased', event.screenX);
@@ -51,3 +53,5 @@ export default class GutterResizeHandle {
   }
 
 }
+
+export default GutterResizeHandle

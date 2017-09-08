@@ -4,7 +4,7 @@ import { Socket, createSocket } from 'dgram';
 import fs from 'fs';
 import StepsizeHelper from './StepsizeHelper';
 
-export default class StepsizeOutgoing {
+class StepsizeOutgoing {
   private pluginId;
   private DEBUG: boolean;
   private UDP_HOST: string;
@@ -85,3 +85,5 @@ export default class StepsizeOutgoing {
     };
   }
 }
+
+export default StepsizeOutgoing

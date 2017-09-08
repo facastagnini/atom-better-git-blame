@@ -1,9 +1,13 @@
+'use babel';
+
 import * as uuid from 'uuid';
 import axios, { AxiosResponse } from 'axios';
+import IRange = TextBuffer.IRange;
+import IPoint = TextBuffer.IPoint;
 
-export default class StepsizeHelper {
+class StepsizeHelper {
 
-  public static rangesToSelectedLineNumbers(ranges){
+  public static rangesToSelectedLineNumbers(ranges : Array<IRange>){
     if (ranges) {
       return ranges.map((range) => {
         let numbers = [];
@@ -18,7 +22,7 @@ export default class StepsizeHelper {
     return [];
   }
 
-  public static pointToOffset(text, point) {
+  public static pointToOffset(text : string, point : IPoint) {
     const lines = text.split("\n");
     let total = 0;
     for (let i = 0; i < lines.length && i < point.row; i++) {
@@ -45,3 +49,5 @@ export default class StepsizeHelper {
   }
 
 }
+
+export default StepsizeHelper

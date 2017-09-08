@@ -1,9 +1,11 @@
+'use babel';
+
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import { uniq } from 'lodash';
 import * as GitUrlParse from 'git-url-parse';
 
-export default class GitHelper {
+class GitHelper {
 
   /**
    * getGitBlameOutput() takes the selected line numbers, converts them to git blame formatted line
@@ -282,3 +284,5 @@ export default class GitHelper {
   }
 
 }
+
+export default GitHelper

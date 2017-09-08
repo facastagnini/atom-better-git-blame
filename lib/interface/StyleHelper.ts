@@ -1,6 +1,8 @@
+'use babel';
+
 import * as _ from 'lodash';
 
-export default class StyleHelper {
+class StyleHelper {
 
   sheet: CSSStyleDeclaration;
 
@@ -15,3 +17,5 @@ export default class StyleHelper {
   }
 
 }
+
+export default StyleHelper

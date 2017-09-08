@@ -1,29 +1,29 @@
-import IEditor = AtomCore.IEditor;
-
 'use babel';
 
 import { CompositeDisposable } from 'atom';
 import StepsizeHelper from './StepsizeHelper';
 import GitHelper from './GitHelper';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import _ from 'lodash';
+import moment from 'moment';
 import GutterRange from './GutterRange';
 import GutterItem from './interface/GutterItem';
 import { colorScale } from './ColourScale';
 import IEditor = AtomCore.IEditor;
+import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
+import Decoration = AtomCore.Decoration;
 
-export default class GutterView {
+class GutterView {
 
   private editor: IEditor;
   private pullRequests: Array<any>;
   private commits: { [prop: string]: any };
-  private metadata: any;
   private blame: Array<string>;
-  private ranges: Array<any>;
+  private ranges: { [prop: string]: Array<GutterRange>};
   private width: number;
   private boundResizeListener: EventListener;
   private previousResize: number = 0;
   private firstCommitDate: Date;
+  private markers: { [prop: string]: Array<IDisplayBufferMarker>} = {};
 
   constructor(editor: IEditor) {
     this.editor = editor;
@@ -41,35 +41,58 @@ export default class GutterView {
     }).catch((e) => {
       throw e;
     });
+    this.getIntegrationData();
+  }
+
+  private buildMarkersForRanges(){
+    for(const identifier in this.ranges){
+      const ranges = this.ranges[identifier];
+      this.markers[identifier] = ranges.map((range) => this.editor.markBufferRange(range.toAtomRange()));
+    }
   }
 
   private drawGutter() {
-    for (let i = 0; i < this.ranges.length; i++) {
-      const range = this.ranges[i];
-      const item = new GutterItem();
-      item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
-      item.resizeEmitter.on('resizeHandleReleased', () => {
-        this.previousResize = 0;
-      });
-      const date = this.commits[range.identifier].commitedAt;
+    this.buildMarkersForRanges();
+    let decorations : Decoration[] = [];
+    for(const identifier in this.markers){
+      const commit = this.commits[identifier];
+      const date = commit.commitedAt;
       const formattedDate = moment(date).format('YYYY-MM-DD');
-      const author = this.commits[range.identifier].author;
+      const author = commit.author;
       const commitDay = Math.floor((((date - this.firstCommitDate.getTime()) / 1000) / 3600) / 24);
-      item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
-      colorScale(this.editor).then((scale) => {
-        if(scale[commitDay]){
-          const color = scale[commitDay].rgb().string();
-          item.setIndicator(color);
-        }
-      });
-      item.setContent(`${formattedDate} ${author}`);
-      let marker = this.editor.markBufferRange(range.toAtomRange());
-      const oddEven = i % 2 === 0 ? 'layer-even' : 'layer-odd';
-      let decoration = this.editor.decorateMarker(marker, {
-        type: 'gutter',
-        class: `layer-gutter ${oddEven}`,
-        gutterName: 'layer',
-        item: item.element(),
+      this.markers[identifier].map((marker) => {
+        const item = new GutterItem(commit);
+        item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
+        item.resizeEmitter.on('resizeHandleReleased', () => {
+          this.previousResize = 0;
+        });
+        item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
+        colorScale(this.editor).then((scale) => {
+          if(scale[commitDay]){
+            const color = scale[commitDay].rgb().fade(0.2).string();
+            item.setIndicator(color);
+          }
+        });
+        item.setContent(`${formattedDate} ${author}`);
+        this.editor.decorateMarker(marker, {
+          type: 'gutter',
+          class: `layer-gutter`,
+          gutterName: 'layer',
+          item: item.element(),
+        });
+        item.emitter.on('mouseEnter', () => {
+          console.log(this.getPrForCommit(identifier));
+          decorations.map((decoration) => decoration.destroy());
+          this.markers[identifier].map((marker) => {
+            decorations.push(this.editor.decorateMarker(marker, {
+              type: 'line',
+              class: 'line-highlight layer-highlight'
+            }))
+          };
+        });
+        item.emitter.on('mouseLeave', () => {
+          decorations.map((decoration) => decoration.destroy());
+        })
       });
     }
   }
@@ -104,7 +127,7 @@ export default class GutterView {
     const blame = await this.getGitBlame();
     try {
       this.blame = blame;
-      this.ranges = this.buildGutterRanges();
+      this.ranges = this.buildCommitGutterRanges();
       this.commits = this.blame.reduce((acc, line) => {
         const parsed = GitHelper.parseBlameLine(line);
         if (acc[parsed.commitHash]) {
@@ -120,8 +143,8 @@ export default class GutterView {
 
   private async getIntegrationData() {
     const response = await StepsizeHelper.fetchIntegrationData(
-      this.blame,
-      GitHelper.getHashesFromBlame(await this.getRepoMetadata()),
+      await this.getRepoMetadata(),
+      GitHelper.getHashesFromBlame(await this.getGitBlame()),
     );
     this.pullRequests = response.data.pullRequests;
     return response;
@@ -140,9 +163,10 @@ export default class GutterView {
   }
 
   private transformedPullRequestArray() {
-    return _.reduce(this.pullRequests, (acc: Array<{ number: string, hashes: string[] }>,
-                                        pullRequest,
-                                        key) => {
+    return _.reduce(this.pullRequests, (acc: Array<{ number: number, hashes: string[] }>,
+     pullRequest,
+     key
+    ) => {
       acc.push({
         number: key,
         hashes: _.map(pullRequest.commits, 'commitHash'),
@@ -151,19 +175,27 @@ export default class GutterView {
     }, []);
   }
 
-  buildGutterRanges() {
-    const pullRequests = this.transformedPullRequestArray();
-    let lineRanges = [];
+  getPrForCommit(commitHash){
+    if(this.pullRequests){
+      const searchArray = this.transformedPullRequestArray();
+      const found = _.find(searchArray, (obj) => obj.hashes.includes(commitHash));
+      if(found){
+        return this.pullRequests[found.number];
+      }
+    }
+    return null;
+  }
 
+  buildCommitGutterRanges() {
+    let lineRanges = [];
     for (let i = 0; i < this.blame.length; i++) {
       const line = this.blame[i];
       const commitHash = line.split(' ')[0];
-
       // Build array of ranges
       if (lineRanges.length == 0) { // No ranges exist
         lineRanges.push(new GutterRange(i, commitHash));
       } else {
-        const currentRange = lineRanges[lineRanges.length - 1]; // Get last range
+        const currentRange : GutterRange = lineRanges[lineRanges.length - 1]; // Get last range
         if (currentRange.identifier === commitHash) {
           currentRange.incrementRange();
         } else { // Add new range
@@ -171,8 +203,9 @@ export default class GutterView {
         }
       }
     }
-
-    return lineRanges;
+    return _.groupBy(lineRanges, 'identifier');
   }
 
 }
+
+export default GutterView

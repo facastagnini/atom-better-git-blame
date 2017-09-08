@@ -1,5 +1,5 @@
 {
   "atom-workspace": {
-    "ctrl-alt-o": "layer-atom:toggle"
+    "ctrl-l": "layer-atom:toggle"
   }
 }
