@@ -23,6 +23,7 @@ class GutterView {
   private previousResize: number = 0;
   private firstCommitDate: Date;
   private markers: { [prop: string]: Array<IDisplayBufferMarker> } = {};
+  private highlightDecorations: Array<Decoration> = [];
 
   constructor(editor: IEditor) {
     this.editor = editor;
@@ -56,7 +57,6 @@ class GutterView {
 
   private drawGutter() {
     this.buildMarkersForRanges();
-    let decorations: Decoration[] = [];
     for (const identifier in this.markers) {
       const commit = this.commits[identifier];
       const date = commit.commitedAt;
@@ -90,21 +90,29 @@ class GutterView {
         });
         item.emitter.on('mouseEnter', () => {
           console.log(this.getPrForCommit(identifier));
-          decorations.map(decoration => decoration.destroy());
-          this.markers[identifier].map(marker => {
-            decorations.push(
-              this.editor.decorateMarker(marker, {
-                type: 'line',
-                class: 'line-highlight layer-highlight',
-              })
-            );
-          });
+          this.highlightCommit(identifier);
         });
         item.emitter.on('mouseLeave', () => {
-          decorations.map(decoration => decoration.destroy());
+          this.removeHighlight();
         });
       });
     }
+  }
+
+  highlightCommit(commitHash: string) {
+    this.highlightDecorations.map(decoration => decoration.destroy());
+    this.markers[commitHash].map(marker => {
+      this.highlightDecorations.push(
+        this.editor.decorateMarker(marker, {
+          type: 'line',
+          class: 'line-highlight layer-highlight',
+        })
+      );
+    });
+  }
+
+  removeHighlight() {
+    this.highlightDecorations.map(decoration => decoration.destroy());
   }
 
   resizeListener(resizeOffset: number) {

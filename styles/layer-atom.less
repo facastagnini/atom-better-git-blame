@@ -8,7 +8,7 @@ atom-text-editor {
 
   .line-highlight {
     transition: background-color 0.1s linear;
-    background-color: lighten(@base-background-color, 5%);
+    background-color: fade(@background-color-selected, 50%);
   }
 
   .gutter[gutter-name="layer"] {
@@ -19,7 +19,7 @@ atom-text-editor {
     width: 100%;
     transition: background-color 0.1s linear;
     &.layer-odd {
-      background-color: lighten(@base-background-color, 1%);
+      background-color: lighten(@background-color-selected, 8%);;
     }
 
     &.layer-even {
@@ -27,7 +27,7 @@ atom-text-editor {
     }
 
     &:hover {
-      background-color: lighten(@base-background-color, 5%);
+      background-color: fade(@background-color-selected, 50%);
     }
 
     color: @text-color;
