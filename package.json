@@ -3,8 +3,8 @@
   "main": "./dist/index.js",
   "version": "0.0.0",
   "description": "A short description of your package",
-  "keywords": [],
-  "repository": "https://github.com/atom/layer-atom",
+  "keywords": ['stepsize', 'layer', 'blame', 'pull', 'request', 'git', 'jira', 'github'],
+  "repository": "https://github.com/Stepsize/layer-atom-plugin",
   "license": "MIT",
   "scripts": {
     "pretty": "./node_modules/.bin/prettier \"lib/**/*.ts\" --write"
