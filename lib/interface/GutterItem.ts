@@ -48,14 +48,6 @@ class GutterItem {
     this.itemElement.style['border-right'] = `4px solid ${value}`;
   }
 
-  public getIndicator() {
-    return this.inidcatorColor;
-  }
-
-  public setContent(value) {
-    this.contentElement.innerHTML = value;
-  }
-
   public mouseEnterListener(event: MouseEvent) {
     this.emitter.emit('mouseEnter', event);
     this.itemElement.addEventListener(
@@ -76,6 +68,7 @@ class GutterItem {
     ReactDOM.render(
       React.createElement(Item, {
         text: this.text,
+        commit: this.data,
       }),
       this.contentElement
     );

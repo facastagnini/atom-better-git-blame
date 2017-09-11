@@ -1,7 +1,7 @@
 'use babel';
 
 import React from 'react';
-import LayerTooltip from './LayerTooltip';
+import TooltipContainer from './TooltipContainer';
 
 interface IGutterItemProps {
   text: string;
@@ -9,12 +9,20 @@ interface IGutterItemProps {
 
 class GutterItem extends React.Component<IGutterItemProps, any> {
 
+  tooltip() {
+    return (
+      <div className="layer-tooltip">
+        <p>{this.props.text}</p>
+      </div>
+    );
+  }
+
   render() {
     return (
-      <LayerTooltip>
+      <TooltipContainer ref={(el) => this.tooltipContainer = el} tooltipContent={this.tooltip()}>
         {this.props.text}
-      </LayerTooltip>
-    )
+      </TooltipContainer>
+    );
   }
 
 }
