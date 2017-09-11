@@ -3,7 +3,7 @@
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import { uniq } from 'lodash';
-import * as GitUrlParse from 'git-url-parse';
+import GitUrlParse from 'git-url-parse';
 
 class GitHelper {
   /**

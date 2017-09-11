@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom';
 
 interface ITooltipPortalProps {
   parent: HTMLSpanElement;
+  mouseEnter: any;
+  mouseLeave: any;
 }
 
 class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
@@ -26,14 +28,20 @@ class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
     return {
       top: rect.top,
       left: rect.right,
-      transform: 'translate3d(-90%, -110%, 0)',
+      transform: 'translate3d(-90%, -102%, 0)',
       position: 'absolute',
-      zIndex: 10,
+      zIndex: 100,
     }
   }
 
   renderTooltipContent(props) {
-    ReactDOM.render(<div style={this.getTooltipStyle()}>{props.children}</div>, this.portal);
+    ReactDOM.render(<div
+      style={this.getTooltipStyle()}
+      onMouseEnter={this.props.mouseEnter}
+      onMouseLeave={this.props.mouseLeave}
+    >
+      {props.children}
+      </div>, this.portal);
   }
 
   render() {

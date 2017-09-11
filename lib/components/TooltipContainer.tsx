@@ -31,6 +31,7 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
   }
 
   mouseEnterHandler() {
+    clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       this.showTooltip()
     }, 500);
@@ -39,14 +40,19 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
   mouseLeaveHandler() {
     if (this.timeout) {
       clearTimeout(this.timeout);
-      this.setState({ show: false });
+      this.timeout = setTimeout(() => {
+        this.setState({ show: false });
+      }, 500);
     }
   };
 
   renderTooltip() {
     if(this.state.show){
       return (
-        <TooltipPortal parent={this.containerElement}>
+        <TooltipPortal
+          parent={this.containerElement}
+          mouseEnter={this.mouseEnterHandler.bind(this)}
+          mouseLeave={this.mouseLeaveHandler.bind(this)}>
           {this.props.tooltipContent}
         </TooltipPortal>
       );

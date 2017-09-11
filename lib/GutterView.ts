@@ -4,7 +4,6 @@ import { CompositeDisposable } from 'atom';
 import StepsizeHelper from './StepsizeHelper';
 import GitHelper from './GitHelper';
 import _ from 'lodash';
-import moment from 'moment';
 import GutterRange from './GutterRange';
 import GutterItem from './interface/GutterItem';
 import { colorScale } from './ColourScale';
@@ -14,7 +13,6 @@ import Decoration = AtomCore.Decoration;
 
 class GutterView {
   private editor: IEditor;
-  private pullRequests: Array<any>;
   private commits: { [prop: string]: any };
   private blame: Array<string>;
   private ranges: { [prop: string]: Array<GutterRange> };
@@ -43,7 +41,6 @@ class GutterView {
       .catch(e => {
         throw e;
       });
-    this.getIntegrationData();
   }
 
   private buildMarkersForRanges() {
@@ -60,13 +57,11 @@ class GutterView {
     for (const identifier in this.markers) {
       const commit = this.commits[identifier];
       const date = commit.commitedAt;
-      const formattedDate = moment(date).format('YYYY-MM-DD');
-      const author = commit.author;
       const commitDay = Math.floor(
         (date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24
       );
       this.markers[identifier].map(marker => {
-        const item = new GutterItem(`${formattedDate} ${author}`, commit);
+        const item = new GutterItem(commit);
         item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
         item.resizeEmitter.on('resizeHandleReleased', () => {
           this.previousResize = 0;
@@ -88,7 +83,6 @@ class GutterView {
           item: item.element(),
         });
         item.emitter.on('mouseEnter', () => {
-          console.log(this.getPrForCommit(identifier));
           this.highlightCommit(identifier);
         });
         item.emitter.on('mouseLeave', () => {
@@ -158,20 +152,6 @@ class GutterView {
     }
   }
 
-  private async getIntegrationData() {
-    const response = await StepsizeHelper.fetchIntegrationData(
-      await this.getRepoMetadata(),
-      GitHelper.getHashesFromBlame(await this.getGitBlame())
-    );
-    this.pullRequests = response.data.pullRequests;
-    return response;
-  }
-
-  private async getRepoMetadata() {
-    let remotes = await GitHelper.getRepoRemotes(this.editor.getPath());
-    return GitHelper.extractRepoMetadataFromRemotes(remotes);
-  }
-
   private async getGitBlame() {
     return await GitHelper.getGitBlameOutput(
       this.editor.getPath(),
@@ -179,31 +159,6 @@ class GutterView {
         this.editor.getBuffer().getRange(),
       ])
     );
-  }
-
-  private transformedPullRequestArray() {
-    return _.reduce(
-      this.pullRequests,
-      (acc: Array<{ number: number; hashes: string[] }>, pullRequest, key) => {
-        acc.push({
-          number: key,
-          hashes: _.map(pullRequest.commits, 'commitHash'),
-        });
-        return acc;
-      },
-      []
-    );
-  }
-
-  getPrForCommit(commitHash) {
-    if (this.pullRequests) {
-      const searchArray = this.transformedPullRequestArray();
-      const found = _.find(searchArray, obj => obj.hashes.includes(commitHash));
-      if (found) {
-        return this.pullRequests[found.number];
-      }
-    }
-    return null;
   }
 
   buildCommitGutterRanges() {

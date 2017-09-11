@@ -1,7 +1,6 @@
 'use babel';
 
 import GutterResizeHandle from './GutterResizeHandle';
-import StyleHelper from './StyleHelper';
 import { Emitter } from 'atom';
 import ReactDOM from 'react-dom';
 import React from 'react';
@@ -17,14 +16,11 @@ class GutterItem {
   boundMouseLeaveListener: EventListener;
   data: any;
   inidcatorColor: string;
-  text: string;
 
-  constructor(text, data) {
+  constructor(data) {
     this.data = data;
-    this.text = text;
     this.itemElement = document.createElement('div');
     this.itemElement.className = 'layer-gutter-item';
-    const style = new StyleHelper(this.itemElement.style);
     this.itemElement.style['width'] = '100%';
 
     this.contentElement = document.createElement('div');
@@ -65,13 +61,10 @@ class GutterItem {
   }
 
   public element() {
-    ReactDOM.render(
-      React.createElement(Item, {
-        text: this.text,
-        commit: this.data,
-      }),
-      this.contentElement
-    );
+    let item = React.createElement(Item, {
+      commit: this.data,
+    });
+    ReactDOM.render(item, this.contentElement);
     return this.itemElement;
   }
 }

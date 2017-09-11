@@ -5,11 +5,40 @@
 @import "ui-variables";
 
 .layer-tooltip {
+  font-size: @font-size;
   background: @pane-item-background-color;
   border-radius: 5px;
   border: 1px solid @pane-item-border-color;
-  box-shadow: 2px 2px 3px 0 fade(darken(@pane-item-border-color, 1%), 40%);
+  box-shadow: 1px 1px 5px 1px fade(darken(@pane-item-border-color, 1%), 40%);
   padding:5px;
+
+  .section{
+    border-bottom: 1px solid @pane-item-border-color;
+    padding: 5px 0;
+    display:flex;
+  }
+
+  .section-icon {
+
+  }
+
+  .section-content {
+
+  }
+
+  .section-title {
+    margin:0;
+    padding:0;
+    margin-bottom: 3px;
+    font-size: 1.2em;
+    color: @text-color;
+  }
+
+  .section-body{
+    margin:0;
+    padding:0;
+    color: fade(@text-color, 40%);
+  }
 }
 
 atom-text-editor {
