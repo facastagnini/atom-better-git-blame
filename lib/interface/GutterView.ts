@@ -1,13 +1,13 @@
 'use babel';
 
 import { CompositeDisposable } from 'atom';
-import GutterRange from './GutterRange';
-import GutterItem from './interface/GutterItem';
-import { colorScale } from './ColourScale';
+import GutterRange from '../GutterRange';
+import GutterItem from './GutterItem';
+import { colorScale } from '../ColourScale';
 import IEditor = AtomCore.IEditor;
 import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import Decoration = AtomCore.Decoration;
-import * as GitData from './data/GitData';
+import * as GitData from '../data/GitData';
 
 class GutterView {
   private editor: IEditor;
@@ -127,10 +127,9 @@ class GutterView {
 
   private async fetchGutterData() {
     const filePath = this.editor.getPath();
-    const bufferRange = [this.editor.getBuffer().getRange()];
-    let commits = await GitData.getCommitsForFile(filePath, bufferRange);
+    let commits = await GitData.getCommitsForFile(filePath);
     this.commits = commits.commits;
-    let ranges = await GitData.getGutterRangesForFile(filePath, bufferRange);
+    let ranges = await GitData.getGutterRangesForFile(filePath);
     this.ranges = ranges.ranges;
     let date = await GitData.getFirstCommitDateForRepo(filePath);
     this.firstCommitDate = new Date(date);

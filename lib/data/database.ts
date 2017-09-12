@@ -13,6 +13,7 @@ db
     fileCommits: [],
     rootPaths: {},
     startDates: {},
+    repoMetadata: {},
   })
   .write();
 

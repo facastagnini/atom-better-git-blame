@@ -6,7 +6,7 @@ import IEditor = AtomCore.IEditor;
 import SelectionWatcher from './SelectionWatcher';
 import StepsizeOutgoing from './StepsizeOutgoing';
 import { CompositeDisposable } from 'atom';
-import GutterView from './GutterView';
+import GutterView from './interface/GutterView';
 import * as ColorScale from './ColourScale';
 
 let disposables = new CompositeDisposable();
@@ -19,8 +19,16 @@ export const config = {
     description:
       'Preset scales for coloring commits based on age. (requires editor reload)',
     type: 'string',
-    default: 'Thermometer',
-    enum: ['Thermometer', 'Traffic'],
+    default: 'RoyalPomegranate',
+    enum: [
+      'RoyalPomegranate',
+      'ChocolateMint',
+      'VioletApple',
+      'AffairGoblin',
+      'GoldDaisy',
+      'PoppyLochmara',
+      'PersianSteel',
+    ],
   },
 };
 

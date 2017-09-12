@@ -25,14 +25,10 @@ class GitHelper {
    */
   static getGitBlameOutput(
     absolutePath,
-    selectedLineNumbers,
     retryOnOutOfRange = true
   ): Promise<Array<string>> {
     const dirPath = path.dirname(absolutePath);
     const relFilePath = path.relative(dirPath, absolutePath);
-    const blameRanges = GitHelper.convertLineNumbersToBlameRangeFormat(
-      selectedLineNumbers
-    );
     const gitArgs = [
       'blame', // the git command to run
       '--show-number', // show the original line number in the commit
@@ -40,7 +36,6 @@ class GitHelper {
       // include this option to have a consistent output across files
       '-l', // display the full hash
       '--root', // do not display the start caret for boundary commits
-      ...blameRanges, // range to blame
       '--', // to pass the file path
       relFilePath,
     ];
@@ -72,18 +67,10 @@ class GitHelper {
                 // we re-run this function once with the last line ommitted if we get the
                 // "out-of-bound error" which might indicate we're trying to run git blame on the
                 // EOF character line.
-                selectedLineNumbers.pop();
                 resolve(
                   GitHelper.getGitBlameOutput(
                     absolutePath,
-                    selectedLineNumbers,
                     false
-                  )
-                );
-              } else {
-                reject(
-                  new Error(
-                    `The selected lines ranges ${blameRanges} are not in the range of the file.`
                   )
                 );
               }
@@ -160,34 +147,6 @@ class GitHelper {
         }
       });
     });
-  }
-
-  /**
-   * convertLineNumbersToBlameRangeFormat() is a routine to convert line numbers into string formatted
-   * ranges necessary for git blame.
-   *
-   * Also converts individual lines into ranges, i.e [3, 4, 6] -> ['-L3,4', '-L6,6']
-   * Assumes that there is at least one line in the selected lines.
-   *
-   * @param   {Number[]}  selectedLineNumbers  Line numbers array returned by the plugin
-   * @returns {String[]}  Array of git blame formated ranges
-   */
-  static convertLineNumbersToBlameRangeFormat(
-    selectedLineNumbers: Array<number>
-  ) {
-    const lineRanges = [];
-    let left = selectedLineNumbers[0];
-    let right = selectedLineNumbers[0] - 1;
-    selectedLineNumbers.forEach(lineNumber => {
-      if (lineNumber === right + 1) right = lineNumber;
-      else {
-        lineRanges.push(`-L${left},${right}`);
-        left = lineNumber;
-        right = lineNumber;
-      }
-    });
-    lineRanges.push(`-L${left},${right}`);
-    return lineRanges;
   }
 
   /**

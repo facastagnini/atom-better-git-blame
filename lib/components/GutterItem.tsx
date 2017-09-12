@@ -4,6 +4,7 @@ import React from 'react';
 import TooltipContainer from './TooltipContainer';
 import moment from 'moment';
 import * as GitData from '../data/GitData';
+import * as IntegrationData from '../data/IntegrationData';
 
 interface IGutterItemProps {
   commit: any;
@@ -20,12 +21,18 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     if(this.props.commit.commitHash.substr(0,6) !== '000000'){
       GitData.getCommit(this.props.commit.repoPath, this.props.commit.commitHash).then((commit) => {
         this.setState({
+          ...this.state,
           commit : {
             ...this.state.commit,
             ...commit
           }
         });
       });
+      IntegrationData
+        .getIntegrationDataForFile(`${this.props.commit.repoPath}/${this.props.commit.filePath}`)
+        .then((integrationData) => {
+          console.log(integrationData);
+      })
     }
   }
 

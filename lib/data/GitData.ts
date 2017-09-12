@@ -6,7 +6,7 @@ import GutterRange from '../GutterRange';
 import db from './database';
 import _ from 'lodash';
 
-export async function getBlameForFile(filePath: string, ranges) {
+export async function getBlameForFile(filePath: string) {
   let existing = db
     .get('blames')
     .find({ path: filePath })
@@ -16,7 +16,6 @@ export async function getBlameForFile(filePath: string, ranges) {
   }
   const blame = await GitHelper.getGitBlameOutput(
     filePath,
-    StepsizeHelper.rangesToSelectedLineNumbers(ranges)
   );
   db
     .get('blames')
@@ -36,7 +35,7 @@ export async function getBlameForFile(filePath: string, ranges) {
     .value();
 }
 
-export async function getCommitsForFile(filePath: string, ranges) {
+export async function getCommitsForFile(filePath: string) {
   let existing = db
     .get('fileCommits')
     .find({ path: filePath })
@@ -44,7 +43,7 @@ export async function getCommitsForFile(filePath: string, ranges) {
   if (existing && Date.now() - existing.fetchedAt < 1000) {
     return existing;
   }
-  const blame = await getBlameForFile(filePath, ranges);
+  const blame = await getBlameForFile(filePath);
   const repoPath = await getRepoRootPath(filePath);
   const commits = blame.lines.reduce((acc, line) => {
     const parsed = GitHelper.parseBlameLine(line);
@@ -80,8 +79,8 @@ export async function getCommitsForFile(filePath: string, ranges) {
     .value();
 }
 
-export async function getGutterRangesForFile(filePath: string, ranges) {
-  const blame = await getBlameForFile(filePath, ranges);
+export async function getGutterRangesForFile(filePath: string) {
+  const blame = await getBlameForFile(filePath);
   let lineRanges = [];
   for (let i = 0; i < blame.lines.length; i++) {
     const line = blame.lines[i];
@@ -172,4 +171,23 @@ export async function getRepoRootPath(filePath: string) {
     .write();
   console.log(rootPath);
   return rootPath;
+}
+
+export async function getRepoMetadata(filePath: string) {
+  let rootPath = await getRepoRootPath(filePath);
+  let cached = db.get('repoMetadata').find({
+    rootPath: rootPath
+  }).value();
+  if(cached){
+    return cached
+  }
+  const remotes = await GitHelper.getRepoRemotes(rootPath);
+  const metadata = GitHelper.extractRepoMetadataFromRemotes(remotes);
+  const toWrite = {
+    rootPath: rootPath,
+    ...metadata,
+    fetchedAt: new Date()
+  };
+  db.get('repoMetadata').push(toWrite).write();
+  return toWrite;
 }
