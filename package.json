@@ -26,7 +26,9 @@
     "@types/react-dom": "^15.5.4",
     "axios": "^0.16.2",
     "git-url-parse": "^7.0.0",
+    "git-wrapper": "^0.1.1",
     "lodash": "^4.17.4",
+    "lowdb": "^1.0.0",
     "moment": "^2.18.1",
     "node-color-gradient": "https://github.com/Stepsize/node-color-gradient#0.5.0",
     "react": "^15.6.1",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@types/atom": "^0.0.39",
     "@types/lodash": "^4.14.74",
+    "@types/lowdb": "^0.15.0",
     "prettier": "^1.6.1",
     "ts-loader": "^2.3.4",
     "typescript": "^2.5.2",

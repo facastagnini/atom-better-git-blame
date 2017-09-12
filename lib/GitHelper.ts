@@ -4,6 +4,7 @@ import * as childProcess from 'child_process';
 import * as path from 'path';
 import { uniq } from 'lodash';
 import GitUrlParse from 'git-url-parse';
+import Git from 'git-wrapper';
 
 class GitHelper {
   /**
@@ -349,6 +350,35 @@ class GitHelper {
           resolve(stdout.trim());
         }
       );
+    });
+  }
+
+  static getCommit(repoPath, hashes) {
+    return new Promise((resolve, reject) => {
+      const git = new Git({ 'git-dir': `${repoPath}/.git` });
+      const showOpts = {
+        s: true,
+        format: '%H%n%ce%n%cn%n%B%nEND',
+      };
+      git.exec('show', showOpts, [hashes.join(' ')], (error, msg) => {
+        if (error) {
+          reject(error);
+        }
+        const commits = msg.split('END');
+        let parsedCommits = [];
+        for (const i in commits) {
+          const lines = commits[i].trim().split('\n');
+          parsedCommits.push({
+            hash: lines.shift(),
+            email: lines.shift(),
+            author: lines.shift(),
+            subject: lines.shift(),
+            message: lines.join('\n'),
+          });
+        }
+        parsedCommits.pop();
+        resolve(parsedCommits);
+      });
     });
   }
 }

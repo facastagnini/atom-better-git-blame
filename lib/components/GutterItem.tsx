@@ -3,29 +3,50 @@
 import React from 'react';
 import TooltipContainer from './TooltipContainer';
 import moment from 'moment';
+import * as GitData from '../data/GitData';
 
 interface IGutterItemProps {
   commit: any;
 }
 
+interface IGutterItemState {
+  commit: any;
+}
+
 class GutterItem extends React.Component<IGutterItemProps, any> {
 
+  componentWillMount(){
+    this.setState({commit: this.props.commit});
+    if(this.props.commit.commitHash.substr(0,6) !== '000000'){
+      GitData.getCommit(this.props.commit.repoPath, this.props.commit.commitHash).then((commit) => {
+        this.setState({
+          commit : {
+            ...this.state.commit,
+            ...commit
+          }
+        });
+      });
+    }
+  }
+
   tooltip() {
-    let commit = this.props.commit;
+    const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
     return (
       <div className="layer-tooltip">
         <div className="section">
           <div className="section-icon">
-            <div className="icon icon-git-pull-request" />
+            <div className="icon icon-git-commit" />
           </div>
           <div className="section-content">
-            <h1 className="section-title">Register global shortcut on app launch</h1>
-            <p className="section-body"><code>e9e1c58</code> by nomeyer committed on 24 Jan</p>
+            <h1 className="section-title">{this.state.commit.subject}</h1>
+            <p className="section-body">
+              <code>{this.state.commit.commitHash.substr(0,6)}</code> by {this.state.commit.author} committed on {commitedDate}
+            </p>
           </div>
         </div>
         <div className="section">
           <div className="section-icon">
-            <div className="icon icon-git-commit" />
+            <div className="icon icon-git-pull-request" />
           </div>
           <div className="section-content">
             <h1 className="section-title">Implement global shortcut to focus/unfocus...</h1>
@@ -62,12 +83,14 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     return `${formattedDate} ${author}`
   }
 
-  mouseEnter() {
-    let commit = this.props.commit;
-    console.log(commit);
-  }
-
   render() {
+    if(this.state.commit.commitHash.substr(0,6) === '000000'){
+      return (
+        <div>
+          {this.formattedText()}
+        </div>
+      );
+    }
     return (
       <TooltipContainer
         tooltipContent={this.tooltip()}

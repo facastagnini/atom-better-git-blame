@@ -1,20 +1,17 @@
 'use babel';
 
 import { CompositeDisposable } from 'atom';
-import StepsizeHelper from './StepsizeHelper';
-import GitHelper from './GitHelper';
-import _ from 'lodash';
 import GutterRange from './GutterRange';
 import GutterItem from './interface/GutterItem';
 import { colorScale } from './ColourScale';
 import IEditor = AtomCore.IEditor;
 import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import Decoration = AtomCore.Decoration;
+import * as GitData from './data/GitData';
 
 class GutterView {
   private editor: IEditor;
   private commits: { [prop: string]: any };
-  private blame: Array<string>;
   private ranges: { [prop: string]: Array<GutterRange> };
   private width: number;
   private boundResizeListener: EventListener;
@@ -28,14 +25,8 @@ class GutterView {
     this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(210);
     this.boundResizeListener = this.resizeListener.bind(this);
-    Promise.all([
-      GitHelper.getRepoRootPath(this.editor.getPath()).then(repoPath => {
-        return GitHelper.getFirstCommitDateForRepo(repoPath);
-      }),
-      this.fetchGutterData(),
-    ])
-      .then(results => {
-        this.firstCommitDate = results[0];
+    this.fetchGutterData()
+      .then(() => {
         this.drawGutter();
       })
       .catch(e => {
@@ -69,7 +60,7 @@ class GutterView {
         item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
         colorScale(this.editor).then(scale => {
           if (scale[commitDay]) {
-            const color = scale[commitDay]
+            const color = scale[Math.floor(commitDay)]
               .rgb()
               .fade(0.2)
               .string();
@@ -135,52 +126,14 @@ class GutterView {
   }
 
   private async fetchGutterData() {
-    const blame = await this.getGitBlame();
-    try {
-      this.blame = blame;
-      this.ranges = this.buildCommitGutterRanges();
-      this.commits = this.blame.reduce((acc, line) => {
-        const parsed = GitHelper.parseBlameLine(line);
-        if (acc[parsed.commitHash]) {
-          return acc;
-        }
-        acc[parsed.commitHash] = parsed;
-        return acc;
-      }, {});
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  private async getGitBlame() {
-    return await GitHelper.getGitBlameOutput(
-      this.editor.getPath(),
-      StepsizeHelper.rangesToSelectedLineNumbers([
-        this.editor.getBuffer().getRange(),
-      ])
-    );
-  }
-
-  buildCommitGutterRanges() {
-    let lineRanges = [];
-    for (let i = 0; i < this.blame.length; i++) {
-      const line = this.blame[i];
-      const commitHash = line.split(' ')[0];
-      // Build array of ranges
-      if (lineRanges.length == 0) {
-        // No ranges exist
-        lineRanges.push(new GutterRange(i, commitHash));
-      } else {
-        const currentRange: GutterRange = lineRanges[lineRanges.length - 1]; // Get last range
-        if (currentRange.identifier === commitHash) {
-          currentRange.incrementRange();
-        } else {
-          // Add new range
-          lineRanges.push(new GutterRange(i, commitHash));
-        }
-      }
-    }
-    return _.groupBy(lineRanges, 'identifier');
+    const filePath = this.editor.getPath();
+    const bufferRange = [this.editor.getBuffer().getRange()];
+    let commits = await GitData.getCommitsForFile(filePath, bufferRange);
+    this.commits = commits.commits;
+    let ranges = await GitData.getGutterRangesForFile(filePath, bufferRange);
+    this.ranges = ranges.ranges;
+    let date = await GitData.getFirstCommitDateForRepo(filePath);
+    this.firstCommitDate = new Date(date);
   }
 }
 

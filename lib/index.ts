@@ -11,6 +11,18 @@ import * as ColorScale from './ColourScale';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;
+let gutters: Array<GutterView>;
+
+export const config = {
+  colorScale: {
+    title: 'Gutter Color Scale',
+    description:
+      'Preset scales for coloring commits based on age. (requires editor reload)',
+    type: 'string',
+    default: 'Thermometer',
+    enum: ['Thermometer', 'Traffic'],
+  },
+};
 
 export function activate(state) {
   disposables.add(
