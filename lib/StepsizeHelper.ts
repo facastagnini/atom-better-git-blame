@@ -39,7 +39,8 @@ class StepsizeHelper {
   ): Promise<AxiosResponse> {
     const requestOptions = {
       method: 'POST',
-      url: 'https://development.stepsize.com/augment-code-search-results',
+      url:
+        'https://development-stable-layer.stepsize.com/augment-code-search-results',
       data: {
         searchId: uuid.v4(),
         repoName: repoMetadata.repoName,

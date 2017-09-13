@@ -8,6 +8,7 @@ import IEditor = AtomCore.IEditor;
 import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import Decoration = AtomCore.Decoration;
 import * as GitData from '../data/GitData';
+import * as IntegrationData from '../data/IntegrationData';
 
 class GutterView {
   private editor: IEditor;
@@ -127,6 +128,7 @@ class GutterView {
 
   private async fetchGutterData() {
     const filePath = this.editor.getPath();
+    IntegrationData.getIntegrationDataForFile(filePath);
     let commits = await GitData.getCommitsForFile(filePath);
     this.commits = commits.commits;
     let ranges = await GitData.getGutterRangesForFile(filePath);

@@ -1,9 +1,13 @@
 'use babel';
 
 import low from 'lowdb';
-import Memory from 'lowdb/adapters/Memory';
 
+// import LocalStorage from 'lowdb/adapters/LocalStorage';
+// const adapter = new LocalStorage('stepsize-blame:db');
+
+import Memory from 'lowdb/adapters/Memory';
 const adapter = new Memory();
+
 const db = low(adapter);
 
 db
@@ -14,6 +18,8 @@ db
     rootPaths: {},
     startDates: {},
     repoMetadata: {},
+    pullRequests: [],
+    pullRequestsCommitsPivot: {},
   })
   .write();
 

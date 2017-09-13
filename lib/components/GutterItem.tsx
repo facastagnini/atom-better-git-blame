@@ -12,9 +12,18 @@ interface IGutterItemProps {
 
 interface IGutterItemState {
   commit: any;
+  pullRequests: any;
 }
 
 class GutterItem extends React.Component<IGutterItemProps, any> {
+
+  constructor(...props){
+    super(...props);
+    this.state = {
+      commit: {},
+      pullRequests: []
+    }
+  }
 
   componentWillMount(){
     this.setState({commit: this.props.commit});
@@ -29,9 +38,12 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
         });
       });
       IntegrationData
-        .getIntegrationDataForFile(`${this.props.commit.repoPath}/${this.props.commit.filePath}`)
-        .then((integrationData) => {
-          console.log(integrationData);
+        .getPullRequestsForCommit(`${this.props.commit.repoPath}/${this.props.commit.filePath}`, this.props.commit.commitHash)
+        .then((pullRequests) => {
+          this.setState({
+            ...this.state,
+            pullRequests: pullRequests
+          });
       })
     }
   }
@@ -51,15 +63,21 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             </p>
           </div>
         </div>
-        <div className="section">
-          <div className="section-icon">
-            <div className="icon icon-git-pull-request" />
-          </div>
-          <div className="section-content">
-            <h1 className="section-title">Implement global shortcut to focus/unfocus...</h1>
-            <p className="section-body"><code>#25</code> by nomeyer merged on 25 Jan</p>
-          </div>
-        </div>
+        {this.state.pullRequests.map((pullRequest) => {
+          return (
+            <div className="section">
+              <div className="section-icon">
+                <div className="icon icon-git-pull-request" />
+              </div>
+              <div className="section-content">
+                <h1 className="section-title">{pullRequest.title}</h1>
+                <p className="section-body">
+                  <code>#{pullRequest.number}</code> by {pullRequest.author.login} merged on {moment(pullRequest.createdAt).format('D MMM')}
+                  </p>
+              </div>
+            </div>
+          )
+        })}
         <div className="section">
           <div className="section-icon">
             <div className="icon icon-link" />

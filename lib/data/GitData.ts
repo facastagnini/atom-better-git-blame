@@ -14,9 +14,7 @@ export async function getBlameForFile(filePath: string) {
   if (existing && Date.now() - existing.fetchedAt < 1000) {
     return existing;
   }
-  const blame = await GitHelper.getGitBlameOutput(
-    filePath,
-  );
+  const blame = await GitHelper.getGitBlameOutput(filePath);
   db
     .get('blames')
     .remove({ path: filePath })
@@ -143,7 +141,6 @@ export async function getCommit(filePath, hash) {
     .find({ commitHash: hash })
     .value();
   if (existing) {
-    console.log('Cached');
     return existing;
   }
   const commit = await GitHelper.getCommit(filePath, [hash]);
@@ -175,19 +172,25 @@ export async function getRepoRootPath(filePath: string) {
 
 export async function getRepoMetadata(filePath: string) {
   let rootPath = await getRepoRootPath(filePath);
-  let cached = db.get('repoMetadata').find({
-    rootPath: rootPath
-  }).value();
-  if(cached){
-    return cached
+  let cached = db
+    .get('repoMetadata')
+    .find({
+      rootPath: rootPath,
+    })
+    .value();
+  if (cached) {
+    return cached;
   }
   const remotes = await GitHelper.getRepoRemotes(rootPath);
   const metadata = GitHelper.extractRepoMetadataFromRemotes(remotes);
   const toWrite = {
     rootPath: rootPath,
     ...metadata,
-    fetchedAt: new Date()
+    fetchedAt: new Date(),
   };
-  db.get('repoMetadata').push(toWrite).write();
+  db
+    .get('repoMetadata')
+    .push(toWrite)
+    .write();
   return toWrite;
 }

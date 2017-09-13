@@ -67,12 +67,7 @@ class GitHelper {
                 // we re-run this function once with the last line ommitted if we get the
                 // "out-of-bound error" which might indicate we're trying to run git blame on the
                 // EOF character line.
-                resolve(
-                  GitHelper.getGitBlameOutput(
-                    absolutePath,
-                    false
-                  )
-                );
+                resolve(GitHelper.getGitBlameOutput(absolutePath, false));
               }
             } else {
               reject(new Error(`Unexpected error: ${stderrOutput}`));
@@ -162,7 +157,7 @@ class GitHelper {
    * @returns {Object[]} Array of { name, url, type } for each of the repo's remotes
    */
   static getRepoRemotes(absolutePath: string) {
-    const fileDir = path.dirname(absolutePath);
+    const fileDir = absolutePath;
     return new Promise((resolve, reject) => {
       const child = childProcess.spawn('git', ['remote', '-v'], {
         cwd: fileDir,
