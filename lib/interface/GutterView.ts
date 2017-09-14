@@ -26,9 +26,13 @@ class GutterView {
     this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(210);
     this.boundResizeListener = this.resizeListener.bind(this);
+    let startTime = window.performance.now();
     this.fetchGutterData()
       .then(() => {
+        console.log('Fetch time:', window.performance.now() - startTime);
+        startTime = window.performance.now();
         this.drawGutter();
+        console.log('Draw time:', window.performance.now() - startTime);
       })
       .catch(e => {
         throw e;
@@ -52,14 +56,14 @@ class GutterView {
       const commitDay = Math.floor(
         (date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24
       );
-      this.markers[identifier].map(marker => {
-        const item = new GutterItem(commit);
-        item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
-        item.resizeEmitter.on('resizeHandleReleased', () => {
-          this.previousResize = 0;
-        });
-        item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
-        colorScale(this.editor).then(scale => {
+      colorScale(this.editor).then(scale => {
+        this.markers[identifier].map(marker => {
+          const item = new GutterItem(commit);
+          item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
+          item.resizeEmitter.on('resizeHandleReleased', () => {
+            this.previousResize = 0;
+          });
+          item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
           if (scale[commitDay]) {
             const color = scale[Math.floor(commitDay)]
               .rgb()
@@ -67,18 +71,18 @@ class GutterView {
               .string();
             item.setIndicator(color);
           }
-        });
-        this.editor.decorateMarker(marker, {
-          type: 'gutter',
-          class: `layer-gutter`,
-          gutterName: 'layer',
-          item: item.element(),
-        });
-        item.emitter.on('mouseEnter', () => {
-          this.highlightCommit(identifier);
-        });
-        item.emitter.on('mouseLeave', () => {
-          this.removeHighlight();
+          this.editor.decorateMarker(marker, {
+            type: 'gutter',
+            class: `layer-gutter`,
+            gutterName: 'layer',
+            item: item.element(),
+          });
+          item.emitter.on('mouseEnter', () => {
+            this.highlightCommit(identifier);
+          });
+          item.emitter.on('mouseLeave', () => {
+            this.removeHighlight();
+          });
         });
       });
     }
@@ -128,13 +132,13 @@ class GutterView {
 
   private async fetchGutterData() {
     const filePath = this.editor.getPath();
-    IntegrationData.getIntegrationDataForFile(filePath);
     let commits = await GitData.getCommitsForFile(filePath);
     this.commits = commits.commits;
     let ranges = await GitData.getGutterRangesForFile(filePath);
     this.ranges = ranges.ranges;
     let date = await GitData.getFirstCommitDateForRepo(filePath);
     this.firstCommitDate = new Date(date);
+    IntegrationData.getIntegrationDataForFile(filePath);
   }
 }
 

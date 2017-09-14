@@ -20,6 +20,8 @@ db
     repoMetadata: {},
     pullRequests: [],
     pullRequestsCommitsPivot: {},
+    githubIssues: [],
+    jiraIssues: [],
   })
   .write();
 

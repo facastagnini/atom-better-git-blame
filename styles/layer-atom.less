@@ -11,6 +11,8 @@
   border: 1px solid @pane-item-border-color;
   box-shadow: 1px 1px 5px 1px fade(darken(@pane-item-border-color, 1%), 40%);
   padding:5px;
+  min-width: 440px;
+  overflow: hidden;
 
   .section{
     border-bottom: 1px solid @pane-item-border-color;
@@ -23,7 +25,9 @@
   }
 
   .section-content {
-
+    .section-status {
+      float: right;
+    }
   }
 
   .section-title {
@@ -32,6 +36,10 @@
     margin-bottom: 3px;
     font-size: 1.2em;
     color: @text-color;
+    white-space: nowrap;
+    max-width: 440px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .section-body{

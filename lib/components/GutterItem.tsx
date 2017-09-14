@@ -13,42 +13,83 @@ interface IGutterItemProps {
 interface IGutterItemState {
   commit: any;
   pullRequests: any;
+  jiraIssues: any;
+  githubIssues: any;
 }
 
-class GutterItem extends React.Component<IGutterItemProps, any> {
+class GutterItem extends React.PureComponent<IGutterItemProps, any> {
 
   constructor(...props){
     super(...props);
     this.state = {
       commit: {},
-      pullRequests: []
+      pullRequests: [],
+      jiraIssues: [],
+      githubIssues: [],
+      metadata: {}
     }
   }
 
   componentWillMount(){
     this.setState({commit: this.props.commit});
     if(this.props.commit.commitHash.substr(0,6) !== '000000'){
-      GitData.getCommit(this.props.commit.repoPath, this.props.commit.commitHash).then((commit) => {
-        this.setState({
-          ...this.state,
-          commit : {
-            ...this.state.commit,
-            ...commit
-          }
+      GitData.getCommit(this.props.commit.repoPath, this.props.commit.commitHash)
+        .then((commit) => {
+          this.setState({
+            ...this.state,
+            commit : {
+              ...this.state.commit,
+              ...commit
+            }
+          });
         });
-      });
+      GitData.getRepoMetadata(this.props.commit.repoPath)
+        .then((metadata) => {
+          this.setState({
+            ...this.state,
+            metadata
+          });
+        });
+    }
+  }
+
+  componentDidMount(){
+    if(this.props.commit.commitHash.substr(0,6) !== '000000') {
       IntegrationData
-        .getPullRequestsForCommit(`${this.props.commit.repoPath}/${this.props.commit.filePath}`, this.props.commit.commitHash)
+        .getPullRequestsForCommit(
+          `${this.state.commit.repoPath}/${this.state.commit.filePath}`,
+          this.state.commit.commitHash
+        )
         .then((pullRequests) => {
           this.setState({
             ...this.state,
             pullRequests: pullRequests
           });
-      })
+          pullRequests.map(this.getIssuesForPullRequest.bind(this))
+        });
     }
   }
 
+  async getIssuesForPullRequest(pullRequest){
+    const jiraIssues = [];
+    const githubIssues = [];
+    await pullRequest.relatedGitHubIssues.map(async (issueNumber) => {
+      const issue = await IntegrationData.getIssue(this.state.commit.repoPath, issueNumber);
+      githubIssues.push(issue);
+    });
+    await pullRequest.relatedJiraIssues.map(async (issueKey) => {
+      const issue = await IntegrationData.getIssue(this.state.commit.repoPath, issueKey);
+      jiraIssues.push(issue);
+    });
+    this.setState({
+      ...this.state,
+      githubIssues: githubIssues,
+      jiraIssues: jiraIssues,
+    });
+  }
+
   tooltip() {
+    console.log('Render tooltip');
     const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
     return (
       <div className="layer-tooltip">
@@ -57,45 +98,72 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             <div className="icon icon-git-commit" />
           </div>
           <div className="section-content">
-            <h1 className="section-title">{this.state.commit.subject}</h1>
+            <h1 className="section-title">
+              <a href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
+                {this.state.commit.subject}
+              </a>
+            </h1>
             <p className="section-body">
-              <code>{this.state.commit.commitHash.substr(0,6)}</code> by {this.state.commit.author} committed on {commitedDate}
+              <code>
+                <a href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
+                  {this.state.commit.commitHash.substr(0,6)}
+                </a>
+              </code> by {this.state.commit.author} committed on {commitedDate}
             </p>
           </div>
         </div>
         {this.state.pullRequests.map((pullRequest) => {
+          const verb = pullRequest.state.toLowerCase();
           return (
             <div className="section">
               <div className="section-icon">
                 <div className="icon icon-git-pull-request" />
               </div>
               <div className="section-content">
-                <h1 className="section-title">{pullRequest.title}</h1>
+                <h1 className="section-title"><a href={pullRequest.url}>{pullRequest.title}</a></h1>
                 <p className="section-body">
-                  <code>#{pullRequest.number}</code> by {pullRequest.author.login} merged on {moment(pullRequest.createdAt).format('D MMM')}
-                  </p>
+                  <code>
+                    <a href={pullRequest.url}>
+                      #{pullRequest.number}
+                    </a>
+                  </code> by {pullRequest.author.login} {verb} on {moment(pullRequest.createdAt).format('D MMM')}
+                </p>
               </div>
             </div>
           )
         })}
-        <div className="section">
-          <div className="section-icon">
-            <div className="icon icon-link" />
-          </div>
-          <div className="section-content">
-            <h1 className="section-title">Implement a non-configurable global keyboard...</h1>
-            <p className="section-body">STEP-510 by nomeyer & assigned to nomeyer</p>
-          </div>
-        </div>
-        <div className="section">
-          <div className="section-icon">
-            <div className="icon icon-link" />
-          </div>
-          <div className="section-content">
-            <h1 className="section-title">Global keyboard shortcut to search triggers...</h1>
-            <p className="section-body">#36 by jaredburgess & assigned to nomeyer</p>
-          </div>
-        </div>
+        {this.state.githubIssues.map((issue) => {
+          return (
+            <div className="section">
+              <div className="section-icon">
+                <div className="icon icon-mark-github" />
+              </div>
+              <div className="section-content">
+                <h1 className="section-title"><a href={issue.url}>{issue.title}</a></h1>
+                <p className="section-body">
+                  <code><a href={issue.url}>#{issue.number}</a></code> by {issue.author.login}
+                  <span className="section-status">{issue.state}</span>
+                </p>
+              </div>
+            </div>
+          )
+        })}
+        {this.state.jiraIssues.map((issue) => {
+          return (
+            <div className="section">
+              <div className="section-icon">
+                <div className="icon icon-link" />
+              </div>
+              <div className="section-content">
+                <h1 className="section-title"><a href={issue.url}>{issue.summary}</a></h1>
+                <p className="section-body">
+                  <code><a href={issue.url}>{issue.key}</a></code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
+                  <span className="section-status">{issue.status.name}</span>
+                </p>
+              </div>
+            </div>
+          )
+        })}
       </div>
     );
   }
@@ -118,7 +186,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     }
     return (
       <TooltipContainer
-        tooltipContent={this.tooltip()}
+        tooltipContent={this.tooltip.bind(this)}
         onMouseEnter={this.mouseEnter}
       >
         {this.formattedText()}

@@ -13,7 +13,7 @@ interface ITooltipContainerState {
   show: boolean;
 }
 
-class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipContainerState> {
+class TooltipContainer extends React.PureComponent<ITooltipContainerProps, ITooltipContainerState> {
 
   state: ITooltipContainerState;
   timeout: Timer;
@@ -53,7 +53,7 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
           parent={this.containerElement}
           mouseEnter={this.mouseEnterHandler.bind(this)}
           mouseLeave={this.mouseLeaveHandler.bind(this)}>
-          {this.props.tooltipContent}
+          {this.props.tooltipContent()}
         </TooltipPortal>
       );
     }

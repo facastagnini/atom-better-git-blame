@@ -17,9 +17,6 @@ class StepsizeOutgoing {
     this.UDP_HOST = '127.0.0.1';
     this.UDP_PORT = 49369;
     this.OUTGOING_SOCK = createSocket('udp4');
-    this.OUTGOING_SOCK.on('message', (msg, info) => {
-      console.log('MESSAGE', msg, info);
-    });
   }
 
   public send(event, callback?) {

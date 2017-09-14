@@ -1,11 +1,16 @@
 'use babel';
 
 import GitHelper from '../GitHelper';
-import StepsizeHelper from '../StepsizeHelper';
+import gitBlame from '../git/blame';
+import gitShow from '../git/show';
+import gitRemotes from '../git/remotes';
+import getFirstCommitDate from '../git/firstCommitDate';
+import findRepoRoot from '../git/findRepoRoot';
 import GutterRange from '../GutterRange';
 import db from './database';
 import _ from 'lodash';
 
+const blamePromises = {};
 export async function getBlameForFile(filePath: string) {
   let existing = db
     .get('blames')
@@ -14,7 +19,10 @@ export async function getBlameForFile(filePath: string) {
   if (existing && Date.now() - existing.fetchedAt < 1000) {
     return existing;
   }
-  const blame = await GitHelper.getGitBlameOutput(filePath);
+  if(!blamePromises[filePath]){
+    blamePromises[filePath] = gitBlame(filePath);
+  }
+  const blame = await blamePromises[filePath];
   db
     .get('blames')
     .remove({ path: filePath })
@@ -23,10 +31,11 @@ export async function getBlameForFile(filePath: string) {
     .get('blames')
     .push({
       path: filePath,
-      lines: blame,
+      lines: blame.replace(/\s+$/, '').split('\n'),
       fetchedAt: new Date(),
     })
     .write();
+  delete blamePromises[filePath];
   return db
     .get('blames')
     .find({ path: filePath })
@@ -104,6 +113,7 @@ export async function getGutterRangesForFile(filePath: string) {
   };
 }
 
+const firstDatePromises = {};
 export async function getFirstCommitDateForRepo(filePath: string) {
   return getRepoRootPath(filePath).then(async repoPath => {
     const cached = db
@@ -113,17 +123,21 @@ export async function getFirstCommitDateForRepo(filePath: string) {
     if (cached) {
       return cached;
     }
-    const date = await GitHelper.getFirstCommitDateForRepo(repoPath);
+    if(!firstDatePromises[filePath]){
+      firstDatePromises[filePath] = getFirstCommitDate(repoPath);
+    }
+    const date = await firstDatePromises[filePath];
     db
       .get('startDates')
       .set(filePath, date)
       .write();
+    delete firstDatePromises[filePath];
     return date;
   });
 }
 
 async function loadCommits(filePath, hashes) {
-  const commits = await GitHelper.getCommit(filePath, hashes);
+  const commits = await gitShow(filePath, hashes);
   commits.map(commit => {
     const toWrite = {
       commitHash: commit.hash,
@@ -135,6 +149,7 @@ async function loadCommits(filePath, hashes) {
   db.write();
 }
 
+const commitPromises = {};
 export async function getCommit(filePath, hash) {
   let existing = db
     .get('commitMessages')
@@ -143,7 +158,10 @@ export async function getCommit(filePath, hash) {
   if (existing) {
     return existing;
   }
-  const commit = await GitHelper.getCommit(filePath, [hash]);
+  if(!commitPromises[filePath]){
+    commitPromises[filePath] = gitShow(filePath, [hash]);
+  }
+  const commit = await commitPromises[filePath];
   const toWrite = {
     commitHash: hash,
     ...commit[0],
@@ -153,6 +171,7 @@ export async function getCommit(filePath, hash) {
     .get('commitMessages')
     .push(toWrite)
     .write();
+  delete commitPromises[filePath];
   return toWrite;
 }
 
@@ -161,30 +180,32 @@ export async function getRepoRootPath(filePath: string) {
   if (cached) {
     return cached;
   }
-  let rootPath = await GitHelper.getRepoRootPath(filePath);
+  let rootPath = findRepoRoot(filePath);
   db
     .get('rootPaths')
     .set(filePath, rootPath)
     .write();
-  console.log(rootPath);
   return rootPath;
 }
 
-export async function getRepoMetadata(filePath: string) {
-  let rootPath = await getRepoRootPath(filePath);
+const metadataPromises = {};
+export async function getRepoMetadata(repoPath: string) {
   let cached = db
     .get('repoMetadata')
     .find({
-      rootPath: rootPath,
+      rootPath: repoPath,
     })
     .value();
   if (cached) {
     return cached;
   }
-  const remotes = await GitHelper.getRepoRemotes(rootPath);
+  if(!metadataPromises[repoPath]){
+    metadataPromises[repoPath] = gitRemotes(repoPath);
+  }
+  const remotes = await metadataPromises[repoPath];
   const metadata = GitHelper.extractRepoMetadataFromRemotes(remotes);
   const toWrite = {
-    rootPath: rootPath,
+    rootPath: repoPath,
     ...metadata,
     fetchedAt: new Date(),
   };
@@ -192,5 +213,6 @@ export async function getRepoMetadata(filePath: string) {
     .get('repoMetadata')
     .push(toWrite)
     .write();
+  delete metadataPromises[repoPath];
   return toWrite;
 }

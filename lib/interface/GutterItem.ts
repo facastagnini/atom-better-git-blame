@@ -61,7 +61,7 @@ class GutterItem {
   }
 
   public element() {
-    let item = React.createElement(Item, {
+    const item = React.createElement(Item, {
       commit: this.data,
     });
     ReactDOM.render(item, this.contentElement);

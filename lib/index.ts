@@ -30,6 +30,12 @@ export const config = {
       'PersianSteel',
     ],
   },
+  parallelGitProcessing: {
+    title: 'Use parallel processing for Git commands',
+    description: 'Can improve performance on multi-core machines, if the gutter is slow try disabling this',
+    type: 'boolean',
+    default: true,
+  }
 };
 
 export function activate(state) {

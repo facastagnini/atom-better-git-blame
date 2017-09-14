@@ -9,7 +9,7 @@ interface ITooltipPortalProps {
   mouseLeave: any;
 }
 
-class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
+class TooltipPortal extends React.PureComponent<ITooltipPortalProps, any> {
 
   portal: HTMLDivElement;
 
@@ -28,7 +28,8 @@ class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
     return {
       top: rect.top,
       left: rect.right,
-      transform: 'translate3d(-90%, -102%, 0)',
+      transform: 'translateY(-102%) translateX(-92%)',
+      webkitFontSmoothing: 'subpixel-antialiased',
       position: 'absolute',
       zIndex: 100,
     }
