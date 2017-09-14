@@ -38,7 +38,6 @@ class StepsizeHelper {
     repoMetadata,
     commitHashes
   ): Promise<any> {
-
     const payload = {
       searchId: uuid.v4(),
       repoName: repoMetadata.repoName,
@@ -46,32 +45,34 @@ class StepsizeHelper {
       repoSource: repoMetadata.repoSource,
       commitHashes,
     };
-
     return new Promise((resolve, reject) => {
       let responseData = '';
-      const req = https.request({
-        hostname: 'development-stable-layer.stepsize.com',
-        path: '/augment-code-search-results',
-        method: 'POST',
-        headers: {
-          'User-Agent': 'Layer-Client',
-          'Content-Type': 'application/json'
+      const req = https.request(
+        {
+          hostname: 'development-stable-layer.stepsize.com',
+          path: '/augment-code-search-results',
+          method: 'POST',
+          headers: {
+            'User-Agent': 'Layer-Client',
+            'Content-Type': 'application/json',
+          },
+        },
+        function(response) {
+          let code = response.statusCode;
+          response.on('data', function(chunk) {
+            responseData += chunk;
+          });
+          response.on('end', function() {
+            if (code < 400) {
+              resolve(JSON.parse(responseData));
+            } else {
+              reject(responseData);
+            }
+          });
         }
-      }, function (response) {
-        let code = response.statusCode;
-        response.on('data', function (chunk) {
-          responseData += chunk
-        });
-        response.on('end', function () {
-          if (code < 400) {
-            resolve(JSON.parse(responseData))
-          } else {
-            reject(responseData)
-          }
-        })
-      });
-      req.on('error', function (error) {
-        reject(error.message)
+      );
+      req.on('error', function(error) {
+        reject(error.message);
       });
       req.write(JSON.stringify(payload));
       req.end();

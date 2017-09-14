@@ -1,7 +1,7 @@
 'use babel';
 
-import path from 'path'
-import fs from 'fs'
+import path from 'path';
+import fs from 'fs';
 
 // Modified from: https://github.com/josa42/atom-blame/blob/master/lib/utils/find-repo.js
 /*
@@ -33,11 +33,11 @@ function findRepoRoot(currentPath) {
     lastPath = currentPath;
     const repoPath = path.join(currentPath, '.git');
     if (fs.existsSync(repoPath)) {
-      return currentPath
+      return currentPath;
     }
     currentPath = path.dirname(currentPath);
   }
-  return null
+  return null;
 }
 
 export default findRepoRoot;

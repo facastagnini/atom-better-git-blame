@@ -55,7 +55,10 @@ class GutterView {
       colorScale(this.editor).then(scale => {
         this.markers[identifier].map(marker => {
           const item = new GutterItem(commit);
-          item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
+          item.resizeEmitter.on(
+            'resizeHandleDragged',
+            this.boundResizeListener
+          );
           item.resizeEmitter.on('resizeHandleReleased', () => {
             this.previousResize = 0;
           });

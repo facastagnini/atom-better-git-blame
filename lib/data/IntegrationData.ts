@@ -12,7 +12,7 @@ export async function getIntegrationDataForFile(filePath: string) {
   const repoPath = await GitData.getRepoRootPath(filePath);
   const metadata = await GitData.getRepoMetadata(repoPath);
   const blame = await GitData.getBlameForFile(filePath);
-  if(!pendingRequests[repoPath]){
+  if (!pendingRequests[repoPath]) {
     pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(
       metadata,
       GitHelper.getHashesFromBlame(blame.lines)

@@ -19,7 +19,7 @@ export async function getBlameForFile(filePath: string) {
   if (existing && Date.now() - existing.fetchedAt < 1000) {
     return existing;
   }
-  if(!blamePromises[filePath]){
+  if (!blamePromises[filePath]) {
     blamePromises[filePath] = gitBlame(filePath);
   }
   const blame = await blamePromises[filePath];
@@ -123,7 +123,7 @@ export async function getFirstCommitDateForRepo(filePath: string) {
     if (cached) {
       return cached;
     }
-    if(!firstDatePromises[filePath]){
+    if (!firstDatePromises[filePath]) {
       firstDatePromises[filePath] = getFirstCommitDate(repoPath);
     }
     const date = await firstDatePromises[filePath];
@@ -144,7 +144,10 @@ async function loadCommits(filePath, hashes) {
       ...commit,
       fetchedAt: new Date(),
     };
-    db.get('commitMessages').push(toWrite).write();
+    db
+      .get('commitMessages')
+      .push(toWrite)
+      .write();
   });
 }
 
@@ -157,7 +160,7 @@ export async function getCommit(filePath, hash) {
   if (existing) {
     return existing;
   }
-  if(!commitPromises[filePath]){
+  if (!commitPromises[filePath]) {
     commitPromises[filePath] = gitShow(filePath, [hash]);
   }
   const commit = await commitPromises[filePath];
@@ -198,7 +201,7 @@ export async function getRepoMetadata(repoPath: string) {
   if (cached) {
     return cached;
   }
-  if(!metadataPromises[repoPath]){
+  if (!metadataPromises[repoPath]) {
     metadataPromises[repoPath] = gitRemotes(repoPath);
   }
   const remotes = await metadataPromises[repoPath];

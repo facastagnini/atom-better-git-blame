@@ -1,13 +1,13 @@
 'use babel';
 
 import runGitCommand from './runCommand';
-import findRepoRoot from './findRepoRoot'
+import findRepoRoot from './findRepoRoot';
 
-async function getRepoRemotes(filePath: string){
+async function getRepoRemotes(filePath: string) {
   const repoRoot = findRepoRoot(filePath);
   try {
-    const remotes = await runGitCommand(repoRoot, 'remote -v',);
-    if(remotes === ''){
+    const remotes = await runGitCommand(repoRoot, 'remote -v');
+    if (remotes === '') {
       return [];
     }
     return remotes
@@ -22,7 +22,7 @@ async function getRepoRemotes(filePath: string){
         };
       });
   } catch (e) {
-    throw e
+    throw e;
   }
 }
 
