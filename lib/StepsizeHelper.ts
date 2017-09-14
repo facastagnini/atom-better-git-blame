@@ -2,7 +2,6 @@
 
 import * as uuid from 'uuid';
 import * as https from 'https';
-import axios, { AxiosResponse } from 'axios';
 import IRange = TextBuffer.IRange;
 import IPoint = TextBuffer.IPoint;
 
