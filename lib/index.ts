@@ -8,6 +8,7 @@ import StepsizeOutgoing from './StepsizeOutgoing';
 import { CompositeDisposable } from 'atom';
 import GutterView from './interface/GutterView';
 import * as ColorScale from './ColourScale';
+import repoRemotes from './git/remotes';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;

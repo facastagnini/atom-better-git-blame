@@ -1,7 +1,7 @@
 'use babel';
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'preact-compat';
+import ReactDOM from 'preact-compat';
 
 interface ITooltipPortalProps {
   parent: HTMLSpanElement;

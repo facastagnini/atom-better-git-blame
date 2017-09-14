@@ -2,8 +2,8 @@
 
 import GutterResizeHandle from './GutterResizeHandle';
 import { Emitter } from 'atom';
-import ReactDOM from 'react-dom';
-import React from 'react';
+import ReactDOM from 'preact-compat';
+import React from 'preact-compat';
 
 import Item from '../components/GutterItem';
 

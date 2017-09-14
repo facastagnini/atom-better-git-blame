@@ -1,7 +1,7 @@
 'use babel';
 
 import TooltipPortal from './TooltipPortal';
-import React, { EventHandler, SyntheticEvent } from 'react';
+import React, { EventHandler, SyntheticEvent } from 'preact-compat';
 import Timer = NodeJS.Timer;
 
 interface ITooltipContainerProps {

@@ -26,13 +26,9 @@ class GutterView {
     this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(210);
     this.boundResizeListener = this.resizeListener.bind(this);
-    let startTime = window.performance.now();
     this.fetchGutterData()
       .then(() => {
-        console.log('Fetch time:', window.performance.now() - startTime);
-        startTime = window.performance.now();
         this.drawGutter();
-        console.log('Draw time:', window.performance.now() - startTime);
       })
       .catch(e => {
         throw e;

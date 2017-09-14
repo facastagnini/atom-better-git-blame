@@ -6,23 +6,20 @@ import findRepoRoot from './findRepoRoot'
 async function getRepoRemotes(filePath: string){
   const repoRoot = findRepoRoot(filePath);
   try {
-    const remotes = await runGitCommand(repoRoot, 'remote -v');
+    const remotes = await runGitCommand(repoRoot, 'remote -v',);
     if(remotes === ''){
       return [];
     }
     return remotes
-      .substring(0, remotes.length - 1)
+      .trim()
       .split('\n')
       .map(remote => {
-        const splitRemote = remote.split('\t');
-        let [name, url, type] = [undefined, undefined, undefined];
-        if (splitRemote.length > 0) {
-          name = splitRemote[0];
-          url = splitRemote[1].split(' ')[0];
-          type = splitRemote[1].split(' ')[1];
-          type = type.substring(1, type.length - 1);
-        }
-        return { name, url, type };
+        const matchedRemote = remote.match(/(.+)\t(.+)\s\((.+)\)/);
+        return {
+          name: matchedRemote[1],
+          url: matchedRemote[2],
+          type: matchedRemote[3],
+        };
       });
   } catch (e) {
     throw e

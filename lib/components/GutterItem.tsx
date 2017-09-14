@@ -1,6 +1,6 @@
 'use babel';
 
-import React from 'react';
+import React from 'preact-compat';
 import TooltipContainer from './TooltipContainer';
 import moment from 'moment';
 import * as GitData from '../data/GitData';

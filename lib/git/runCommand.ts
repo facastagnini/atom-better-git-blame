@@ -3,7 +3,6 @@
 import * as childProcess from 'child_process';
 
 function runGitCommand(repoPath: string, command: string, shell: boolean = false){
-  const startTime = window.performance.now();
   const arguments = command.split(' ');
   const child = childProcess.spawn('git', arguments, { cwd: repoPath, shell });
 
@@ -12,7 +11,6 @@ function runGitCommand(repoPath: string, command: string, shell: boolean = false
   });
 
   child.on('exit', (exitCode) => {
-    console.log(`${command.split(' ')[0]} duration:`, window.performance.now() - startTime);
     if(exitCode !== 0){
       throw new Error(`Git exited with unexpected code: ${exitCode}`);
     }
