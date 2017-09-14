@@ -144,9 +144,8 @@ async function loadCommits(filePath, hashes) {
       ...commit,
       fetchedAt: new Date(),
     };
-    db.get('commitMessages').push(toWrite);
+    db.get('commitMessages').push(toWrite).write();
   });
-  db.write();
 }
 
 const commitPromises = {};

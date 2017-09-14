@@ -9,21 +9,19 @@ import GitHelper from '../GitHelper';
 let pendingRequests = {};
 
 export async function getIntegrationDataForFile(filePath: string) {
-  const metadata = await GitData.getRepoMetadata(await GitData.getRepoRootPath(filePath));
+  const repoPath = await GitData.getRepoRootPath(filePath);
+  const metadata = await GitData.getRepoMetadata(repoPath);
   const blame = await GitData.getBlameForFile(filePath);
-  if (pendingRequests[filePath]) {
-    const response = await pendingRequests[filePath];
-    delete pendingRequests[filePath];
-    return response;
+  if(!pendingRequests[repoPath]){
+    pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(
+      metadata,
+      GitHelper.getHashesFromBlame(blame.lines)
+    ).then(response => {
+      return processIntegrationData(response.data);
+    });
   }
-  pendingRequests[filePath] = StepsizeHelper.fetchIntegrationData(
-    metadata,
-    GitHelper.getHashesFromBlame(blame.lines)
-  ).then(response => {
-    return processIntegrationData(response.data);
-  });
-  const response = await pendingRequests[filePath];
-  delete pendingRequests[filePath];
+  const response = await pendingRequests[repoPath];
+  delete pendingRequests[repoPath];
   return response;
 }
 

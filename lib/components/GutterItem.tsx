@@ -17,7 +17,7 @@ interface IGutterItemState {
   githubIssues: any;
 }
 
-class GutterItem extends React.PureComponent<IGutterItemProps, any> {
+class GutterItem extends React.Component<IGutterItemProps, any> {
 
   constructor(...props){
     super(...props);
@@ -26,7 +26,7 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
       pullRequests: [],
       jiraIssues: [],
       githubIssues: [],
-      metadata: {}
+      metadata: {},
     }
   }
 
@@ -57,7 +57,7 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
     if(this.props.commit.commitHash.substr(0,6) !== '000000') {
       IntegrationData
         .getPullRequestsForCommit(
-          `${this.state.commit.repoPath}/${this.state.commit.filePath}`,
+          `${this.state.commit.repoPath}`,
           this.state.commit.commitHash
         )
         .then((pullRequests) => {
@@ -89,7 +89,6 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
   }
 
   tooltip() {
-    console.log('Render tooltip');
     const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
     return (
       <div className="layer-tooltip">
@@ -113,6 +112,7 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
           </div>
         </div>
         {this.state.pullRequests.map((pullRequest) => {
+          console.log(pullRequest);
           const verb = pullRequest.state.toLowerCase();
           return (
             <div className="section">
@@ -133,16 +133,21 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
           )
         })}
         {this.state.githubIssues.map((issue) => {
+          let issueIcon = 'icon icon-issue-opened red';
+          if(issue.state === 'CLOSED'){
+            issueIcon = 'icon icon-issue-closed green'
+          }
           return (
             <div className="section">
               <div className="section-icon">
-                <div className="icon icon-mark-github" />
+                <div className="icon icon-link" />
               </div>
               <div className="section-content">
                 <h1 className="section-title"><a href={issue.url}>{issue.title}</a></h1>
                 <p className="section-body">
+                  <i className={`icon ${issueIcon}`} />
                   <code><a href={issue.url}>#{issue.number}</a></code> by {issue.author.login}
-                  <span className="section-status">{issue.state}</span>
+                  <span className="section-status">{issue.state.toLowerCase()}</span>
                 </p>
               </div>
             </div>
@@ -157,8 +162,17 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
               <div className="section-content">
                 <h1 className="section-title"><a href={issue.url}>{issue.summary}</a></h1>
                 <p className="section-body">
+                  <i style={{
+                    background: '#1CA7EC',
+                    borderRadius: '2px',
+                    color: '#FFFFFF',
+                    marginRight: '4px',
+                    verticalAlign: 'middle',
+                    paddingTop: '1px',
+                    textAlign: 'center'
+                  }} className={`icon icon-check`} />
                   <code><a href={issue.url}>{issue.key}</a></code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
-                  <span className="section-status">{issue.status.name}</span>
+                  <span className="section-status">{issue.status.name.toLowerCase()}</span>
                 </p>
               </div>
             </div>
@@ -187,7 +201,6 @@ class GutterItem extends React.PureComponent<IGutterItemProps, any> {
     return (
       <TooltipContainer
         tooltipContent={this.tooltip.bind(this)}
-        onMouseEnter={this.mouseEnter}
       >
         {this.formattedText()}
       </TooltipContainer>

@@ -9,7 +9,7 @@ interface ITooltipPortalProps {
   mouseLeave: any;
 }
 
-class TooltipPortal extends React.PureComponent<ITooltipPortalProps, any> {
+class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
 
   portal: HTMLDivElement;
 

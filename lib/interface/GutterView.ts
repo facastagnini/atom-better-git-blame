@@ -128,13 +128,13 @@ class GutterView {
 
   private async fetchGutterData() {
     const filePath = this.editor.getPath();
+    IntegrationData.getIntegrationDataForFile(filePath);
     let commits = await GitData.getCommitsForFile(filePath);
     this.commits = commits.commits;
     let ranges = await GitData.getGutterRangesForFile(filePath);
     this.ranges = ranges.ranges;
     let date = await GitData.getFirstCommitDateForRepo(filePath);
     this.firstCommitDate = new Date(date);
-    IntegrationData.getIntegrationDataForFile(filePath);
   }
 }
 

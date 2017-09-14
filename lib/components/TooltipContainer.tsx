@@ -5,7 +5,6 @@ import React, { EventHandler, SyntheticEvent } from 'preact-compat';
 import Timer = NodeJS.Timer;
 
 interface ITooltipContainerProps {
-  children: any;
   tooltipContent: JSX.Element;
 }
 
@@ -13,7 +12,7 @@ interface ITooltipContainerState {
   show: boolean;
 }
 
-class TooltipContainer extends React.PureComponent<ITooltipContainerProps, ITooltipContainerState> {
+class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipContainerState> {
 
   state: ITooltipContainerState;
   timeout: Timer;
@@ -41,7 +40,7 @@ class TooltipContainer extends React.PureComponent<ITooltipContainerProps, ITool
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
-        this.setState({ show: false });
+        //this.setState({ show: false });
       }, 500);
     }
   };
