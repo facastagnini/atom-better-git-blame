@@ -1,6 +1,7 @@
 'use babel';
 
 import * as uuid from 'uuid';
+import * as https from 'https';
 import axios, { AxiosResponse } from 'axios';
 import IRange = TextBuffer.IRange;
 import IPoint = TextBuffer.IPoint;
@@ -36,21 +37,45 @@ class StepsizeHelper {
   public static async fetchIntegrationData(
     repoMetadata,
     commitHashes
-  ): Promise<AxiosResponse> {
-    const requestOptions = {
-      method: 'POST',
-      url:
-        'https://development-stable-layer.stepsize.com/augment-code-search-results',
-      data: {
-        searchId: uuid.v4(),
-        repoName: repoMetadata.repoName,
-        repoOwner: repoMetadata.repoOwner,
-        repoSource: repoMetadata.repoSource,
-        commitHashes,
-      },
+  ): Promise<any> {
+
+    const payload = {
+      searchId: uuid.v4(),
+      repoName: repoMetadata.repoName,
+      repoOwner: repoMetadata.repoOwner,
+      repoSource: repoMetadata.repoSource,
+      commitHashes,
     };
 
-    return axios(requestOptions);
+    return new Promise((resolve, reject) => {
+      let responseData = '';
+      const req = https.request({
+        hostname: 'development-stable-layer.stepsize.com',
+        path: '/augment-code-search-results',
+        method: 'POST',
+        headers: {
+          'User-Agent': 'Layer-Client',
+          'Content-Type': 'application/json'
+        }
+      }, function (response) {
+        let code = response.statusCode;
+        response.on('data', function (chunk) {
+          responseData += chunk
+        });
+        response.on('end', function () {
+          if (code < 400) {
+            resolve(JSON.parse(responseData))
+          } else {
+            reject(responseData)
+          }
+        })
+      });
+      req.on('error', function (error) {
+        reject(error.message)
+      });
+      req.write(JSON.stringify(payload));
+      req.end();
+    });
   }
 }
 

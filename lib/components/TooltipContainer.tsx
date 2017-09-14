@@ -40,7 +40,7 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
-        //this.setState({ show: false });
+        this.setState({ show: false });
       }, 500);
     }
   };
