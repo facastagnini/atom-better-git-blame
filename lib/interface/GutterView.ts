@@ -62,13 +62,7 @@ class GutterView {
       colorScale(this.editor).then(scale => {
         this.markers[identifier].map(marker => {
           const item = new GutterItem(commit);
-          item.resizeEmitter.on(
-            'resizeHandleDragged',
-            this.boundResizeListener
-          );
-          item.resizeEmitter.on('resizeHandleReleased', () => {
-            this.previousResize = 0;
-          });
+          this.handleResizes(item);
           item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
           if (scale[commitDay]) {
             const color = scale[Math.floor(commitDay)]
@@ -89,24 +83,39 @@ class GutterView {
           item.emitter.on('mouseLeave', () => {
             this.removeHighlight();
           });
-          const codeFold = this.codeSelector.getFoldForRange(marker.getBufferRange());
-          if(codeFold){
-            item.emitter.on('clickedSearch', () => {
-              const range = new Range([codeFold.start, 0], [codeFold.end+1, 0]);
-              const event = this.outgoing.buildEvent(this.editor, [range], 'selection');
-              this.outgoing.send(event, () => {
-                robot.keyTap('s', 'control');
-              });
-            });
-            item.emitter.on('mouseEnterLayerSearch', () => {
-              this.removeHighlight();
-              this.highlightMarker(codeFold.marker);
-            });
-            item.emitter.on('mouseLeaveLayerSearch', () => {
-              this.removeHighlight();
-            })
-          }
+          this.handleLayerSearch(item, marker);
         });
+      });
+    }
+  }
+
+  handleResizes(item) {
+    item.resizeEmitter.on('resizeHandleDragged', this.boundResizeListener);
+    item.resizeEmitter.on('resizeHandleReleased', () => {
+      this.previousResize = 0;
+    });
+  }
+
+  handleLayerSearch(item, marker) {
+    const codeFold = this.codeSelector.getFoldForRange(marker.getBufferRange());
+    if (codeFold) {
+      item.emitter.on('clickedSearch', () => {
+        const range = new Range([codeFold.start, 0], [codeFold.end + 1, 0]);
+        const event = this.outgoing.buildEvent(
+          this.editor,
+          [range],
+          'selection'
+        );
+        this.outgoing.send(event, () => {
+          robot.keyTap('s', 'control');
+        });
+      });
+      item.emitter.on('mouseEnterLayerSearch', () => {
+        this.removeHighlight();
+        this.highlightMarker(codeFold.marker);
+      });
+      item.emitter.on('mouseLeaveLayerSearch', () => {
+        this.removeHighlight();
       });
     }
   }
@@ -123,7 +132,7 @@ class GutterView {
     });
   }
 
-  highlightMarker(marker){
+  highlightMarker(marker) {
     this.highlightDecorations.map(decoration => decoration.destroy());
     this.highlightDecorations.push(
       this.editor.decorateMarker(marker, {
