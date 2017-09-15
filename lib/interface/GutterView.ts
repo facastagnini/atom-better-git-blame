@@ -84,27 +84,23 @@ class GutterView {
             item: item.element(),
           });
           item.emitter.on('mouseEnter', () => {
-            let codeFold = this.codeSelector.getFoldForRange(
-              marker.getBufferRange()
-            );
-            if (codeFold) {
-              const range = new Range([codeFold.start, 0], [codeFold.end, 9000]);
-              const event = this.outgoing.buildEvent(this.editor, [range], 'selection');
-              this.outgoing.send(event);
-            }
             this.highlightCommit(identifier);
           });
           item.emitter.on('mouseLeave', () => {
             this.removeHighlight();
           });
-          const codeBlock = this.codeSelector.getFoldForRange(marker.getBufferRange());
-          if(codeBlock){
+          const codeFold = this.codeSelector.getFoldForRange(marker.getBufferRange());
+          if(codeFold){
             item.emitter.on('clickedSearch', () => {
-              robot.keyTap('s', 'control');
+              const range = new Range([codeFold.start, 0], [codeFold.end+1, 0]);
+              const event = this.outgoing.buildEvent(this.editor, [range], 'selection');
+              this.outgoing.send(event, () => {
+                robot.keyTap('s', 'control');
+              });
             });
             item.emitter.on('mouseEnterLayerSearch', () => {
               this.removeHighlight();
-              this.highlightMarker(codeBlock.marker);
+              this.highlightMarker(codeFold.marker);
             });
             item.emitter.on('mouseLeaveLayerSearch', () => {
               this.removeHighlight();
