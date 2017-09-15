@@ -57,30 +57,15 @@ class StepsizeOutgoing {
   buildEvent(editor, ranges, action, forRenderer = true) {
     const text = editor.getText();
 
-    const transformedSelections = ranges.map(range => {
-      return {
-        start: StepsizeHelper.pointToOffset(text, range.start),
-        end: StepsizeHelper.pointToOffset(text, range.end),
-      };
-    });
-
     const selectedLineNumbers = StepsizeHelper.rangesToSelectedLineNumbers(
       ranges
     );
 
-    const selectedText = ranges
-      .map(range => {
-        return editor.getTextInBufferRange(range);
-      })
-      .join('');
-
     return {
       source: 'atom',
       action: action,
-      filename: editor.getPath(),
-      selected: selectedText,
+      filename: editor.getPath() || null,
       plugin_id: this.pluginId,
-      selections: transformedSelections,
       selectedLineNumbers,
       forRenderer: forRenderer,
     };
