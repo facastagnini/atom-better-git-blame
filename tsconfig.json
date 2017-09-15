@@ -1,9 +1,14 @@
 {
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "importHelpers": true,
     "jsx": "react",
     "lib": ["es6", "dom"],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "module": "es6",
     "noLib": false,
     "outDir": "./dist",

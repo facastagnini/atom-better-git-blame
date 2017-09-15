@@ -7,8 +7,8 @@ import SelectionWatcher from './SelectionWatcher';
 import StepsizeOutgoing from './StepsizeOutgoing';
 import { CompositeDisposable } from 'atom';
 import GutterView from './interface/GutterView';
+
 import * as ColorScale from './ColourScale';
-import repoRemotes from './git/remotes';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;
@@ -65,7 +65,7 @@ function enableLayerSearch() {
 
 function toggleGutterView() {
   const editor = atom.workspace.getActiveTextEditor();
-  new GutterView(editor);
+  new GutterView(editor, outgoing);
   ColorScale.setEditor(editor);
 }
 

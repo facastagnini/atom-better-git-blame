@@ -1,13 +1,16 @@
+import { IEmitter } from 'emissary';
+
 'use babel';
 
 import React from 'preact-compat';
-import TooltipContainer from './TooltipContainer';
 import moment from 'moment';
+import TooltipContainer from './TooltipContainer';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
 
 interface IGutterItemProps {
   commit: any;
+  emitter: IEmitter;
 }
 
 interface IGutterItemState {
@@ -88,6 +91,18 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     });
   }
 
+  clickLayerSearch(){
+    this.props.emitter.emit('clickedSearch');
+  }
+
+  mouseEnterLayerSearch(){
+    this.props.emitter.emit('mouseEnterLayerSearch');
+  }
+
+  mouseLeaveLayerSearch(){
+    this.props.emitter.emit('mouseLeaveLayerSearch');
+  }
+
   tooltip() {
     const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
     return (
@@ -112,7 +127,6 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
           </div>
         </div>
         {this.state.pullRequests.map((pullRequest) => {
-          console.log(pullRequest);
           const verb = pullRequest.state.toLowerCase();
           return (
             <div className="section">
@@ -178,6 +192,29 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             </div>
           )
         })}
+        <div className="section">
+          <div className="section-icon">
+            <div className="icon icon-search" />
+          </div>
+          <div className="section-content">
+            <h1 className="section-title">
+              Search in&nbsp;
+              <img className="layer-icon" src="http://www.stepsize.com/static/img/production/logos/Stepsize-Logo_Brandmark.png" width="16" height="16" alt=""/>&nbsp;
+              <span className="white">Layer</span>
+            </h1>
+            <p className="section-body">
+              View complete history of the code block
+              <span
+                className="layer-button btn btn-default icon icon-link-external"
+                onClick={this.clickLayerSearch.bind(this)}
+                onMouseEnter={this.mouseEnterLayerSearch.bind(this)}
+                onMouseLeave={this.mouseLeaveLayerSearch.bind(this)}
+              >
+                Open
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

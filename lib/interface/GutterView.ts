@@ -1,14 +1,17 @@
 'use babel';
 
-import { CompositeDisposable } from 'atom';
-import GutterRange from '../GutterRange';
-import GutterItem from './GutterItem';
-import { colorScale } from '../ColourScale';
 import IEditor = AtomCore.IEditor;
 import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import Decoration = AtomCore.Decoration;
+import { CompositeDisposable, Range } from 'atom';
+import GutterRange from '../GutterRange';
+import GutterItem from './GutterItem';
+import { colorScale } from '../ColourScale';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
+import CodeSelector from '../CodeSelector';
+import StepsizeOutgoing from '../StepsizeOutgoing';
+import robot from 'robotjs';
 
 class GutterView {
   private editor: IEditor;
@@ -20,9 +23,12 @@ class GutterView {
   private firstCommitDate: Date;
   private markers: { [prop: string]: Array<IDisplayBufferMarker> } = {};
   private highlightDecorations: Array<Decoration> = [];
+  private codeSelector: CodeSelector;
+  private outgoing: StepsizeOutgoing;
 
-  constructor(editor: IEditor) {
+  constructor(editor: IEditor, outgoing: StepsizeOutgoing) {
     this.editor = editor;
+    this.outgoing = outgoing;
     this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(210);
     this.boundResizeListener = this.resizeListener.bind(this);
@@ -33,6 +39,7 @@ class GutterView {
       .catch(e => {
         throw e;
       });
+    this.codeSelector = new CodeSelector(this.editor);
   }
 
   private buildMarkersForRanges() {
@@ -77,11 +84,32 @@ class GutterView {
             item: item.element(),
           });
           item.emitter.on('mouseEnter', () => {
+            let codeFold = this.codeSelector.getFoldForRange(
+              marker.getBufferRange()
+            );
+            if (codeFold) {
+              const range = new Range([codeFold.start, 0], [codeFold.end, 9000]);
+              const event = this.outgoing.buildEvent(this.editor, [range], 'selection');
+              this.outgoing.send(event);
+            }
             this.highlightCommit(identifier);
           });
           item.emitter.on('mouseLeave', () => {
             this.removeHighlight();
           });
+          const codeBlock = this.codeSelector.getFoldForRange(marker.getBufferRange());
+          if(codeBlock){
+            item.emitter.on('clickedSearch', () => {
+              robot.keyTap('s', 'control');
+            });
+            item.emitter.on('mouseEnterLayerSearch', () => {
+              this.removeHighlight();
+              this.highlightMarker(codeBlock.marker);
+            });
+            item.emitter.on('mouseLeaveLayerSearch', () => {
+              this.removeHighlight();
+            })
+          }
         });
       });
     }
@@ -97,6 +125,16 @@ class GutterView {
         })
       );
     });
+  }
+
+  highlightMarker(marker){
+    this.highlightDecorations.map(decoration => decoration.destroy());
+    this.highlightDecorations.push(
+      this.editor.decorateMarker(marker, {
+        type: 'line',
+        class: 'line-highlight layer-highlight',
+      })
+    );
   }
 
   removeHighlight() {

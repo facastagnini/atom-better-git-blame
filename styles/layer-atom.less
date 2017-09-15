@@ -4,13 +4,21 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
+.fold-debug {
+  background: red;
+}
+
+.fold-debug-green {
+  background: rgba(0, 255, 0, 0.1);
+}
+
 .layer-tooltip {
   font-size: @font-size;
   background: @pane-item-background-color;
   border-radius: 5px;
   border: 1px solid @pane-item-border-color;
   box-shadow: 1px 1px 5px 1px fade(darken(@pane-item-border-color, 1%), 40%);
-  padding:5px;
+  padding:7px;
   min-width: 440px;
   overflow: hidden;
 
@@ -34,6 +42,12 @@
 
   .section-content {
     width: 100%;
+    position: relative;
+    .layer-button{
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+    }
     .section-status {
       line-height:1.2;
       text-transform: capitalize;
@@ -43,13 +57,16 @@
       line-height:1.2;
       margin:0;
       padding:0;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
       font-size: 1.2em;
       color: @text-color;
       white-space: nowrap;
       max-width: 440px;
       overflow-x: hidden;
       text-overflow: ellipsis;
+      .white {
+        color: @text-color-highlight;
+      }
     }
     .section-body{
       .icon::before{
@@ -59,6 +76,11 @@
       margin:0;
       padding:0;
       color: fade(@text-color, 40%);
+    }
+    .layer-icon{
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
     }
   }
 }

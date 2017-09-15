@@ -63,6 +63,7 @@ class GutterItem {
   public element() {
     const item = React.createElement(Item, {
       commit: this.data,
+      emitter: this.emitter,
     });
     ReactDOM.render(item, this.contentElement);
     return this.itemElement;
