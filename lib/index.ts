@@ -1,69 +1,37 @@
-import IGutterView = AtomCore.IGutterView;
-
 'use babel';
 
-let startTime = window.performance.now();
 import IEditor = AtomCore.IEditor;
-
-import SelectionWatcher from './SelectionWatcher';
-import StepsizeOutgoing from './StepsizeOutgoing';
-import StepsizeHelper from './StepsizeHelper';
+import IGutterView = AtomCore.IGutterView;
+import SelectionWatcher from './stepsize/SelectionWatcher';
+import StepsizeOutgoing from './stepsize/StepsizeOutgoing';
+import StepsizeHelper from './stepsize/StepsizeHelper';
 import { CompositeDisposable } from 'atom';
 import GutterView from './interface/GutterView';
 import os from 'os';
+import * as ConfigManager from './ConfigManager'
 
-import * as ColorScale from './ColourScale';
+import * as ColorScale from './interface/ColourScale';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;
 let gutters: Map<IEditor, IGutterView> = new Map();
 
-export const config = {
-  colorScale: {
-    title: 'Gutter Color Scale',
-    description:
-      'Preset scales for coloring commits based on age. (requires editor reload)',
-    type: 'string',
-    default: 'RoyalPomegranate',
-    enum: [
-      'RoyalPomegranate',
-      'ChocolateMint',
-      'VioletApple',
-      'AffairGoblin',
-      'GoldDaisy',
-      'PoppyLochmara',
-      'PersianSteel',
-    ],
-  },
-  parallelGitProcessing: {
-    title: 'Use parallel processing for Git commands',
-    description:
-      'Can improve performance on multi-core machines, if the gutter is slow try disabling this',
-    type: 'boolean',
-    default: true,
-  },
-  searchInLayerEnabled: {
-    title: 'Enable Search in Layer (macOS Only)',
-    description:
-      'Send code selection events to the Layer desktop app for more detailed search results',
-    type: 'boolean',
-    default: true,
-  },
-};
+export const config = ConfigManager.getConfig();
 
 export function activate(state) {
-  console.log(os.platform());
   disposables.add(
     atom.commands.add('atom-workspace', {
       'layer-atom:toggle': () => toggleGutterView(),
     })
   );
-  if (atom.config.get('layer-atom.searchInLayerEnabled') && os.platform() === 'darwin') {
+  if (
+    os.platform() === 'darwin' &&
+    ConfigManager.get('searchInLayerEnabled')
+  ) {
     enableLayerSearch();
   } else {
-    atom.config.set('layer-atom.searchInLayerEnabled', false);
+    ConfigManager.set('searchInLayerEnabled', false);
   }
-  console.log('Layer activation time:', window.performance.now() - startTime);
 }
 
 async function layerEditorObserver(editor: IEditor) {
@@ -75,26 +43,30 @@ async function layerEditorObserver(editor: IEditor) {
 }
 
 function enableLayerSearch() {
-  StepsizeHelper.checkLayerInstallation().then(() => {
-    outgoing = new StepsizeOutgoing();
-    atom.workspace.observeTextEditors(layerEditorObserver);
-  }).catch(() => {
-    atom.config.set('layer-atom.searchInLayerEnabled', false);
-  });
+  StepsizeHelper.checkLayerInstallation()
+    .then(() => {
+      outgoing = new StepsizeOutgoing();
+      atom.workspace.observeTextEditors(layerEditorObserver);
+    })
+    .catch(() => {
+      ConfigManager.set('searchInLayerEnabled', false);
+    });
 }
 
 function toggleGutterView() {
   const editor = atom.workspace.getActiveTextEditor();
-  const gutter = gutters.get(editor);
-  if (gutter) {
-    if (gutter.isVisible()) {
-      gutter.hide();
+  if(editor){
+    const gutter = gutters.get(editor);
+    if (gutter) {
+      if (gutter.isVisible()) {
+        gutter.hide();
+      } else {
+        gutter.show();
+      }
     } else {
-      gutter.show();
+      gutters.set(editor, new GutterView(editor, outgoing));
+      ColorScale.setEditor(editor);
     }
-  } else {
-    gutters.set(editor, new GutterView(editor, outgoing));
-    ColorScale.setEditor(editor);
   }
 }
 

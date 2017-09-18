@@ -1,12 +1,12 @@
 'use babel';
 
-import GitHelper from '../GitHelper';
+import GitHelper from '../git/GitHelper';
 import gitBlame from '../git/blame';
 import gitShow from '../git/show';
 import gitRemotes from '../git/remotes';
 import getFirstCommitDate from '../git/firstCommitDate';
 import findRepoRoot from '../git/findRepoRoot';
-import GutterRange from '../GutterRange';
+import GutterRange from '../interface/GutterRange';
 import db from './database';
 import _ from 'lodash';
 

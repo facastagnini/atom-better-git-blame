@@ -5,14 +5,15 @@ import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import IGutterView = AtomCore.IGutterView;
 import Decoration = AtomCore.Decoration;
 import { CompositeDisposable, Range } from 'atom';
-import GutterRange from '../GutterRange';
+import GutterRange from './GutterRange';
 import GutterItem from './GutterItem';
-import { colorScale } from '../ColourScale';
+import { colorScale } from './ColourScale';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
-import CodeSelector from '../CodeSelector';
-import StepsizeOutgoing from '../StepsizeOutgoing';
+import CodeSelector from '../stepsize/CodeSelector';
+import StepsizeOutgoing from '../stepsize/StepsizeOutgoing';
 import childProcess from 'child_process';
+import * as ConfigManager from '../ConfigManager';
 
 class GutterView {
   private editor: IEditor;
@@ -32,7 +33,7 @@ class GutterView {
     this.editor = editor;
     this.outgoing = outgoing;
     this.gutter = this.editor.addGutter({ name: 'layer' });
-    this.setGutterWidth(210);
+    this.setGutterWidth(ConfigManager.get('defaultWidth'));
     this.boundResizeListener = this.resizeListener.bind(this);
     this.fetchGutterData()
       .then(() => {

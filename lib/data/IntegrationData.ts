@@ -1,10 +1,10 @@
 'use babel';
 
-import StepsizeHelper from '../StepsizeHelper';
+import StepsizeHelper from '../stepsize/StepsizeHelper';
 import * as GitData from './GitData';
 import db from './database';
 import _ from 'lodash';
-import GitHelper from '../GitHelper';
+import GitHelper from '../git/GitHelper';
 
 let pendingRequests = {};
 
@@ -51,6 +51,7 @@ async function processIntegrationData(data) {
       continue;
     }
     let toWrite = pullRequest;
+    toWrite.commitCount = toWrite.commits.length;
     delete toWrite.commits;
     db
       .get('pullRequests')

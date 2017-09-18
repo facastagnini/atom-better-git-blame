@@ -8,6 +8,7 @@ import TooltipContainer from './TooltipContainer';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
 import SearchInLayer from './SearchInLayer';
+import * as ConfigManager from '../ConfigManager';
 
 interface IGutterItemProps {
   commit: any;
@@ -124,6 +125,11 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                   {this.state.commit.commitHash.substr(0,6)}
                 </a>
               </code> by {this.state.commit.author} committed on {commitedDate}
+              <span className="section-status">
+                <span title="Insertions" className="green">{this.state.commit.insertions}&nbsp;</span>
+                <span title="Deletions" className="red">{this.state.commit.deletions}&nbsp;</span>
+                <span title="Files Changed"><i className="icon icon-diff" />{this.state.commit.filesChanged}</span>
+              </span>
             </p>
           </div>
         </div>
@@ -142,15 +148,18 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                       #{pullRequest.number}
                     </a>
                   </code> by {pullRequest.author.login} {verb} on {moment(pullRequest.createdAt).format('D MMM')}
+                  <span className="section-status">
+                    <span title="Total Commits"><i className="icon icon-git-commit" />{pullRequest.commitCount}</span>
+                  </span>
                 </p>
               </div>
             </div>
           )
         })}
         {this.state.githubIssues.map((issue) => {
-          let issueIcon = 'icon icon-issue-opened red';
+          let issueIcon = 'icon icon-issue-opened green';
           if(issue.state === 'CLOSED'){
-            issueIcon = 'icon icon-issue-closed green'
+            issueIcon = 'icon icon-issue-closed red'
           }
           return (
             <div className="section">
@@ -205,7 +214,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
   formattedText() {
     const commit = this.props.commit;
     const date = commit.commitedAt;
-    const formattedDate = moment(date).format('YYYY-MM-DD');
+    const formattedDate = moment(date).format(ConfigManager.get('gutterDateFormat'));
     const author = commit.author;
     return `${formattedDate} ${author}`
   }

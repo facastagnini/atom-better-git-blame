@@ -3,7 +3,8 @@
 import { allowUnsafeEval, allowUnsafeNewFunction } from 'loophole';
 import IEditor = AtomCore.IEditor;
 import NodeColorGradient from 'node-color-gradient';
-import * as GitData from './data/GitData';
+import * as GitData from '../data/GitData';
+import * as ConfigManager from '../ConfigManager';
 
 let editors: { [prop: string]: IEditor } = {};
 let datePromises: { [prop: string]: Promise<Date> } = {};
@@ -36,7 +37,7 @@ export function setEditor(editor: IEditor) {
 }
 
 function calculateScale(steps: number) {
-  const scale = atom.config.get('layer-atom.colorScale');
+  const scale = ConfigManager.get('colorScale');
   switch (scale) {
     case 'RoyalPomegranate': {
       return new NodeColorGradient([

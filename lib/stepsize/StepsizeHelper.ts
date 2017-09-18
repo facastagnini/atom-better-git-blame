@@ -68,17 +68,20 @@ class StepsizeHelper {
     });
   }
 
-  public static checkLayerInstallation(){
+  public static checkLayerInstallation() {
     return new Promise((resolve, reject) => {
-      childProcess.exec('ls | grep \'Layer.app\'', {cwd: '/Applications'}, (err) => {
-        if(err) {
-          return reject(new Error('Could not detect Layer installation'))
+      childProcess.exec(
+        "ls | grep 'Layer.app'",
+        { cwd: '/Applications' },
+        err => {
+          if (err) {
+            return reject(new Error('Could not detect Layer installation'));
+          }
+          resolve();
         }
-        resolve();
-      })
-    })
+      );
+    });
   }
-
 }
 
 export default StepsizeHelper;

@@ -1,6 +1,7 @@
 'use babel';
 
 import React from 'preact-compat';
+import * as ConfigManager from '../ConfigManager';
 
 interface ISearchInLayerProps {
   onClick: Function;
@@ -10,7 +11,7 @@ interface ISearchInLayerProps {
 
 class SearchInLayer extends React.PureComponent<ISearchInLayerProps, any>{
   render() {
-    if(atom.config.get('layer-atom.searchInLayerEnabled')){
+    if(ConfigManager.get('searchInLayerEnabled')){
       return (
         <div className="section">
           <div className="section-icon">
