@@ -186,15 +186,17 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
               <div className="section-content">
                 <h1 className="section-title"><a href={issue.url}>{issue.summary}</a></h1>
                 <p className="section-body">
-                  <i style={{
-                    background: '#1CA7EC',
-                    borderRadius: '2px',
-                    color: '#FFFFFF',
-                    marginRight: '4px',
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    marginRight: '5px',
+                    background: `url('${issue.status.iconUrl}')`,
+                    backgroundColor: `${issue.status.statusCategory.colorName}`,
+                    borderRadius: '3px',
+                    display: 'inline-block',
                     verticalAlign: 'middle',
-                    paddingTop: '1px',
-                    textAlign: 'center'
-                  }} className={`icon icon-check`} />
+                    backgroundSize: 'fit'
+                  }}/>
                   <code><a href={issue.url}>{issue.key}</a></code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
                   <span className="section-status">{issue.status.name.toLowerCase()}</span>
                 </p>
