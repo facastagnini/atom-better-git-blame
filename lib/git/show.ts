@@ -23,7 +23,9 @@ async function show(filePath, hashes) {
   const promises = chunkedHashes.map(hashes => {
     return runGitCommand(
       repoRoot,
-      `show --format==@COMMIT@=%n%H%n%ce%n%cn%n%B --shortstat ${hashes.join(' ')}`
+      `show --format==@COMMIT@=%n%H%n%ce%n%cn%n%B --shortstat ${hashes.join(
+        ' '
+      )}`
     );
   });
 
@@ -36,16 +38,22 @@ async function show(filePath, hashes) {
         const lines = commits[i].trim().split('\n');
         const stats = lines.pop();
         const matchedStats = stats.match(/\D+(\d+)\D+(\d+)?\D+(\d+)?/);
-        parsedCommits.push({
+        let commit = {
           hash: lines.shift(),
           email: lines.shift(),
           author: lines.shift(),
           subject: lines.shift(),
           message: lines.join('\n').trim(),
-          filesChanged: matchedStats[1] || 0,
-          insertions: matchedStats[2] || 0,
-          deletions: matchedStats[3] || 0,
-        });
+          filesChanged: 0,
+          insertions: 0,
+          deletions: 0,
+        };
+        if (matchedStats) {
+          commit.filesChanged = matchedStats[1] || 0;
+          commit.insertions = matchedStats[2] || 0;
+          commit.deletions = matchedStats[3] || 0;
+        }
+        parsedCommits.push(commit);
       }
       return parsedCommits;
     });

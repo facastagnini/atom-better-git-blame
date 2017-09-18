@@ -126,8 +126,8 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                 </a>
               </code> by {this.state.commit.author} committed on {commitedDate}
               <span className="section-status">
-                <span title="Insertions" className="green">{this.state.commit.insertions}&nbsp;</span>
-                <span title="Deletions" className="red">{this.state.commit.deletions}&nbsp;</span>
+                <span title="Insertions" className="green">+{this.state.commit.insertions}&nbsp;</span>
+                <span title="Deletions" className="red">-{this.state.commit.deletions}&nbsp;</span>
                 <span title="Files Changed"><i className="icon icon-diff" />{this.state.commit.filesChanged}</span>
               </span>
             </p>

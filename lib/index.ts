@@ -8,7 +8,7 @@ import StepsizeHelper from './stepsize/StepsizeHelper';
 import { CompositeDisposable } from 'atom';
 import GutterView from './interface/GutterView';
 import os from 'os';
-import * as ConfigManager from './ConfigManager'
+import * as ConfigManager from './ConfigManager';
 
 import * as ColorScale from './interface/ColourScale';
 
@@ -24,10 +24,7 @@ export function activate(state) {
       'layer-atom:toggle': () => toggleGutterView(),
     })
   );
-  if (
-    os.platform() === 'darwin' &&
-    ConfigManager.get('searchInLayerEnabled')
-  ) {
+  if (os.platform() === 'darwin' && ConfigManager.get('searchInLayerEnabled')) {
     enableLayerSearch();
   } else {
     ConfigManager.set('searchInLayerEnabled', false);
@@ -55,7 +52,7 @@ function enableLayerSearch() {
 
 function toggleGutterView() {
   const editor = atom.workspace.getActiveTextEditor();
-  if(editor){
+  if (editor) {
     const gutter = gutters.get(editor);
     if (gutter) {
       if (gutter.isVisible()) {
@@ -72,9 +69,4 @@ function toggleGutterView() {
 
 export function deactivate() {
   disposables.dispose();
-  return;
-}
-
-export function serialize() {
-  return {};
 }

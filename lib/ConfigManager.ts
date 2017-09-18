@@ -41,18 +41,18 @@ export const config = {
   defaultWidth: {
     title: 'Default width',
     type: 'integer',
-    default: 210
-  }
+    default: 210,
+  },
 };
 
-export function getConfig(){
+export function getConfig() {
   return config;
 }
 
-export function get(key){
-  return atom.config.get(`${pj.name}.${key}`)
+export function get(key) {
+  return atom.config.get(`${pj.name}.${key}`);
 }
 
-export function set(key, value){
-  return atom.config.set(`${pj.name}.${key}`, value)
+export function set(key, value) {
+  return atom.config.set(`${pj.name}.${key}`, value);
 }
