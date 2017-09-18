@@ -4,21 +4,14 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
-.fold-debug {
-  background: red;
-}
-
-.fold-debug-green {
-  background: rgba(0, 255, 0, 0.1);
-}
+@tooltip-border-radius: 5px;
 
 .layer-tooltip {
   font-size: @font-size;
   background: @pane-item-background-color;
-  border-radius: 5px;
+  border-radius: @tooltip-border-radius;
   border: 1px solid @pane-item-border-color;
   box-shadow: 1px 1px 5px 1px fade(darken(@pane-item-border-color, 1%), 40%);
-  padding:7px;
   min-width: 440px;
   overflow: hidden;
 
@@ -32,8 +25,26 @@
 
   .section{
     border-bottom: 1px solid @pane-item-border-color;
-    padding: 5px 0;
+    padding: 7px !important;
     display:flex;
+  }
+
+  .section:first-child {
+    border-radius: @tooltip-border-radius @tooltip-border-radius 0 0;
+  }
+
+  .section:last-child {
+    border-radius: 0 0 @tooltip-border-radius @tooltip-border-radius;
+  }
+
+  .powered-by{
+    text-align: right;
+    line-height: 1.2;
+    background-color: contrast(
+            @pane-item-background-color,
+            lighten(@pane-item-background-color, 3%),
+            darken(@pane-item-background-color, 3%)
+    );
   }
 
   .section-icon {
@@ -43,6 +54,9 @@
   .section-content {
     width: 100%;
     position: relative;
+    .white {
+      color: @text-color-highlight;
+    }
     .layer-button{
       position: absolute;
       bottom: 5px;
@@ -64,9 +78,6 @@
       max-width: 440px;
       overflow-x: hidden;
       text-overflow: ellipsis;
-      .white {
-        color: @text-color-highlight;
-      }
     }
     .section-body{
       .icon::before{

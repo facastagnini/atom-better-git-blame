@@ -2,6 +2,7 @@
 
 import IEditor = AtomCore.IEditor;
 import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
+import IGutterView = AtomCore.IGutterView;
 import Decoration = AtomCore.Decoration;
 import { CompositeDisposable, Range } from 'atom';
 import GutterRange from '../GutterRange';
@@ -11,10 +12,11 @@ import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
 import CodeSelector from '../CodeSelector';
 import StepsizeOutgoing from '../StepsizeOutgoing';
-import robot from 'robotjs';
+import childProcess from 'child_process';
 
 class GutterView {
   private editor: IEditor;
+  private gutter: IGutterView;
   private commits: { [prop: string]: any };
   private ranges: { [prop: string]: Array<GutterRange> };
   private width: number;
@@ -29,7 +31,7 @@ class GutterView {
   constructor(editor: IEditor, outgoing: StepsizeOutgoing) {
     this.editor = editor;
     this.outgoing = outgoing;
-    this.editor.addGutter({ name: 'layer' });
+    this.gutter = this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(210);
     this.boundResizeListener = this.resizeListener.bind(this);
     this.fetchGutterData()
@@ -40,6 +42,7 @@ class GutterView {
         throw e;
       });
     this.codeSelector = new CodeSelector(this.editor);
+    return this.gutter;
   }
 
   private buildMarkersForRanges() {
@@ -107,7 +110,7 @@ class GutterView {
           'selection'
         );
         this.outgoing.send(event, () => {
-          robot.keyTap('s', 'control');
+          childProcess.exec('open -a Layer');
         });
       });
       item.emitter.on('mouseEnterLayerSearch', () => {

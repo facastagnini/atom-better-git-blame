@@ -29,6 +29,10 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
     this.setState({ show: true });
   }
 
+  hideTooltip() {
+    this.setState({ show: false });
+  }
+
   mouseEnterHandler() {
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
@@ -39,10 +43,10 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
   mouseLeaveHandler() {
     if (this.timeout) {
       clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => {
-        this.setState({ show: false });
-      }, 500);
     }
+    this.timeout = setTimeout(() => {
+      this.hideTooltip();
+    }, 500);
   };
 
   renderTooltip() {

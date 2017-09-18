@@ -16,14 +16,14 @@
   "repository": "https://github.com/Stepsize/layer-atom-plugin",
   "license": "MIT",
   "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
     "pretty": "./node_modules/.bin/prettier \"lib/**/*.ts\" --write"
   },
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "@types/react": "^16.0.5",
-    "@types/react-dom": "^15.5.4",
     "git-url-parse": "^7.0.0",
     "lodash": "^4.17.4",
     "lowdb": "^1.0.0",
@@ -31,13 +31,14 @@
     "node-color-gradient": "https://github.com/Stepsize/node-color-gradient#0.5.0",
     "preact": "^8.2.5",
     "preact-compat": "^3.17.0",
-    "robotjs": "^0.4.7",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@types/atom": "^0.0.39",
     "@types/lodash": "^4.14.74",
     "@types/lowdb": "^0.15.0",
+    "@types/react": "^16.0.5",
+    "@types/react-dom": "^15.5.4",
     "prettier": "^1.6.1",
     "ts-loader": "^2.3.4",
     "typescript": "^2.5.2",

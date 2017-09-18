@@ -2,8 +2,8 @@
 
 import * as uuid from 'uuid';
 import * as https from 'https';
+import childProcess from 'child_process';
 import IRange = TextBuffer.IRange;
-import IPoint = TextBuffer.IPoint;
 
 class StepsizeHelper {
   public static rangesToSelectedLineNumbers(ranges: Array<IRange>) {
@@ -67,6 +67,18 @@ class StepsizeHelper {
       req.end();
     });
   }
+
+  public static checkLayerInstallation(){
+    return new Promise((resolve, reject) => {
+      childProcess.exec('ls | grep \'Layer.app\'', {cwd: '/Applications'}, (err) => {
+        if(err) {
+          return reject(new Error('Could not detect Layer installation'))
+        }
+        resolve();
+      })
+    })
+  }
+
 }
 
 export default StepsizeHelper;
