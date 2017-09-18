@@ -104,11 +104,11 @@ atom-text-editor {
     width: 100%;
     transition: background-color 0.1s linear;
     &:hover {
-      background-color: @highlight-color;
+      background-color: @highlight-color !important;
     }
     .layer-gutter-item {
       overflow-x: hidden;
-      border-bottom: 1px solid fade(@base-border-color, 20%);
+      //border-bottom: 1px solid fade(@base-border-color, 20%);
       padding: 0 5px 0 5px;
       box-sizing: border-box;
       white-space: nowrap;
@@ -117,5 +117,12 @@ atom-text-editor {
       text-align: left;
       transition: 0.3s background;
     }
+  }
+  .layer-gutter:nth-child(even) {
+    background-color: contrast(
+      @base-background-color,
+      lighten(@base-background-color, 2%),
+      darken(@base-background-color, 90%)
+    );
   }
 }
