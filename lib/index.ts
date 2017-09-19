@@ -9,7 +9,6 @@ import { CompositeDisposable } from 'atom';
 import GutterView from './interface/GutterView';
 import os from 'os';
 import * as ConfigManager from './ConfigManager';
-
 import * as ColorScale from './interface/ColourScale';
 
 let disposables = new CompositeDisposable();

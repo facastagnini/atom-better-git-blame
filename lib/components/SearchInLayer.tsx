@@ -20,8 +20,7 @@ class SearchInLayer extends React.PureComponent<ISearchInLayerProps, any>{
           <div className="section-content">
             <h1 className="section-title">
               Search in&nbsp;
-              <img className="layer-icon" src="atom://layer-atom/assets/stepsize-logo.png" width="16" height="16" alt=""/>&nbsp;
-              <span className="white">Layer</span>
+              <img className="layer-icon" src="atom://layer-atom/assets/layer-logo-secondary-64.png" height="16" alt=""/>
             </h1>
             <p className="section-body">
               View complete history of the code block
@@ -43,8 +42,7 @@ class SearchInLayer extends React.PureComponent<ISearchInLayerProps, any>{
         <div className="section-content">
           <p className="section-body">
             Powered by&nbsp;
-            <img className="layer-icon" src="atom://layer-atom/assets/stepsize-logo.png" width="16" height="16" alt=""/>
-            <a href="https://stepsize.com">stepsize</a>
+            <a href="https://stepsize.com"><img className="layer-icon" src="atom://layer-atom/assets/stepsize-logo-secondary-64.png" height="16" alt=""/></a>
           </p>
         </div>
       </div>

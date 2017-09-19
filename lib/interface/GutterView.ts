@@ -108,10 +108,11 @@ class GutterView {
         const event = this.outgoing.buildEvent(
           this.editor,
           [range],
-          'selection'
+          'selection',
+          true
         );
         this.outgoing.send(event, () => {
-          childProcess.exec('open -a Layer');
+          //childProcess.exec('open -a Layer');
         });
       });
       item.emitter.on('mouseEnterLayerSearch', () => {
