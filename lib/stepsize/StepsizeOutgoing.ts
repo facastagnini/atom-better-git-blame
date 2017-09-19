@@ -57,6 +57,9 @@ class StepsizeOutgoing {
     if(!this.layerReady && event.type !== 'ready'){
       this.checkLayerIsReady();
       this.cachedMessage = event;
+      if(callback){
+        callback();
+      }
       return;
     }
     let msg = JSON.stringify(event);
