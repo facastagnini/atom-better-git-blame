@@ -17,7 +17,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc",
+    "build": "./node_modules/.bin/tsc",
     "pretty": "./node_modules/.bin/prettier \"lib/**/*.ts\" --write"
   },
   "engines": {
