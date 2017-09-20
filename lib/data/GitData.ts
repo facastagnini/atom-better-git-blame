@@ -136,8 +136,12 @@ export async function getFirstCommitDateForRepo(filePath: string) {
   });
 }
 
+const loadPromises = {};
 async function loadCommits(filePath, hashes) {
-  const commits = await gitShow(filePath, hashes);
+  if (!loadPromises[filePath]) {
+    loadPromises[filePath] = gitShow(filePath, hashes);
+  }
+  const commits = await loadPromises[filePath];
   for(const i in commits){
     const commit = commits[i];
     if(commit){
@@ -156,6 +160,9 @@ async function loadCommits(filePath, hashes) {
 
 const commitPromises = {};
 export async function getCommit(filePath, hash) {
+  if(loadPromises[filePath]){
+    await loadPromises[filePath];
+  }
   let existing = db
     .get('commitMessages')
     .get(hash)
