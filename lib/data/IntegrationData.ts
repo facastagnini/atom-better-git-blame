@@ -52,7 +52,14 @@ async function processIntegrationData(data) {
     }
     let toWrite = pullRequest;
     toWrite.commitCount = toWrite.commits.length;
-    delete toWrite.commits;
+    toWrite.status = StepsizeHelper.getStatusObject(pullRequest);
+    for(const i in pullRequest.commits){
+      const commit = pullRequest.commits[i];
+      GitData.updateCommit(commit.commitHash, {
+        status: commit.status
+      })
+    }
+    //delete toWrite.commits;
     db
       .get('pullRequests')
       .push(toWrite)

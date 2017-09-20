@@ -82,6 +82,35 @@ class StepsizeHelper {
       );
     });
   }
+
+  /**
+   * This function retrieves the status object that will be used to display the build status of the PR.
+   * We follow GitHub's behaviour and use the potentialMergeCommit's status when it exists (it is a setting
+   * that can be activated). Otherwise, we use the status of the most recent commit on the PR.
+   *
+   * For a merged PR, this most recent commit is the second entry in the PR's commits array (the first commit
+   * in the array is the merge commit).
+   *
+   * For non-merged PRs, the latest commit will be the first entry in the commits array.
+   *
+   * @returns {IStatus}  Build status for the PR
+   */
+  public static getStatusObject(pullRequest) {
+    const pr = pullRequest;
+    if (pr.potentialMergeCommit && pr.potentialMergeCommit.status !== null) {
+      return pr.potentialMergeCommit.status;
+    } else if (pr.state === 'MERGED' && pr.commits.length > 0) {
+      if (pr.commits.length > 1) {
+        return pr.commits[1].status;
+      }
+      // In some circumstances, a PR can be merged and have a single commit (the merge commit is absent).
+      // See issue #31 for more details on when that happens.
+      return pr.commits[0].status;
+    } else if (pr.commits.length > 0) {
+      return pr.commits[0].status;
+    }
+    return { state: 'UNKNOWN' };
+  }
 }
 
 export default StepsizeHelper;

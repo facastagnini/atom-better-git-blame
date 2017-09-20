@@ -9,6 +9,7 @@ import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
 import SearchInLayer from './SearchInLayer';
 import * as ConfigManager from '../ConfigManager';
+import BuildStatus from './BuildStatus';
 
 interface IGutterItemProps {
   commit: any;
@@ -38,16 +39,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
   componentWillMount(){
     this.setState({commit: this.props.commit});
     if(this.props.commit.commitHash.substr(0,6) !== '000000'){
-      GitData.getCommit(this.props.commit.repoPath, this.props.commit.commitHash)
-        .then((commit) => {
-          this.setState({
-            ...this.state,
-            commit : {
-              ...this.state.commit,
-              ...commit
-            }
-          });
-        });
+      this.fetchCommitData();
       GitData.getRepoMetadata(this.props.commit.repoPath)
         .then((metadata) => {
           this.setState({
@@ -70,7 +62,24 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             ...this.state,
             pullRequests: pullRequests
           });
-          pullRequests.map(this.getIssuesForPullRequest.bind(this))
+          pullRequests.map(this.getIssuesForPullRequest.bind(this));
+          // Refresh the commit data
+          this.fetchCommitData();
+        });
+    }
+  }
+
+  fetchCommitData(){
+    if(this.props.commit.commitHash.substr(0,6) !== '000000'){
+      GitData.getCommit(this.props.commit.repoPath, this.props.commit.commitHash)
+        .then((commit) => {
+          this.setState({
+            ...this.state,
+            commit : {
+              ...this.state.commit,
+              ...commit
+            }
+          });
         });
     }
   }
@@ -116,7 +125,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
           <div className="section-content">
             <h1 className="section-title">
               <a href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
-                {this.state.commit.subject}
+                {this.state.commit.subject} <BuildStatus status={this.state.commit.status}/>
               </a>
             </h1>
             <p className="section-body">
@@ -141,7 +150,11 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                 <div className="icon icon-git-pull-request" />
               </div>
               <div className="section-content">
-                <h1 className="section-title"><a href={pullRequest.url}>{pullRequest.title}</a></h1>
+                <h1 className="section-title">
+                  <a href={pullRequest.url}>
+                    {pullRequest.title} <BuildStatus status={pullRequest.status}/>
+                  </a>
+                </h1>
                 <p className="section-body">
                   <code>
                     <a href={pullRequest.url}>

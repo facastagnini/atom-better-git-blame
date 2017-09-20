@@ -188,6 +188,18 @@ export async function getCommit(filePath, hash) {
   return toWrite;
 }
 
+export function updateCommit(hash, data){
+  db
+    .get('commitMessages')
+    .get(hash)
+    .assign(data)
+    .write();
+  return db
+    .get('commitMessages')
+    .get(hash)
+    .value()
+}
+
 export async function getRepoRootPath(filePath: string) {
   let cached = db.get(`rootPaths.${filePath}`).value();
   if (cached) {
