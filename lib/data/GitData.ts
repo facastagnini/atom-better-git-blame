@@ -138,17 +138,20 @@ export async function getFirstCommitDateForRepo(filePath: string) {
 
 async function loadCommits(filePath, hashes) {
   const commits = await gitShow(filePath, hashes);
-  commits.map(commit => {
-    const toWrite = {
-      commitHash: commit.hash,
-      ...commit,
-      fetchedAt: new Date(),
-    };
-    db
-      .get('commitMessages')
-      .set(commit.hash, toWrite)
-      .write();
-  });
+  for(const i in commits){
+    const commit = commits[i];
+    if(commit){
+      const toWrite = {
+        commitHash: commit.hash,
+        ...commit,
+        fetchedAt: new Date(),
+      };
+      db
+        .get('commitMessages')
+        .set(commit.hash, toWrite)
+        .write();
+    }
+  }
 }
 
 const commitPromises = {};
@@ -160,10 +163,10 @@ export async function getCommit(filePath, hash) {
   if (existing) {
     return existing;
   }
-  if (!commitPromises[filePath]) {
-    commitPromises[filePath] = gitShow(filePath, [hash]);
+  if (!commitPromises[hash]) {
+    commitPromises[hash] = gitShow(filePath, [hash]);
   }
-  const commit = await commitPromises[filePath];
+  const commit = await commitPromises[hash];
   const toWrite = {
     commitHash: hash,
     ...commit[0],
@@ -173,7 +176,7 @@ export async function getCommit(filePath, hash) {
     .get('commitMessages')
     .set(commit.hash, toWrite)
     .write();
-  delete commitPromises[filePath];
+  delete commitPromises[hash];
   return toWrite;
 }
 
