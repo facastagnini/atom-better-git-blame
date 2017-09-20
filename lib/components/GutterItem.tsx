@@ -164,7 +164,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
           return (
             <div className="section">
               <div className="section-icon">
-                <div className="icon icon-link" />
+                <div className="icon icon-issue-opened" />
               </div>
               <div className="section-content">
                 <h1 className="section-title"><a href={issue.url}>{issue.title}</a></h1>
@@ -181,24 +181,16 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
           return (
             <div className="section">
               <div className="section-icon">
-                <div className="icon icon-link" />
+                <div className="icon stepsize-icon-jira" />
               </div>
               <div className="section-content">
                 <h1 className="section-title"><a href={issue.url}>{issue.summary}</a></h1>
                 <p className="section-body">
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    marginRight: '5px',
-                    background: `url('${issue.status.iconUrl}')`,
-                    backgroundColor: `${issue.status.statusCategory.colorName}`,
-                    borderRadius: '3px',
-                    display: 'inline-block',
-                    verticalAlign: 'middle',
-                    backgroundSize: 'fit'
-                  }}/>
+                  <img className="icon" src={issue.issueType.iconUrl} alt={issue.issueType.name}/>
                   <code><a href={issue.url}>{issue.key}</a></code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
-                  <span className="section-status">{issue.status.name.toLowerCase()}</span>
+                  <span className="section-status" style={{
+                    color: `${issue.status.statusCategory.colorName}`
+                  }}>{issue.status.name.toLowerCase()}</span>
                 </p>
               </div>
             </div>
