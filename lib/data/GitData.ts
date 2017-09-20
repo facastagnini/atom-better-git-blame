@@ -146,7 +146,7 @@ async function loadCommits(filePath, hashes) {
     };
     db
       .get('commitMessages')
-      .push(toWrite)
+      .set(commit.hash, toWrite)
       .write();
   });
 }
@@ -155,7 +155,7 @@ const commitPromises = {};
 export async function getCommit(filePath, hash) {
   let existing = db
     .get('commitMessages')
-    .find({ commitHash: hash })
+    .get(hash)
     .value();
   if (existing) {
     return existing;
@@ -171,7 +171,7 @@ export async function getCommit(filePath, hash) {
   };
   db
     .get('commitMessages')
-    .push(toWrite)
+    .set(commit.hash, toWrite)
     .write();
   delete commitPromises[filePath];
   return toWrite;

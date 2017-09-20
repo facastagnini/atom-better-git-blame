@@ -10,7 +10,7 @@ const db = low(adapter);
 
 db
   .defaults({
-    commitMessages: [],
+    commitMessages: {},
     blames: [],
     fileCommits: [],
     rootPaths: {},
