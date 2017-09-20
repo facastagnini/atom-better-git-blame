@@ -28,7 +28,7 @@
     "lodash": "^4.17.4",
     "lowdb": "^1.0.0",
     "moment": "^2.18.1",
-    "node-color-gradient": "github:Stepsize/node-color-gradient#0.5.0",
+    "node-color-gradient": "github:Stepsize/node-color-gradient",
     "preact": "^8.2.5",
     "preact-compat": "^3.17.0",
     "uuid": "^3.1.0"
