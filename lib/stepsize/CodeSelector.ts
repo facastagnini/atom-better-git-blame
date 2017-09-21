@@ -41,7 +41,9 @@ class CodeSelector {
         skipLine
       ) {
         const nextLineText = this.editor.lineTextForBufferRow(foldEnd + 1);
-        skipLine = nextLineText.match(/^\s+$/) || nextLineText.length === 0;
+        if(nextLineText){
+          skipLine = nextLineText.match(/^\s+$/) || nextLineText.length === 0;
+        }
       }
       codeFold.end = foldEnd;
       codeFold.marker = this.editor.markBufferRange([
