@@ -181,7 +181,6 @@ class GutterView {
       if (commits) {
         commits = commits.filter(hash => hash != commitHash);
         commits.map(hash => {
-          console.log(hash);
           this.highlightCommit(
             hash,
             `<span class="icon icon-git-pull-request"></span>#${pullRequests[0]
