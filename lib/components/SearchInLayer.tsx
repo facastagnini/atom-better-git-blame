@@ -30,8 +30,8 @@ class SearchInLayer extends React.PureComponent<ISearchInLayerProps, any>{
                 onMouseEnter={this.props.onMouseEnter}
                 onMouseLeave={this.props.onMouseLeave}
               >
-              Open
-            </span>
+                Open
+              </span>
             </p>
           </div>
         </div>

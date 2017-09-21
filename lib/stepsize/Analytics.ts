@@ -26,7 +26,7 @@ export async function init() {
 }
 
 export function track(name, data = {}) {
-  if (client) {
+  if (client && ConfigManager.get('sendUsageStatistics')) {
     client.track({
       event: `BGB ${name}`,
       userId: userHash,

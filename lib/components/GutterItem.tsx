@@ -132,21 +132,22 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
           <div className="section-content">
             <h1 className="section-title">
               <a onClick={this.clickHandler('Commit title')} href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
-                {this.state.commit.subject} <BuildStatus status={this.state.commit.status}/>
+                {this.state.commit.subject}
               </a>
             </h1>
+            <BuildStatus status={this.state.commit.status}/>
             <p className="section-body">
               <code>
                 <a onClick={this.clickHandler('Commit hash')} href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
                   {this.state.commit.commitHash.substr(0,6)}
                 </a>
               </code> by {this.state.commit.author} committed on {commitedDate}
-              <span className="section-status">
+            </p>
+            <span className="section-status">
                 <span title="Insertions" className="green">+{this.state.commit.insertions}&nbsp;</span>
                 <span title="Deletions" className="red">-{this.state.commit.deletions}&nbsp;</span>
                 <span title="Files Changed"><i className="icon icon-diff" />{this.state.commit.filesChanged}</span>
               </span>
-            </p>
           </div>
         </div>
         {this.state.pullRequests.map((pullRequest) => {
@@ -159,19 +160,20 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
               <div className="section-content">
                 <h1 className="section-title">
                   <a onClick={this.clickHandler('Pull Request title')} href={pullRequest.url}>
-                    {pullRequest.title} <BuildStatus status={pullRequest.status}/>
+                    {pullRequest.title}
                   </a>
                 </h1>
+                <BuildStatus status={pullRequest.status}/>
                 <p className="section-body">
                   <code>
                     <a onClick={this.clickHandler('Pull Request number')} href={pullRequest.url}>
                       #{pullRequest.number}
                     </a>
                   </code> by {pullRequest.author.login} {verb} on {moment(pullRequest.createdAt).format('D MMM')}
-                  <span className="section-status">
+                </p>
+                <span className="section-status">
                     <span title="Total Commits"><i className="icon icon-git-commit" />{pullRequest.commitCount}</span>
                   </span>
-                </p>
               </div>
             </div>
           )
@@ -195,8 +197,8 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                   <code>
                     <a onClick={this.clickHandler('Issue number')} href={issue.url}>#{issue.number}</a>
                   </code> by {issue.author.login}
-                  <span className="section-status">{issue.state.toLowerCase()}</span>
                 </p>
+                <span className="section-status">{issue.state.toLowerCase()}</span>
               </div>
             </div>
           )

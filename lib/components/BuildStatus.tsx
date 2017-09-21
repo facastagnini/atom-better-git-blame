@@ -1,6 +1,7 @@
 'use babel';
 
 import React from 'preact-compat';
+import * as Analytics from '../stepsize/Analytics';
 
 interface IBuildStatusProps {
   status: {
@@ -18,8 +19,8 @@ class BuildStatus extends React.PureComponent<IBuildStatusProps, object> {
     return null;
   }
 
-  private static renderIcon(status) : JSX.Element {
-    switch (status) {
+  private static renderIcon(state) : JSX.Element {
+    switch (state) {
       case 'SUCCESS':
         return <i className="icon icon-check" style={{ color: '#2cbe4e' }} />;
       case 'FAILURE':
@@ -29,12 +30,27 @@ class BuildStatus extends React.PureComponent<IBuildStatusProps, object> {
     }
   }
 
+  clickHandler(label){
+    return () => {
+      Analytics.track(`Clicked link`, {label});
+    };
+  }
+
+
   render() {
-    return (
-      <span className="build-status">
-        {BuildStatus.renderIcon(this.getStatus())}
-      </span>
-    );
+    if(this.props.status){
+      return (
+        <a
+          onClick={this.clickHandler('Build status')}
+          href={this.props.status.contexts[0].targetUrl}
+          className="build-status"
+          title={this.props.status.contexts[0].description}
+        >
+          {BuildStatus.renderIcon(this.getStatus())}
+        </a>
+      );
+    }
+    return null;
   }
 }
 

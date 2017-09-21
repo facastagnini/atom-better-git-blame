@@ -26,6 +26,7 @@
   border: 1px solid @pane-item-border-color;
   box-shadow: 1px 1px 5px 1px fade(darken(@pane-item-border-color, 1%), 40%);
   min-width: 440px;
+  max-width: 500px;
   overflow: hidden;
   .red {
     color: #9E2C3E;
@@ -55,20 +56,13 @@
   }
   .section-content {
     width: 100%;
-    position: relative;
     .white {
       color: @text-color-highlight;
     }
     .layer-button{
       position: absolute;
-      bottom: 5px;
-      right: 5px;
-    }
-    .section-status {
-      line-height:1.2;
-      text-transform: capitalize;
-      vertical-align: middle;
-      float: right;
+      bottom: 14px;
+      right: 10px;
     }
     .section-title {
       line-height:1.2;
@@ -78,7 +72,7 @@
       font-size: 1.2em;
       color: @text-color;
       white-space: nowrap;
-      max-width: 440px;
+      max-width: 90%;
       overflow-x: hidden;
       text-overflow: ellipsis;
       .build-status{
@@ -86,13 +80,36 @@
         vertical-align: middle;
       }
     }
+    .section-status {
+      span{
+        margin-left: 3px;
+      }
+      .icon::before{
+        margin-right: 2px;
+      }
+      line-height:1.2;
+      text-transform: capitalize;
+      vertical-align: middle;
+      position: absolute;
+      right: 10px;
+      bottom: 9px;
+    }
+    .build-status {
+      .icon::before{
+        margin-right: 0;
+      }
+      position: absolute;
+      right: 10px;
+      top: 5px;
+    }
     .section-body{
       .icon::before{
         font-size: 14px;
       }
+      max-width: 85%;
       line-height:1.2;
       margin:0;
-      padding:0;
+      padding:1px 0;
       color: fade(@text-color, 40%);
     }
     .layer-icon{
