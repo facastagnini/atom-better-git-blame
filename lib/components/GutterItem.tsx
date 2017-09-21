@@ -10,6 +10,7 @@ import * as IntegrationData from '../data/IntegrationData';
 import SearchInLayer from './SearchInLayer';
 import * as ConfigManager from '../ConfigManager';
 import BuildStatus from './BuildStatus';
+import * as Analytics from '../stepsize/Analytics';
 
 interface IGutterItemProps {
   commit: any;
@@ -114,6 +115,12 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     this.props.emitter.emit('mouseLeaveLayerSearch');
   }
 
+  clickHandler(label){
+    return () => {
+      Analytics.track(`Clicked link`, {label});
+    };
+  }
+
   tooltip() {
     const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
     return (
@@ -124,13 +131,13 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
           </div>
           <div className="section-content">
             <h1 className="section-title">
-              <a href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
+              <a onClick={this.clickHandler('Commit title')} href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
                 {this.state.commit.subject} <BuildStatus status={this.state.commit.status}/>
               </a>
             </h1>
             <p className="section-body">
               <code>
-                <a href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
+                <a onClick={this.clickHandler('Commit hash')} href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
                   {this.state.commit.commitHash.substr(0,6)}
                 </a>
               </code> by {this.state.commit.author} committed on {commitedDate}
@@ -151,13 +158,13 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
               </div>
               <div className="section-content">
                 <h1 className="section-title">
-                  <a href={pullRequest.url}>
+                  <a onClick={this.clickHandler('Pull Request title')} href={pullRequest.url}>
                     {pullRequest.title} <BuildStatus status={pullRequest.status}/>
                   </a>
                 </h1>
                 <p className="section-body">
                   <code>
-                    <a href={pullRequest.url}>
+                    <a onClick={this.clickHandler('Pull Request number')} href={pullRequest.url}>
                       #{pullRequest.number}
                     </a>
                   </code> by {pullRequest.author.login} {verb} on {moment(pullRequest.createdAt).format('D MMM')}
@@ -180,10 +187,14 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                 <div className="icon icon-issue-opened" />
               </div>
               <div className="section-content">
-                <h1 className="section-title"><a href={issue.url}>{issue.title}</a></h1>
+                <h1 className="section-title">
+                  <a onClick={this.clickHandler('Issue title')} href={issue.url}>{issue.title}</a>
+                </h1>
                 <p className="section-body">
                   <i className={`icon ${issueIcon}`} />
-                  <code><a href={issue.url}>#{issue.number}</a></code> by {issue.author.login}
+                  <code>
+                    <a onClick={this.clickHandler('Issue number')} href={issue.url}>#{issue.number}</a>
+                  </code> by {issue.author.login}
                   <span className="section-status">{issue.state.toLowerCase()}</span>
                 </p>
               </div>
@@ -197,10 +208,14 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
                 <div className="icon stepsize-icon-jira" />
               </div>
               <div className="section-content">
-                <h1 className="section-title"><a href={issue.url}>{issue.summary}</a></h1>
+                <h1 className="section-title">
+                  <a onClick={this.clickHandler('Jira ticket title')} href={issue.url}>{issue.summary}</a>
+                </h1>
                 <p className="section-body">
                   <img className="icon" src={issue.issueType.iconUrl} alt={issue.issueType.name}/>
-                  <code><a href={issue.url}>{issue.key}</a></code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
+                  <code>
+                    <a onClick={this.clickHandler('Jira ticket key')} href={issue.url}>{issue.key}</a>
+                  </code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
                   <span className="section-status" style={{
                     color: `${issue.status.statusCategory.colorName}`
                   }}>{issue.status.name.toLowerCase()}</span>

@@ -50,18 +50,28 @@ export const config = {
   },
   highlightPullRequestOnHover: {
     title: 'Highlight pull request on hover',
-    description: 'When hovering over a gutter item highlight additional commits from the same pull request',
+    description:
+      'When hovering over a gutter item highlight additional commits from the same pull request',
     type: 'boolean',
     default: true,
     order: 6,
   },
   displayHighlightLabels: {
     title: 'Display highlight labels',
-    description: 'Show commit hashes and pull requests numbers in the top right of highlighted sections',
+    description:
+      'Show commit hashes and pull requests numbers in the top right of highlighted sections',
     type: 'boolean',
     default: true,
-    order: 7
-  }
+    order: 7,
+  },
+  sendUsageStatistics: {
+    title: 'Send usage statistics',
+    description:
+      'Send anonymous usage data to Stepsize.',
+    type: 'boolean',
+    default: true,
+    order: 8,
+  },
 };
 
 export function getConfig() {

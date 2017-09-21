@@ -10,6 +10,7 @@ import GutterView from './interface/GutterView';
 import os from 'os';
 import * as ConfigManager from './ConfigManager';
 import * as ColorScale from './interface/ColourScale';
+import * as Analytics from './stepsize/Analytics';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;
@@ -28,6 +29,7 @@ export function activate(state) {
   } else {
     ConfigManager.set('searchInLayerEnabled', false);
   }
+  Analytics.init();
 }
 
 async function layerEditorObserver(editor: IEditor) {
@@ -55,11 +57,14 @@ function toggleGutterView() {
     const gutter = gutters.get(editor);
     if (gutter) {
       if (gutter.isVisible()) {
+        Analytics.track('Gutter hidden');
         gutter.hide();
       } else {
+        Analytics.track('Gutter shown');
         gutter.show();
       }
     } else {
+      Analytics.track('Gutter shown');
       gutters.set(editor, new GutterView(editor, outgoing));
       ColorScale.setEditor(editor);
     }

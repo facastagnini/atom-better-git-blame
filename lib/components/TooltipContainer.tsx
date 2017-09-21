@@ -3,6 +3,7 @@
 import TooltipPortal from './TooltipPortal';
 import React, { EventHandler, SyntheticEvent } from 'preact-compat';
 import Timer = NodeJS.Timer;
+import * as Analytics from '../stepsize/Analytics';
 
 interface ITooltipContainerProps {
   tooltipContent: JSX.Element;
@@ -26,10 +27,12 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
   }
 
   showTooltip() {
+    Analytics.track('Tooltip shown');
     this.setState({ show: true });
   }
 
   hideTooltip() {
+    Analytics.track('Tooltip hidden');
     this.setState({ show: false });
   }
 

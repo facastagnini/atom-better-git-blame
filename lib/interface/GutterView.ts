@@ -14,6 +14,7 @@ import CodeSelector from '../stepsize/CodeSelector';
 import StepsizeOutgoing from '../stepsize/StepsizeOutgoing';
 import childProcess from 'child_process';
 import * as ConfigManager from '../ConfigManager';
+import * as Analytics from '../stepsize/Analytics';
 
 class GutterView {
   private editor: IEditor;
@@ -85,7 +86,7 @@ class GutterView {
           });
           item.emitter.on('mouseEnter', () => {
             this.highlightCommit(identifier);
-            if(ConfigManager.get('highlightPullRequestOnHover')){
+            if (ConfigManager.get('highlightPullRequestOnHover')) {
               this.highlightPullRequestForCommit(identifier);
             }
           });
@@ -110,6 +111,7 @@ class GutterView {
     const codeFold = this.codeSelector.getFoldForRange(marker.getBufferRange());
     if (codeFold) {
       item.emitter.on('clickedSearch', () => {
+        Analytics.track('Search in Layer clicked');
         const range = new Range([codeFold.start, 0], [codeFold.end + 1, 0]);
         const event = this.outgoing.buildEvent(
           this.editor,
@@ -146,7 +148,7 @@ class GutterView {
         class: `line-highlight layer-highlight ${customClasses}`,
       });
       this.highlightDecorations.push(decoration);
-      if(ConfigManager.get('displayHighlightLabels')){
+      if (ConfigManager.get('displayHighlightLabels')) {
         const label = document.createElement('div');
         label.style['width'] = '100%';
         label.style['height'] = '19px';
@@ -191,7 +193,7 @@ class GutterView {
     }
   }
 
-  overlayOverflowHack(){
+  overlayOverflowHack() {
     this.overlayHack = document.createElement('style');
     document.head.appendChild(this.overlayHack);
     this.overlayHack.innerHTML = `
@@ -201,8 +203,8 @@ class GutterView {
     `;
   }
 
-  removeOverlayOverflowHack(){
-    if(this.overlayHack){
+  removeOverlayOverflowHack() {
+    if (this.overlayHack) {
       this.overlayHack.remove();
     }
   }
