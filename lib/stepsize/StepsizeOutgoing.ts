@@ -24,11 +24,14 @@ class StepsizeOutgoing {
     this.UDP_PORT = 49369;
     this.OUTGOING_SOCK = createSocket('udp4');
     this.layerReady = false;
-    this.OUTGOING_SOCK.on('message', (msg) => {
+    this.OUTGOING_SOCK.on('message', msg => {
       const parsedMessage = JSON.parse(msg);
-      if(parsedMessage.type === 'ready' && parsedMessage.source.name === 'Layer'){
+      if (
+        parsedMessage.type === 'ready' &&
+        parsedMessage.source.name === 'Layer'
+      ) {
         this.layerReady = true;
-        if(this.cachedMessage){
+        if (this.cachedMessage) {
           this.send(this.cachedMessage);
         }
         clearInterval(this.readyInterval);
@@ -36,8 +39,8 @@ class StepsizeOutgoing {
     });
   }
 
-  private checkLayerIsReady(){
-    if(this.layerReady){
+  private checkLayerIsReady() {
+    if (this.layerReady) {
       return;
     }
     this.sendReady();
@@ -45,7 +48,7 @@ class StepsizeOutgoing {
   }
 
   private readyCheckTimer() {
-    this.readyRetryTimer = 3 * (Math.pow(this.readyTries / 10, 2)+1);
+    this.readyRetryTimer = 3 * (Math.pow(this.readyTries / 10, 2) + 1);
     this.readyInterval = setTimeout(() => {
       this.readyTries++;
       this.sendReady();
@@ -54,10 +57,10 @@ class StepsizeOutgoing {
   }
 
   public send(event, callback?) {
-    if(!this.layerReady && event.type !== 'ready'){
+    if (!this.layerReady && event.type !== 'ready') {
       this.checkLayerIsReady();
       this.cachedMessage = event;
-      if(callback){
+      if (callback) {
         callback();
       }
       return;

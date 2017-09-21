@@ -4,6 +4,13 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
+.label-highlight {
+  transform: translate3d(0, -19px, 0);
+  right: 5px;
+  text-align: right;
+  left: 90% !important;
+}
+
 @tooltip-border-radius: 5px;
 
 @highlight-color: fade(contrast(
@@ -98,8 +105,15 @@
 
 atom-text-editor {
   .line-highlight {
-    transition: background-color 0.1s linear;
+    transition: all 0.2s linear;
     background-color: @highlight-color;
+    position: relative;
+  }
+  .pr-line-highlight {
+    transition: all 0.2s linear;
+    background-color: fade(@highlight-color, 10);
+    position: relative;
+    opacity: 0.8;
   }
   .gutter[gutter-name="layer"] {
     border-right: 1px solid @base-border-color;
@@ -126,7 +140,7 @@ atom-text-editor {
     background-color: contrast(
       @base-background-color,
       lighten(@base-background-color, 2%),
-      darken(@base-background-color, 90%)
+      darken(@base-background-color, 2%)
     );
   }
 }

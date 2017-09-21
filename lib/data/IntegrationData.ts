@@ -53,11 +53,11 @@ async function processIntegrationData(data) {
     let toWrite = pullRequest;
     toWrite.commitCount = toWrite.commits.length;
     toWrite.status = StepsizeHelper.getStatusObject(pullRequest);
-    for(const i in pullRequest.commits){
+    for (const i in pullRequest.commits) {
       const commit = pullRequest.commits[i];
       GitData.updateCommit(commit.commitHash, {
-        status: commit.status
-      })
+        status: commit.status,
+      });
     }
     //delete toWrite.commits;
     db
@@ -104,6 +104,16 @@ export async function getPullRequestsForCommit(filePath, commitHash) {
       .find({ number: parseInt(number) })
       .value();
   });
+}
+
+export async function getCommitsForPullRequest(filePath, pullRequestNumber) {
+  if (pendingRequests[filePath]) {
+    await pendingRequests[filePath];
+  }
+  return db
+    .get('pullRequestsCommitsPivot')
+    .get(pullRequestNumber)
+    .value();
 }
 
 export async function getIssue(filePath, issueKey) {

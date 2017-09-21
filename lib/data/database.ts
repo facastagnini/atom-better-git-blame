@@ -1,7 +1,7 @@
 'use babel';
 
 import low from 'lowdb';
-import fs from 'fs'
+import fs from 'fs';
 
 import Memory from 'lowdb/adapters/Memory';
 const adapter = new Memory();
@@ -23,10 +23,10 @@ db
   })
   .write();
 
-window.layerCacheDump = function(path: string = __dirname){
-    let savePath = `${path}/layer-${Date.now()}.json`;
-    fs.writeFileSync(savePath, JSON.stringify(db));
-    console.log('Cache dumped to', savePath);
+window.layerCacheDump = function(path: string = __dirname) {
+  let savePath = `${path}/layer-${Date.now()}.json`;
+  fs.writeFileSync(savePath, JSON.stringify(db));
+  console.log('Cache dumped to', savePath);
 };
 
 export default db;

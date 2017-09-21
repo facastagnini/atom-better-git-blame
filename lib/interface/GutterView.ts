@@ -28,6 +28,8 @@ class GutterView {
   private highlightDecorations: Array<Decoration> = [];
   private codeSelector: CodeSelector;
   private outgoing: StepsizeOutgoing;
+  private integrationData: any;
+  private overlayHack: HTMLElement;
 
   constructor(editor: IEditor, outgoing: StepsizeOutgoing) {
     this.editor = editor;
@@ -83,9 +85,13 @@ class GutterView {
           });
           item.emitter.on('mouseEnter', () => {
             this.highlightCommit(identifier);
+            if(ConfigManager.get('highlightPullRequestOnHover')){
+              this.highlightPullRequestForCommit(identifier);
+            }
           });
           item.emitter.on('mouseLeave', () => {
             this.removeHighlight();
+            this.removeOverlayOverflowHack();
           });
           this.handleLayerSearch(item, marker);
         });
@@ -125,16 +131,80 @@ class GutterView {
     }
   }
 
-  highlightCommit(commitHash: string) {
-    this.highlightDecorations.map(decoration => decoration.destroy());
-    this.markers[commitHash].map(marker => {
-      this.highlightDecorations.push(
-        this.editor.decorateMarker(marker, {
-          type: 'line',
-          class: 'line-highlight layer-highlight',
-        })
-      );
+  highlightCommit(
+    commitHash: string,
+    labelContent = `<span class="icon icon-git-commit"></span>${commitHash.substr(
+      0,
+      6
+    )}`,
+    customClasses = ''
+  ) {
+    if (!this.markers[commitHash]) return;
+    this.markers[commitHash].map(async marker => {
+      const decoration = this.editor.decorateMarker(marker, {
+        type: 'line',
+        class: `line-highlight layer-highlight ${customClasses}`,
+      });
+      this.highlightDecorations.push(decoration);
+      if(ConfigManager.get('displayHighlightLabels')){
+        const label = document.createElement('div');
+        label.style['width'] = '100%';
+        label.style['height'] = '19px';
+        label.style['opacity'] = '0.5';
+        label.innerHTML = labelContent;
+        const labelDecoration = this.editor.decorateMarker(marker, {
+          type: 'overlay',
+          class: 'label-highlight',
+          position: 'tail',
+          avoidOverflow: false,
+          item: label,
+        });
+        this.highlightDecorations.push(labelDecoration);
+      }
     });
+  }
+
+  async highlightPullRequestForCommit(commitHash) {
+    this.overlayOverflowHack();
+    await this.integrationData;
+    let pullRequests = await IntegrationData.getPullRequestsForCommit(
+      this.editor.getPath(),
+      commitHash
+    );
+    if (pullRequests.length > 0) {
+      let commits = await IntegrationData.getCommitsForPullRequest(
+        this.editor.getPath(),
+        pullRequests[0].number
+      );
+      if (commits) {
+        commits = commits.filter(hash => hash != commitHash);
+        commits.map(hash => {
+          console.log(hash);
+          this.highlightCommit(
+            hash,
+            `<span class="icon icon-git-pull-request"></span>#${pullRequests[0]
+              .number}`,
+            'pr-line-highlight'
+          );
+        });
+      }
+    }
+  }
+
+  overlayOverflowHack(){
+    this.overlayHack = document.createElement('style');
+    document.head.appendChild(this.overlayHack);
+    this.overlayHack.innerHTML = `
+      .tab-bar, .status-bar {
+        z-index: 6;
+      }
+    `;
+  }
+
+  removeOverlayOverflowHack(){
+    if(this.overlayHack){
+      this.overlayHack.remove();
+    }
   }
 
   highlightMarker(marker) {
@@ -179,7 +249,7 @@ class GutterView {
 
   private async fetchGutterData() {
     const filePath = this.editor.getPath();
-    IntegrationData.getIntegrationDataForFile(filePath);
+    this.integrationData = IntegrationData.getIntegrationDataForFile(filePath);
     let commits = await GitData.getCommitsForFile(filePath);
     this.commits = commits.commits;
     let ranges = await GitData.getGutterRangesForFile(filePath);

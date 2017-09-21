@@ -16,6 +16,13 @@ export const config = {
       'PoppyLochmara',
       'PersianSteel',
     ],
+    order: 1,
+  },
+  defaultWidth: {
+    title: 'Default width',
+    type: 'integer',
+    default: 210,
+    order: 2,
   },
   gutterDateFormat: {
     title: 'Gutter date format',
@@ -23,6 +30,7 @@ export const config = {
       'Moment.js compatible date format string (https://momentjs.com/docs/#/displaying/format/)',
     type: 'string',
     default: 'YYYY-MM-DD',
+    order: 3,
   },
   parallelGitProcessing: {
     title: 'Use parallel processing for Git commands',
@@ -30,6 +38,7 @@ export const config = {
       'Can improve performance on multi-core machines, if the gutter is slow try disabling this',
     type: 'boolean',
     default: true,
+    order: 4,
   },
   searchInLayerEnabled: {
     title: 'Enable Search in Layer (macOS Only)',
@@ -37,12 +46,22 @@ export const config = {
       'Send code selection events to the Layer desktop app for more detailed search results',
     type: 'boolean',
     default: true,
+    order: 5,
   },
-  defaultWidth: {
-    title: 'Default width',
-    type: 'integer',
-    default: 210,
+  highlightPullRequestOnHover: {
+    title: 'Highlight pull request on hover',
+    description: 'When hovering over a gutter item highlight additional commits from the same pull request',
+    type: 'boolean',
+    default: true,
+    order: 6,
   },
+  displayHighlightLabels: {
+    title: 'Display highlight labels',
+    description: 'Show commit hashes and pull requests numbers in the top right of highlighted sections',
+    type: 'boolean',
+    default: true,
+    order: 7
+  }
 };
 
 export function getConfig() {
