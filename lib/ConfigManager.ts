@@ -66,8 +66,7 @@ export const config = {
   },
   sendUsageStatistics: {
     title: 'Send usage statistics',
-    description:
-      'Send anonymous usage data to Stepsize.',
+    description: 'Send anonymous usage data to Stepsize.',
     type: 'boolean',
     default: true,
     order: 8,

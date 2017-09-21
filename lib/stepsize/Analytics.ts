@@ -9,7 +9,7 @@ let client: Analytics;
 let userHash: string;
 
 export async function init() {
-  if(ConfigManager.get('sendUsageStatistics')){
+  if (ConfigManager.get('sendUsageStatistics')) {
     client = new Analytics('BpxcscE9nzM1r0ENwNShXerBjbDSLDzj');
     let userEmail = await email();
     const hash = crypto.createHash('sha256');
