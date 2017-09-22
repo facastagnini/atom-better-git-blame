@@ -84,3 +84,11 @@ export function get(key) {
 export function set(key, value) {
   return atom.config.set(`${pj.name}.${key}`, value);
 }
+
+export function observe(key, ...args) {
+  return atom.config.observe(`${pj.name}.${key}`, ...args)
+}
+
+export function onDidChange(key, ...args) {
+  return atom.config.onDidChange(`${pj.name}.${key}`, ...args)
+}
