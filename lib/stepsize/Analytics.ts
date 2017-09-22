@@ -18,22 +18,22 @@ export async function init() {
     const randomString = crypto.randomBytes(8).toString('hex');
     const configKeys = Object.keys(ConfigManager.getConfig());
     let pluginConfig = {};
-    for(let i in configKeys){
+    for (let i in configKeys) {
       const key = configKeys[i];
       pluginConfig[`BGB Config ${key}`] = ConfigManager.get(key);
-      ConfigManager.onDidChange(key, (value) => {
+      ConfigManager.onDidChange(key, value => {
         track('Changed config', {
-          'Config': key,
+          Config: key,
           'Old Value': value.oldValue,
           'New Value': value.newValue,
         });
-      })
+      });
     }
     client.identify({
       userId: userHash,
       traits: {
         name: `Plugin User ${randomString}`,
-        ...pluginConfig
+        ...pluginConfig,
       },
     });
   }

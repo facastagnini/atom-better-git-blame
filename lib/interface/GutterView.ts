@@ -135,10 +135,10 @@ class GutterView {
 
   highlightCommit(
     commitHash: string,
-    labelContent = `<span class="icon icon-git-commit"></span>${commitHash.substr(
+    labelContent = `<span class="icon icon-git-commit"></span><span class="highlight-label">${commitHash.substr(
       0,
       6
-    )}`,
+    )}</span>`,
     customClasses = ''
   ) {
     if (!this.markers[commitHash]) return;
@@ -183,8 +183,8 @@ class GutterView {
         commits.map(hash => {
           this.highlightCommit(
             hash,
-            `<span class="icon icon-git-pull-request"></span>#${pullRequests[0]
-              .number}`,
+            `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${pullRequests[0]
+              .number}</span>`,
             'pr-line-highlight'
           );
         });
