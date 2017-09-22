@@ -17,7 +17,7 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
 
   state: ITooltipContainerState;
   timeout: Timer;
-  containerElement: HTMLDivElement;
+  containerElement: HTMLElement | null;
 
   constructor(props: ITooltipContainerProps) {
     super(props);

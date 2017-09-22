@@ -34,16 +34,19 @@ class TooltipContainer extends React.Component {
     ;
     renderTooltip() {
         if (this.state.show) {
-            return (React.createElement(TooltipPortal, { parent: this.containerElement, mouseEnter: this.mouseEnterHandler.bind(this), mouseLeave: this.mouseLeaveHandler.bind(this) }, this.props.tooltipContent()));
+            return (<TooltipPortal parent={this.containerElement} mouseEnter={this.mouseEnterHandler.bind(this)} mouseLeave={this.mouseLeaveHandler.bind(this)}>
+          {this.props.tooltipContent()}
+        </TooltipPortal>);
         }
         return null;
     }
     render() {
-        return (React.createElement("div", { style: {
-                width: '100%',
-            }, onMouseEnter: this.mouseEnterHandler.bind(this), onMouseLeave: this.mouseLeaveHandler.bind(this), ref: (el) => this.containerElement = el },
-            this.renderTooltip(),
-            this.props.children));
+        return (<div style={{
+            width: '100%',
+        }} onMouseEnter={this.mouseEnterHandler.bind(this)} onMouseLeave={this.mouseLeaveHandler.bind(this)} ref={(el) => this.containerElement = el}>
+        {this.renderTooltip()}
+        {this.props.children}
+      </div>);
     }
 }
 export default TooltipContainer;

@@ -19,7 +19,7 @@ class BuildStatus extends React.PureComponent<IBuildStatusProps, object> {
     return null;
   }
 
-  private static renderIcon(state) : JSX.Element {
+  private static renderIcon(state: string) : JSX.Element | null {
     switch (state) {
       case 'SUCCESS':
         return <i className="icon icon-check" style={{ color: '#2cbe4e' }} />;
@@ -30,7 +30,7 @@ class BuildStatus extends React.PureComponent<IBuildStatusProps, object> {
     }
   }
 
-  clickHandler(label){
+  clickHandler(label: string){
     return () => {
       Analytics.track(`Clicked link`, {label});
     };

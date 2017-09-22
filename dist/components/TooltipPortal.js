@@ -33,7 +33,9 @@ class TooltipPortal extends React.Component {
         this.tooltipElement.style['top'] = `${topPos}px`;
     }
     renderTooltipContent(props) {
-        this.tooltipElement = ReactDOM.render(React.createElement("div", { style: this.getTooltipStyle(), onMouseEnter: this.props.mouseEnter, onMouseLeave: this.props.mouseLeave }, props.children), this.portal);
+        this.tooltipElement = ReactDOM.render(<div style={this.getTooltipStyle()} onMouseEnter={this.props.mouseEnter} onMouseLeave={this.props.mouseLeave}>
+      {props.children}
+      </div>, this.portal);
         this.positionTooltip();
     }
     render() {

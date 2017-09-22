@@ -1,3 +1,5 @@
+import { DetailedHTMLProps } from 'react';
+
 'use babel';
 
 import React from 'preact-compat';
@@ -24,7 +26,7 @@ class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
     ReactDOM.unmountComponentAtNode(this.portal);
   }
 
-  getTooltipStyle() {
+  getTooltipStyle() : DetailedHTMLProps<any, any> {
     let rect = this.props.parent.getBoundingClientRect();
     return {
       webkitFontSmoothing: 'subpixel-antialiased',

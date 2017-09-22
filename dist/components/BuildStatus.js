@@ -11,9 +11,9 @@ class BuildStatus extends React.PureComponent {
     static renderIcon(state) {
         switch (state) {
             case 'SUCCESS':
-                return React.createElement("i", { className: "icon icon-check", style: { color: '#2cbe4e' } });
+                return <i className="icon icon-check" style={{ color: '#2cbe4e' }}/>;
             case 'FAILURE':
-                return React.createElement("i", { className: "icon icon-x", style: { color: '#cb2431' } });
+                return <i className="icon icon-x" style={{ color: '#cb2431' }}/>;
             default:
                 return null;
         }
@@ -25,7 +25,9 @@ class BuildStatus extends React.PureComponent {
     }
     render() {
         if (this.props.status) {
-            return (React.createElement("a", { onClick: this.clickHandler('Build status'), href: this.props.status.contexts[0].targetUrl, className: "build-status", title: this.props.status.contexts[0].description }, BuildStatus.renderIcon(this.getStatus())));
+            return (<a onClick={this.clickHandler('Build status')} href={this.props.status.contexts[0].targetUrl} className="build-status" title={this.props.status.contexts[0].description}>
+          {BuildStatus.renderIcon(this.getStatus())}
+        </a>);
         }
         return null;
     }

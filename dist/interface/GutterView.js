@@ -99,7 +99,7 @@ class GutterView {
             });
         }
     }
-    highlightCommit(commitHash, labelContent = `<span class="icon icon-git-commit"></span>${commitHash.substr(0, 6)}`, customClasses = '') {
+    highlightCommit(commitHash, labelContent = `<span class="icon icon-git-commit"></span><span class="highlight-label">${commitHash.substr(0, 6)}</span>`, customClasses = '') {
         if (!this.markers[commitHash])
             return;
         this.markers[commitHash].map(async (marker) => {
@@ -134,8 +134,8 @@ class GutterView {
             if (commits) {
                 commits = commits.filter(hash => hash != commitHash);
                 commits.map(hash => {
-                    this.highlightCommit(hash, `<span class="icon icon-git-pull-request"></span>#${pullRequests[0]
-                        .number}`, 'pr-line-highlight');
+                    this.highlightCommit(hash, `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${pullRequests[0]
+                        .number}</span>`, 'pr-line-highlight');
                 });
             }
         }

@@ -85,7 +85,7 @@ function pullRequestsCommitsPivot(pullRequests) {
   return db.get('pullRequestsCommitsPivot').value();
 }
 
-export async function getPullRequestsForCommit(filePath, commitHash) {
+export async function getPullRequestsForCommit(filePath: string, commitHash: string) {
   if (pendingRequests[filePath]) {
     await pendingRequests[filePath];
   }
@@ -106,7 +106,7 @@ export async function getPullRequestsForCommit(filePath, commitHash) {
   });
 }
 
-export async function getCommitsForPullRequest(filePath, pullRequestNumber) {
+export async function getCommitsForPullRequest(filePath: string, pullRequestNumber: string | number) {
   if (pendingRequests[filePath]) {
     await pendingRequests[filePath];
   }
@@ -116,7 +116,7 @@ export async function getCommitsForPullRequest(filePath, pullRequestNumber) {
     .value();
 }
 
-export async function getIssue(filePath, issueKey) {
+export async function getIssue(filePath: string, issueKey: string | number) {
   if (pendingRequests[filePath]) {
     await pendingRequests[filePath];
   }

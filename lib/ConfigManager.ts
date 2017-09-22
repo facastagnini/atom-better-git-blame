@@ -77,18 +77,18 @@ export function getConfig() {
   return config;
 }
 
-export function get(key) {
+export function get(key: string) {
   return atom.config.get(`${pj.name}.${key}`);
 }
 
-export function set(key, value) {
+export function set(key: string, value: any) {
   return atom.config.set(`${pj.name}.${key}`, value);
 }
 
-export function observe(key, ...args) {
+export function observe(key: string, ...args : any[]) {
   return atom.config.observe(`${pj.name}.${key}`, ...args);
 }
 
-export function onDidChange(key, ...args) {
+export function onDidChange(key: string, ...args : any[]) {
   return atom.config.onDidChange(`${pj.name}.${key}`, ...args);
 }
