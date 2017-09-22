@@ -2,8 +2,8 @@
   "context-menu": {
     "atom-text-editor": [
       {
-        "label": "Toggle Layer",
-        "command": "layer-atom:toggle"
+        "label": "Toggle Better Git Blame",
+        "command": "better-git-blame:toggle"
       }
     ]
   },
@@ -12,11 +12,11 @@
       "label": "Packages",
       "submenu": [
         {
-          "label": "Layer",
+          "label": "Better Git Blame",
           "submenu": [
             {
               "label": "Toggle",
-              "command": "layer-atom:toggle"
+              "command": "better-git-blame:toggle"
             }
           ]
         }

@@ -21,7 +21,7 @@ export const config = ConfigManager.getConfig();
 export function activate(state) {
   disposables.add(
     atom.commands.add('atom-workspace', {
-      'layer-atom:toggle': () => toggleGutterView(),
+      'better-git-blame:toggle': () => toggleGutterView(),
     })
   );
   if (os.platform() === 'darwin' && ConfigManager.get('searchInLayerEnabled')) {
