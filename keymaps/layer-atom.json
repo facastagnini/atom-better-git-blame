@@ -1,5 +1,5 @@
 {
   "atom-workspace": {
-    "ctrl-l": "better-git-blame:toggle"
+    "ctrl-b": "better-git-blame:toggle"
   }
 }
