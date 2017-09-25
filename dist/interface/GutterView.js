@@ -41,7 +41,9 @@ class GutterView {
             const date = commit.commitedAt;
             const commitDay = Math.floor((date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24);
             colorScale(this.editor).then(scale => {
-                this.markers[identifier].map(marker => {
+                const markers = this.markers[identifier];
+                for (const i in markers) {
+                    const marker = markers[i];
                     const item = new GutterItem(commit);
                     this.handleResizes(item);
                     item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
@@ -60,6 +62,7 @@ class GutterView {
                     });
                     item.emitter.on('mouseEnter', () => {
                         this.highlightCommit(identifier);
+                        this.handleLayerSearch(item, marker);
                         if (ConfigManager.get('highlightPullRequestOnHover')) {
                             this.highlightPullRequestForCommit(identifier);
                         }
@@ -68,8 +71,7 @@ class GutterView {
                         this.removeHighlight();
                         this.removeOverlayOverflowHack();
                     });
-                    this.handleLayerSearch(item, marker);
-                });
+                }
             });
         }
     }
@@ -100,9 +102,11 @@ class GutterView {
         }
     }
     highlightCommit(commitHash, labelContent = `<span class="icon icon-git-commit"></span><span class="highlight-label">${commitHash.substr(0, 6)}</span>`, customClasses = '') {
-        if (!this.markers[commitHash])
+        const markers = this.markers[commitHash];
+        if (!markers)
             return;
-        this.markers[commitHash].map(async (marker) => {
+        for (const i in markers) {
+            const marker = markers[i];
             const decoration = this.editor.decorateMarker(marker, {
                 type: 'line',
                 class: `line-highlight layer-highlight ${customClasses}`,
@@ -123,7 +127,7 @@ class GutterView {
                 });
                 this.highlightDecorations.push(labelDecoration);
             }
-        });
+        }
     }
     async highlightPullRequestForCommit(commitHash) {
         this.overlayOverflowHack();

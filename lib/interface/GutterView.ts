@@ -67,7 +67,9 @@ class GutterView {
         (date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24
       );
       colorScale(this.editor).then(scale => {
-        this.markers[identifier].map(marker => {
+        const markers = this.markers[identifier];
+        for(const i in markers){
+          const marker = markers[i];
           const item = new GutterItem(commit);
           this.handleResizes(item);
           item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
@@ -86,6 +88,7 @@ class GutterView {
           });
           item.emitter.on('mouseEnter', () => {
             this.highlightCommit(identifier);
+            this.handleLayerSearch(item, marker);
             if (ConfigManager.get('highlightPullRequestOnHover')) {
               this.highlightPullRequestForCommit(identifier);
             }
@@ -94,8 +97,7 @@ class GutterView {
             this.removeHighlight();
             this.removeOverlayOverflowHack();
           });
-          this.handleLayerSearch(item, marker);
-        });
+        }
       });
     }
   }
@@ -141,8 +143,10 @@ class GutterView {
     )}</span>`,
     customClasses = ''
   ) {
-    if (!this.markers[commitHash]) return;
-    this.markers[commitHash].map(async marker => {
+    const markers = this.markers[commitHash];
+    if (!markers) return;
+    for(const i in markers){
+      const marker = markers[i];
       const decoration = this.editor.decorateMarker(marker, {
         type: 'line',
         class: `line-highlight layer-highlight ${customClasses}`,
@@ -163,7 +167,7 @@ class GutterView {
         });
         this.highlightDecorations.push(labelDecoration);
       }
-    });
+    }
   }
 
   async highlightPullRequestForCommit(commitHash) {
