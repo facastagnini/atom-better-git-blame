@@ -38,7 +38,7 @@ class StepsizeHelper {
       let responseData = '';
       const req = https.request(
         {
-          hostname: 'development-stable-layer.stepsize.com',
+          hostname: 'production-layer.stepsize.com',
           path: '/augment-code-search-results',
           method: 'POST',
           headers: {

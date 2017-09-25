@@ -32,7 +32,6 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
   }
 
   hideTooltip() {
-    Analytics.track('Tooltip hidden');
     this.setState({ show: false });
   }
 

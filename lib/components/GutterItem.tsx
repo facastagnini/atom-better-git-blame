@@ -239,7 +239,17 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     const commit = this.props.commit;
     const date = commit.commitedAt;
     const formattedDate = moment(date).format(ConfigManager.get('gutterDateFormat'));
-    const author = commit.author;
+    let author = commit.author;
+    if(ConfigManager.get('truncateGutterNames')){
+      const splitAuthor = author.split(' ');
+      if(splitAuthor.length > 1){
+        const lastName = splitAuthor.pop();
+        const initials = splitAuthor.map((part) => {
+          return part[0].toUpperCase()
+        }).join(' ');
+        author = `${initials}. ${lastName}`;
+      }
+    }
     return `${formattedDate} ${author}`
   }
 

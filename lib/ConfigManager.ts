@@ -32,13 +32,21 @@ export const config = {
     default: 'YYYY-MM-DD',
     order: 3,
   },
+  truncateGutterNames: {
+    title: 'Truncate names in gutter',
+    description:
+      'Will attempt to truncate names to display first initial and surname only',
+    type: 'boolean',
+    default: true,
+    order: 4,
+  },
   parallelGitProcessing: {
     title: 'Use parallel processing for Git commands',
     description:
       'Can improve performance on multi-core machines, if the gutter is slow try disabling this',
     type: 'boolean',
     default: true,
-    order: 4,
+    order: 5,
   },
   searchInLayerEnabled: {
     title: 'Enable Search in Layer (macOS Only)',
@@ -46,7 +54,7 @@ export const config = {
       'Send code selection events to the Layer desktop app for more detailed search results',
     type: 'boolean',
     default: true,
-    order: 5,
+    order: 6,
   },
   highlightPullRequestOnHover: {
     title: 'Highlight pull request on hover',
@@ -54,7 +62,7 @@ export const config = {
       'When hovering over a gutter item highlight additional commits from the same pull request',
     type: 'boolean',
     default: true,
-    order: 6,
+    order: 7,
   },
   displayHighlightLabels: {
     title: 'Display highlight labels',
@@ -62,14 +70,14 @@ export const config = {
       'Show commit hashes and pull requests numbers in the top right of highlighted sections',
     type: 'boolean',
     default: true,
-    order: 7,
+    order: 8,
   },
   sendUsageStatistics: {
     title: 'Send usage statistics',
     description: 'Send anonymous usage data to Stepsize.',
     type: 'boolean',
     default: true,
-    order: 8,
+    order: 9,
   },
 };
 
