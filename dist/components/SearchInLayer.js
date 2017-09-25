@@ -17,7 +17,7 @@ class SearchInLayer extends React.PureComponent {
         }
         return (React.createElement("div", { className: "section powered-by" },
             React.createElement("div", { className: "section-content" },
-                React.createElement("p", { className: "section-body" },
+                React.createElement("p", { className: "section-body", style: { maxWidth: '100%' } },
                     "Powered by\u00A0",
                     React.createElement("a", { href: "https://stepsize.com" },
                         React.createElement("img", { className: "layer-icon", src: "atom://better-git-blame/assets/stepsize-logo-secondary-64.png", height: "16", alt: "" }))))));

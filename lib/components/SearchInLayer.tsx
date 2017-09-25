@@ -40,7 +40,7 @@ class SearchInLayer extends React.PureComponent<ISearchInLayerProps, any>{
     return (
       <div className="section powered-by">
         <div className="section-content">
-          <p className="section-body">
+          <p className="section-body" style={{ maxWidth: '100%' }}>
             Powered by&nbsp;
             <a href="https://stepsize.com"><img className="layer-icon" src="atom://better-git-blame/assets/stepsize-logo-secondary-64.png" height="16" alt=""/></a>
           </p>
