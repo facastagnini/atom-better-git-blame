@@ -15,7 +15,7 @@
 
 ## What makes it better?
 
-TL;DR – it pulls in info about pull requests & related issues, and helps you visualise the blame info.
+TL;DR: it does more than just display `git blame` annotations in the gutter – it pulls in info about pull requests & related issues, and helps you visualise the blame info.
 
 **A rich popover displays summary info about the commit, its corresponding pull request, and any related issues.**
 
