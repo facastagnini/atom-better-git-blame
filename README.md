@@ -1,6 +1,8 @@
 # Better Git Blame Atom package
 
-A better way to view git blame info in Atom.
+**A better way to view git blame info in Atom.**
+
+(Doubles up as the editor integration for the Layer app.)
 
 - [What makes it better?](#what-makes-it-better)
 - [How do I use it?](#how-do-i-use-it)
@@ -8,6 +10,7 @@ A better way to view git blame info in Atom.
 - [FAQ](#faq)
 - [Contributing](#contributing)
 - [License](#license)
+- [What is Layer?](#what-is-layer)
 - [What is Stepsize?](#what-is-stepsize)
 
 ## What makes it better?
@@ -23,6 +26,8 @@ TL;DR – it pulls in info about pull requests & related issues, and helps you v
 ![Line highlighting](https://i.imgur.com/WsJTl7s.png)
 
 **Color-coding indicates the age of each line of code relative to the whole repo.**
+
+![Age color-coding](https://i.imgur.com/qMLLPIS.png)
 
 Oh and it's also fast and nicely designed.
 
@@ -88,12 +93,6 @@ Absolutely, this plugin talks to the app so you can search over selected code.
 
 Nope, you can use this plugin standalone and can turn off the UDP connection used with the Layer app (you can do this from the plugin's settings).
 
-**What's Layer?**
-
-Layer is a desktop app we're working on, currently in private beta. It surfaces all the relevant commits, pull requests, and issues for any piece of code you select in your editor.
-
-You can find a bit more about it at stepsize.com.
-
 <a name="permissions"></a>
 **Is my code sent to any servers?**
 
@@ -124,6 +123,12 @@ If you'd like to contribute we'd love to hear from you - just tweet at us [@Step
 ## License
 
 All the software in this repository is released under the MIT License. See [LICENSE.md](https://github.com/stepsize/layer-atom-plugin/blob/master/LICENSE.md) for details.
+
+## What is Layer?
+
+Layer is a desktop app we're working on, currently in private beta. It surfaces all the relevant commits, pull requests, and issues for any piece of code you select in your editor. This allows you to quickly dig up the history of any piece of code and understand its origin and purpose.
+
+You can find a bit more about it at [stepsize.com](https://stepsize.com).
 
 ## What is Stepsize?
 
