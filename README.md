@@ -2,7 +2,7 @@
 
 **A better way to view git blame info in Atom.**
 
-(Doubles up as the editor integration for the Layer app.)
+(Doubles up as the Atom integration for the [Layer app](https://stepsize.com).)
 
 - [What makes it better?](#what-makes-it-better)
 - [How do I use it?](#how-do-i-use-it)
