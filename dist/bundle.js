@@ -24430,7 +24430,7 @@ function onDidChange(key, ...args) {
 
 'use babel';
 let userHash;
-const writeKey = 'BpxcscE9nzM1r0ENwNShXerBjbDSLDzj';
+const writeKey = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
 const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
 function segmentRequest(path$$1, body) {
     return __awaiter(this, void 0, void 0, function* () {
