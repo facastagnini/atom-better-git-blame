@@ -1,5 +1,4 @@
 /lib export-ignore
-/spec export-ignore
 yarn.lock export-ignore
 .prettierrc export-ignore
 .gitattributes export-ignore
