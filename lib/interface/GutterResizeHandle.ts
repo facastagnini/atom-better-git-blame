@@ -1,6 +1,5 @@
 'use babel';
 
-import StyleHelper from './StyleHelper';
 import { Emitter } from 'atom';
 
 class GutterResizeHandle {
@@ -13,16 +12,7 @@ class GutterResizeHandle {
 
   constructor() {
     this.handleElement = document.createElement('div');
-    const style = new StyleHelper(this.handleElement.style);
-    style.setStyle({
-      position: 'absolute',
-      width: '4px',
-      background: 'transparent',
-      right: 0,
-      top: 0,
-      bottom: 0,
-      cursor: 'col-resize',
-    });
+    this.handleElement.className = 'layer-resize-handle';
     this.emitter = new Emitter();
     this.boundMouseDownListener = this.mouseDownListener.bind(this);
     this.boundMouseUpListener = this.mouseUpListener.bind(this);
