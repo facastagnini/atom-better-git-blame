@@ -2,13 +2,13 @@
 
 A better way to view git blame info in Atom.
 
-- [What makes it better?](#what-makes-it-better?)
-- [How do I use it?](#how-do-i-use-it?)
-- [How do I get setup?](#how-do-i-get-setup?)
+- [What makes it better?](#what-makes-it-better)
+- [How do I use it?](#how-do-i-use-it)
+- [How do I get setup?](#how-do-i-get-setup)
 - [FAQ](#faq)
 - [Contributing](#contributing)
 - [License](#license)
-- [What is Stepsize?](#what-is-stepsize?)
+- [What is Stepsize?](#what-is-stepsize)
 
 ## What makes it better?
 
