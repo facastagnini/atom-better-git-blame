@@ -7,7 +7,7 @@ import * as https from 'https';
 
 let userHash: string;
 
-const writeKey = 'BpxcscE9nzM1r0ENwNShXerBjbDSLDzj';
+const writeKey = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
 const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
 
 async function segmentRequest(path, body): Promise<any> {
