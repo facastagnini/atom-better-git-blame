@@ -13,7 +13,7 @@
     "jira",
     "github"
   ],
-  "repository": "https://github.com/Stepsize/layer-atom-plugin",
+  "repository": "https://github.com/Stepsize/atom-better-git-blame",
   "license": "MIT",
   "scripts": {
     "dev": "tsc --watch",
