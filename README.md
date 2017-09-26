@@ -12,6 +12,7 @@
 - [License](#license)
 - [What is Layer?](#what-is-layer)
 - [What is Stepsize?](#what-is-stepsize)
+- [Security and privacy](#security-and-privacy)
 
 ## What makes it better?
 
@@ -137,3 +138,9 @@ You can find a bit more about it at [stepsize.com](https://stepsize.com).
 We do this by integrating with all the tools you use, structuring the information found inside them, and making it easily accessible and searchable.
 
 Check us out [here](https://stepsize.com) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
+
+## Security and privacy
+
+If you set up the GitHub and/or Jira integrations, you might be interested in our [security statement](https://stepsize.com/security) & [privacy policy](https://stepsize.com/privacy).
+
+You can safely ignore them if you don't use the integrations.
