@@ -25,13 +25,15 @@
   },
   "dependencies": {
     "git-url-parse": "^7.0.0",
+    "install": "^0.10.1",
     "lodash": "^4.17.4",
     "lowdb": "^1.0.0",
     "moment": "^2.18.1",
     "node-color-gradient": "github:Stepsize/node-color-gradient",
+    "npm": "^5.4.2",
     "preact": "^8.2.5",
     "preact-compat": "^3.17.0",
-    "uuid": "^3.1.0"
+    "uuid-v4": "^0.1.0"
   },
   "devDependencies": {
     "@types/atom": "^0.0.39",

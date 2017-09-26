@@ -14,8 +14,8 @@ async function segmentRequest(path, body): Promise<any> {
   let payload = body;
   payload.context = {
     app: {
-      name: 'Atom Better Git Blame'
-    }
+      name: 'Atom Better Git Blame',
+    },
   };
   return new Promise((resolve, reject) => {
     let responseData = '';
@@ -25,8 +25,8 @@ async function segmentRequest(path, body): Promise<any> {
         path: `/v1${path}`,
         method: 'POST',
         headers: {
-          'Authorization': authHeader,
-          'Content-Type': 'application/json'
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
         },
       },
       function(response) {
@@ -76,7 +76,7 @@ export async function init() {
       traits: {
         name: `Plugin User ${randomString}`,
         ...pluginConfig,
-      }
+      },
     });
   }
 }
