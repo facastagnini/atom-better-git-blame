@@ -23,7 +23,7 @@ async function show(filePath, hashes) {
   const promises = chunkedHashes.map(hashes => {
     return runGitCommand(
       repoRoot,
-      `show --format==@COMMIT@=%n%H%n%ce%n%cn%n%B --shortstat ${hashes.join(
+      `show --format==@COMMIT@=%n%H%n%ae%n%an%n%B --shortstat ${hashes.join(
         ' '
       )}`
     );

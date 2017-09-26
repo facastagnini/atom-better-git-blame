@@ -46,7 +46,7 @@ export const config = {
     },
     displayHighlightLabels: {
         title: 'Display highlight labels',
-        description: 'Show commit hashes and pull requests numbers in the top right of highlighted sections',
+        description: 'When viewing the blame popover, show commit hashes and pull requests numbers in the top right of highlighted sections',
         type: 'boolean',
         default: true,
         order: 6,

@@ -18,7 +18,7 @@ async function show(filePath, hashes) {
     const chunkSize = Math.ceil(hashes.length / processCount);
     const chunkedHashes = _.chunk(hashes, chunkSize);
     const promises = chunkedHashes.map(hashes => {
-        return runGitCommand(repoRoot, `show --format==@COMMIT@=%n%H%n%ce%n%cn%n%B --shortstat ${hashes.join(' ')}`);
+        return runGitCommand(repoRoot, `show --format==@COMMIT@=%n%H%n%ae%n%an%n%B --shortstat ${hashes.join(' ')}`);
     });
     return Promise.all(promises).then(results => {
         const parsed = results.map(result => {
