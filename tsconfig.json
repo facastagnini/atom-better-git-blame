@@ -3,7 +3,6 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "jsx": "react",
     "lib": ["es6", "dom"],
     "typeRoots": [
@@ -18,6 +17,6 @@
     "inlineSourceMap": false,
     "inlineSources": false,
     "strict": true,
-    "target": "esnext"
+    "target": "ES6"
   }
 }

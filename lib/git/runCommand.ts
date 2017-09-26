@@ -7,8 +7,8 @@ function runGitCommand(
   command: string,
   shell: boolean = false
 ) {
-  const arguments = command.split(' ');
-  const child = childProcess.spawn('git', arguments, { cwd: repoPath, shell });
+  const args = command.split(' ');
+  const child = childProcess.spawn('git', args, { cwd: repoPath, shell });
 
   child.on('error', error => {
     throw error;

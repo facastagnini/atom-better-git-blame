@@ -68,7 +68,7 @@ class GutterView {
       );
       colorScale(this.editor).then(scale => {
         const markers = this.markers[identifier];
-        for(const i in markers){
+        for (const i in markers) {
           const marker = markers[i];
           const item = new GutterItem(commit);
           this.handleResizes(item);
@@ -145,7 +145,7 @@ class GutterView {
   ) {
     const markers = this.markers[commitHash];
     if (!markers) return;
-    for(const i in markers){
+    for (const i in markers) {
       const marker = markers[i];
       const decoration = this.editor.decorateMarker(marker, {
         type: 'line',

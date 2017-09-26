@@ -1,6 +1,6 @@
 'use babel';
 
-import { uniq } from 'lodash';
+import _ from 'lodash';
 import GitUrlParse from 'git-url-parse';
 
 class GitHelper {
@@ -41,7 +41,7 @@ class GitHelper {
   }
 
   static getHashesFromBlame(blame: Array<string>) {
-    return uniq(
+    return _.uniq(
       blame.map(line => {
         return line.split(' ')[0];
       })

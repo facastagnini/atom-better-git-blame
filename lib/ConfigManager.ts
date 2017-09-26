@@ -1,5 +1,5 @@
 'use babel';
-const pj = require('../package.json');
+const packageName = 'better-git-blame';
 export const config = {
   defaultWidth: {
     title: 'Gutter width (px)',
@@ -58,7 +58,8 @@ export const config = {
   },
   sendUsageStatistics: {
     title: 'Send anonymous usage statistics',
-    description: 'Send anonymous usage data to Stepsize so we can improve the plugin',
+    description:
+      'Send anonymous usage data to Stepsize so we can improve the plugin',
     type: 'boolean',
     default: true,
     order: 7,
@@ -86,17 +87,17 @@ export function getConfig() {
 }
 
 export function get(key: string) {
-  return atom.config.get(`${pj.name}.${key}`);
+  return atom.config.get(`${packageName}.${key}`);
 }
 
 export function set(key: string, value: any) {
-  return atom.config.set(`${pj.name}.${key}`, value);
+  return atom.config.set(`${packageName}.${key}`, value);
 }
 
-export function observe(key: string, ...args : any[]) {
-  return atom.config.observe(`${pj.name}.${key}`, ...args);
+export function observe(key: string, ...args: any[]) {
+  return atom.config.observe(`${packageName}.${key}`, ...args);
 }
 
-export function onDidChange(key: string, ...args : any[]) {
-  return atom.config.onDidChange(`${pj.name}.${key}`, ...args);
+export function onDidChange(key: string, ...args: any[]) {
+  return atom.config.onDidChange(`${packageName}.${key}`, ...args);
 }

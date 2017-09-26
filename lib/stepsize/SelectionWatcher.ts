@@ -2,7 +2,7 @@
 
 import IEditor = AtomCore.IEditor;
 import { CompositeDisposable } from 'atom';
-import { debounce } from 'lodash';
+import _ from 'lodash';
 
 class SelectionWatcher {
   editor: IEditor;
@@ -21,7 +21,7 @@ class SelectionWatcher {
 
   onSelection(selectionsCallback) {
     if (typeof selectionsCallback === 'function') {
-      this.selectionHandler = debounce(selectionsCallback, 200);
+      this.selectionHandler = _.debounce(selectionsCallback, 200);
     } else {
       throw new Error('Event listeners must supply a callback');
     }

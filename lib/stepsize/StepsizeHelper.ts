@@ -1,6 +1,6 @@
 'use babel';
 
-import * as uuid from 'uuid';
+const uuidv4 = require('uuid/v4');
 import * as https from 'https';
 import childProcess from 'child_process';
 import IRange = TextBuffer.IRange;
@@ -28,7 +28,7 @@ class StepsizeHelper {
     commitHashes
   ): Promise<any> {
     const payload = {
-      searchId: uuid.v4(),
+      searchId: uuidv4(),
       repoName: repoMetadata.repoName,
       repoOwner: repoMetadata.repoOwner,
       repoSource: repoMetadata.repoSource,
