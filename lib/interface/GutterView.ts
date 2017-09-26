@@ -5,6 +5,7 @@ import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import IGutterView = AtomCore.IGutterView;
 import Decoration = AtomCore.Decoration;
 import { CompositeDisposable, Range } from 'atom';
+import * as childProcess from 'child_process';
 import GutterRange from './GutterRange';
 import GutterItem from './GutterItem';
 import { colorScale } from './ColourScale';
@@ -12,7 +13,6 @@ import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
 import CodeSelector from '../stepsize/CodeSelector';
 import StepsizeOutgoing from '../stepsize/StepsizeOutgoing';
-import childProcess from 'child_process';
 import * as ConfigManager from '../ConfigManager';
 import * as Analytics from '../stepsize/Analytics';
 

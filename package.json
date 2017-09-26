@@ -24,7 +24,6 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "analytics-node": "^3.0.0",
     "git-url-parse": "^7.0.0",
     "lodash": "^4.17.4",
     "lowdb": "^1.0.0",

@@ -2,7 +2,7 @@
 
 const uuidv4 = require('uuid/v4');
 import * as https from 'https';
-import childProcess from 'child_process';
+import * as childProcess from 'child_process';
 import IRange = TextBuffer.IRange;
 
 class StepsizeHelper {

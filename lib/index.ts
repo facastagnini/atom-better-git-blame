@@ -46,7 +46,7 @@ function enableLayerSearch() {
       outgoing = new StepsizeOutgoing();
       atom.workspace.observeTextEditors(layerEditorObserver);
     })
-    .catch(() => {
+    .catch(e => {
       ConfigManager.set('searchInLayerEnabled', false);
     });
 }

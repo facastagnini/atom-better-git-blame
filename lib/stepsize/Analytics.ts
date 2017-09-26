@@ -1,16 +1,58 @@
 'use babel';
 
-import Analytics from 'analytics-node';
 import email from '../git/email';
 import crypto from 'crypto';
 import * as ConfigManager from '../ConfigManager';
+import * as https from 'https';
 
-let client: Analytics;
 let userHash: string;
+
+const writeKey = 'BpxcscE9nzM1r0ENwNShXerBjbDSLDzj';
+const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
+
+async function segmentRequest(path, body): Promise<any> {
+  let payload = body;
+  payload.context = {
+    app: {
+      name: 'Atom Better Git Blame'
+    }
+  };
+  return new Promise((resolve, reject) => {
+    let responseData = '';
+    const req = https.request(
+      {
+        hostname: 'api.segment.io',
+        path: `/v1${path}`,
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json'
+        },
+      },
+      function(response) {
+        let code = response.statusCode;
+        response.on('data', function(chunk) {
+          responseData += chunk;
+        });
+        response.on('end', function() {
+          if (code < 400) {
+            resolve(JSON.parse(responseData));
+          } else {
+            reject(responseData);
+          }
+        });
+      }
+    );
+    req.on('error', function(error) {
+      reject(error.message);
+    });
+    req.write(JSON.stringify(payload));
+    req.end();
+  });
+}
 
 export async function init() {
   if (ConfigManager.get('sendUsageStatistics')) {
-    client = new Analytics('BpxcscE9nzM1r0ENwNShXerBjbDSLDzj');
     let userEmail = await email();
     const hash = crypto.createHash('sha256');
     hash.update(userEmail);
@@ -29,19 +71,19 @@ export async function init() {
         });
       });
     }
-    client.identify({
+    await segmentRequest('/identify', {
       userId: userHash,
       traits: {
         name: `Plugin User ${randomString}`,
         ...pluginConfig,
-      },
+      }
     });
   }
 }
 
 export function track(name, data = {}) {
-  if (client && ConfigManager.get('sendUsageStatistics')) {
-    client.track({
+  if (ConfigManager.get('sendUsageStatistics')) {
+    segmentRequest('/track', {
       event: `BGB ${name}`,
       userId: userHash,
       properties: data,
