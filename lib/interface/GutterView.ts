@@ -43,7 +43,7 @@ class GutterView {
         this.drawGutter();
       })
       .catch(e => {
-        throw e;
+        console.error(e);
       });
     this.codeSelector = new CodeSelector(this.editor);
     return this.gutter;

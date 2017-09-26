@@ -24328,7 +24328,7 @@ function runGitCommand(repoPath, command, shell = false) {
         throw error;
     });
     child.on('exit', exitCode => {
-        if (exitCode !== 0) {
+        if (exitCode !== 0 && exitCode !== 128) {
             throw new Error(`Git exited with unexpected code: ${exitCode}`);
         }
     });
@@ -24363,7 +24363,7 @@ function runGitCommand(repoPath, command, shell = false) {
 'use babel';
 function email() {
     return __awaiter(this, void 0, void 0, function* () {
-        return runGitCommand(__dirname, `config --global user.email`);
+        return runGitCommand('/', `config --global user.email`);
     });
 }
 
@@ -28262,7 +28262,7 @@ class GutterView {
             this.drawGutter();
         })
             .catch(e => {
-            throw e;
+            console.error(e);
         });
         this.codeSelector = new CodeSelector(this.editor);
         return this.gutter;

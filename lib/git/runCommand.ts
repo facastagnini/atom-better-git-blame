@@ -15,7 +15,7 @@ function runGitCommand(
   });
 
   child.on('exit', exitCode => {
-    if (exitCode !== 0) {
+    if (exitCode !== 0 && exitCode !== 128) {
       throw new Error(`Git exited with unexpected code: ${exitCode}`);
     }
   });
