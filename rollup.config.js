@@ -10,6 +10,7 @@ export default {
     file: 'dist/bundle.js',
     format: 'cjs'
   },
+  external: ['https', 'atom', 'dgram', 'fs', 'child_process', 'crypto', 'path', 'os'],
   plugins: [
     replace({
       patterns: [
