@@ -32,6 +32,7 @@ class StepsizeOutgoing {
         parsedMessage.source.name === 'Layer'
       ) {
         this.layerReady = true;
+        this.readyTries = 1;
         if (this.cachedMessage) {
           this.send(this.cachedMessage);
           this.cachedMessage = null;
