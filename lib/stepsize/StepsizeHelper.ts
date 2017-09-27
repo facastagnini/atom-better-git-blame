@@ -68,7 +68,7 @@ class StepsizeHelper {
     });
   }
 
-  public static checkLayerInstallation() {
+  public static checkLayerInstallation() : Promise<void> {
     return new Promise((resolve, reject) => {
       childProcess.exec(
         "ls | grep 'Layer.app'",
@@ -81,6 +81,21 @@ class StepsizeHelper {
         }
       );
     });
+  }
+
+  public static checkLayerRunning() : Promise<void> {
+    return new Promise((resolve, reject) => {
+      childProcess.exec(
+        "pgrep Layer",
+        { cwd: '/' },
+        err => {
+          if (err) {
+            return reject(new Error('No process with name \'Layer\' is running'));
+          }
+          resolve();
+        }
+      );
+    })
   }
 
   /**

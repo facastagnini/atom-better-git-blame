@@ -1,3 +1,7 @@
+## 0.1.1 & 0.1.2 - Hotfixes
+* Fixed a bug that would prevent the Layer desktop app performing a search when clicking the Search in Layer button after the Layer process has been terminated (#3)
+* Updated package keywords
+
 ## 0.1.0 - First Official Release
 ### New features <small>- Introducing the Better Git Blame gutter view!</small>
 * Toggle gutter with `ctrl-b` to display `git blame` data
