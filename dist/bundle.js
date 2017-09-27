@@ -17360,7 +17360,7 @@ class StepsizeOutgoing {
     sendReady() {
         const event = {
             type: 'ready',
-            source: { name: 'BetterGitBlame', version: '0.1.0' },
+            source: { name: 'BetterGitBlame', version: version },
         };
         this.send(event);
     }
@@ -24339,7 +24339,6 @@ class TooltipPortal extends index.Component {
 
 'use babel';
 function runGitCommand(repoPath, command, shell = false) {
-    throw new Error('LOL');
     return new Promise((resolve, reject) => {
         const args = command.split(' ');
         const child = childProcess.spawn('git', args, { cwd: repoPath, shell });

@@ -83,7 +83,7 @@ class StepsizeOutgoing {
   sendReady() {
     const event = {
       type: 'ready',
-      source: { name: 'BetterGitBlame', version: '0.1.0' },
+      source: { name: 'BetterGitBlame', version: version },
     };
     this.send(event);
   }
