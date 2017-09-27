@@ -17288,7 +17288,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.1.3";
+var version = "0.1.4";
 
 'use babel';
 class StepsizeOutgoing {
