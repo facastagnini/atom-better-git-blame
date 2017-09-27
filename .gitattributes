@@ -1,4 +1,6 @@
 /lib export-ignore
+rollup.config.js export-ignore
+tsconfig.json export-ignore
 yarn.lock export-ignore
 .prettierrc export-ignore
 .gitattributes export-ignore

@@ -14,8 +14,8 @@
     "preserveConstEnums": true,
     "reactNamespace": "React",
     "skipLibCheck": true,
-    "inlineSourceMap": false,
-    "inlineSources": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
     "strict": true,
     "target": "ES6"
   }
