@@ -17244,6 +17244,16 @@ class StepsizeHelper {
             });
         });
     }
+    static checkLayerRunning() {
+        return new Promise((resolve, reject) => {
+            childProcess.exec("pgrep Layer", { cwd: '/' }, err => {
+                if (err) {
+                    return reject(new Error('No process with name \'Layer\' is running'));
+                }
+                resolve();
+            });
+        });
+    }
     /**
      * This function retrieves the status object that will be used to display the build status of the PR.
      * We follow GitHub's behaviour and use the potentialMergeCommit's status when it exists (it is a setting
@@ -17329,16 +17339,19 @@ class StepsizeOutgoing {
         }, this.readyRetryTimer * 1000);
     }
     send(event, callback) {
-        if (!this.layerReady && event.type !== 'ready') {
-            this.checkLayerIsReady();
-            this.cachedMessage = event;
-            if (callback) {
-                callback();
+        StepsizeHelper.checkLayerRunning().then(() => {
+            let msg = JSON.stringify(event);
+            this.OUTGOING_SOCK.send(msg, 0, msg.length, this.UDP_PORT, this.UDP_HOST, callback);
+        }).catch(() => {
+            this.layerReady = false;
+            if (event.type !== 'ready') {
+                this.checkLayerIsReady();
+                this.cachedMessage = event;
+                if (callback) {
+                    callback();
+                }
             }
-            return;
-        }
-        let msg = JSON.stringify(event);
-        this.OUTGOING_SOCK.send(msg, 0, msg.length, this.UDP_PORT, this.UDP_HOST, callback);
+        });
     }
     sendReady() {
         const event = {
