@@ -17295,7 +17295,7 @@ class StepsizeOutgoing {
             };
             this.send(event);
         };
-        this.pluginId = 'atom_v0.0.2';
+        this.pluginId = 'atom_v0.1.2';
         this.DEBUG = false;
         this.UDP_HOST = '127.0.0.1';
         this.UDP_PORT = 49369;
