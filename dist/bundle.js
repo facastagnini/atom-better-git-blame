@@ -24339,29 +24339,32 @@ class TooltipPortal extends index.Component {
 
 'use babel';
 function runGitCommand(repoPath, command, shell = false) {
-    const args = command.split(' ');
-    const child = childProcess.spawn('git', args, { cwd: repoPath, shell });
-    child.on('error', error => {
-        throw error;
-    });
-    child.on('exit', exitCode => {
-        if (exitCode !== 0 && exitCode !== 128) {
-            throw new Error(`Git exited with unexpected code: ${exitCode}`);
-        }
-    });
-    let stdOutPromise = new Promise((resolve, reject) => {
-        let stdOut = '';
-        child.stdout.on('data', data => (stdOut += data));
-        child.stdout.on('end', () => resolve(stdOut));
-        child.stdout.on('error', error => reject(error));
-    });
-    let stdErrPromise = new Promise((resolve, reject) => {
-        let stdErr = '';
-        child.stderr.on('data', data => (stdErr += data));
-        child.stderr.on('end', () => resolve(stdErr));
-        child.stderr.on('error', error => reject(error));
-    });
+    throw new Error('LOL');
     return new Promise((resolve, reject) => {
+        const args = command.split(' ');
+        const child = childProcess.spawn('git', args, { cwd: repoPath, shell });
+        child.on('error', error => {
+            console.error(command);
+            return reject(error);
+        });
+        child.on('exit', exitCode => {
+            if (exitCode !== 0 && exitCode !== 128) {
+                console.error(command);
+                return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
+            }
+        });
+        let stdOutPromise = new Promise((resolve, reject) => {
+            let stdOut = '';
+            child.stdout.on('data', data => (stdOut += data));
+            child.stdout.on('end', () => resolve(stdOut));
+            child.stdout.on('error', error => reject(error));
+        });
+        let stdErrPromise = new Promise((resolve, reject) => {
+            let stdErr = '';
+            child.stderr.on('data', data => (stdErr += data));
+            child.stderr.on('end', () => resolve(stdErr));
+            child.stderr.on('error', error => reject(error));
+        });
         Promise.all([stdOutPromise, stdErrPromise])
             .then(results => {
             const stdOut = results[0];
@@ -24520,7 +24523,15 @@ function segmentRequest(path$$1, body) {
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         if (get('sendUsageStatistics')) {
-            let userEmail = yield email();
+            let userEmail;
+            try {
+                userEmail = yield email();
+            }
+            catch (e) {
+                console.error(e);
+            }
+            if (!userEmail)
+                return;
             const hash = crypto.createHash('sha256');
             hash.update(userEmail);
             userHash = hash.digest('hex');
@@ -24546,7 +24557,7 @@ function init() {
     });
 }
 function track(name, data = {}) {
-    if (get('sendUsageStatistics')) {
+    if (get('sendUsageStatistics') && userHash) {
         segmentRequest('/track', {
             event: `BGB ${name}`,
             userId: userHash,
