@@ -4,6 +4,7 @@ import { Socket, createSocket } from 'dgram';
 import fs from 'fs';
 import StepsizeHelper from './StepsizeHelper';
 import Timer = NodeJS.Timer;
+import { version } from '../../package.json';
 
 class StepsizeOutgoing {
   private pluginId;
@@ -18,7 +19,7 @@ class StepsizeOutgoing {
   private cachedMessage: any;
 
   constructor() {
-    this.pluginId = 'atom_v0.1.3';
+    this.pluginId = `atom_v${version}`;
     this.DEBUG = false;
     this.UDP_HOST = '127.0.0.1';
     this.UDP_PORT = 49369;

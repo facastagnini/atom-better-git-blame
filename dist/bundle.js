@@ -17286,6 +17286,10 @@ class StepsizeHelper {
     }
 }
 
+var name = "better-git-blame";
+
+var version = "0.1.3";
+
 'use babel';
 class StepsizeOutgoing {
     constructor() {
@@ -17305,7 +17309,7 @@ class StepsizeOutgoing {
             };
             this.send(event);
         };
-        this.pluginId = 'atom_v0.1.3';
+        this.pluginId = `atom_v${version}`;
         this.DEBUG = false;
         this.UDP_HOST = '127.0.0.1';
         this.UDP_PORT = 49369;
@@ -19203,7 +19207,7 @@ function render(vnode, parent, merge) {
   return diff(merge, vnode, {}, false, parent, false);
 }
 
-var version = '15.1.0'; // trick libraries to think we are react
+var version$1 = '15.1.0'; // trick libraries to think we are react
 
 var ELEMENTS = 'a abbr address area article aside audio b base bdi bdo big blockquote body br button canvas caption cite code col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link main map mark menu menuitem meta meter nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr circle clipPath defs ellipse g image line linearGradient mask path pattern polygon polyline radialGradient rect stop svg text tspan'.split(' ');
 
@@ -19810,7 +19814,7 @@ PureComponent.prototype.shouldComponentUpdate = function(props, state) {
 };
 
 var index = {
-	version: version,
+	version: version$1,
 	DOM: DOM,
 	PropTypes: propTypes,
 	Children: Children,
@@ -24381,7 +24385,7 @@ function email() {
 }
 
 'use babel';
-const packageName = 'better-git-blame';
+const packageName = name;
 const config$1 = {
     defaultWidth: {
         title: 'Gutter width (px)',
@@ -25178,7 +25182,7 @@ function isPromise(obj) {
 
 
 
-var main = function (adapter) {
+var main$1 = function (adapter) {
   if (typeof adapter !== 'object') {
     throw new Error('An adapter must be provided, see https://github.com/typicode/lowdb/#usage');
   }
@@ -25294,7 +25298,7 @@ var Memory = function (_Base) {
 
 'use babel';
 const adapter = new Memory();
-const db = main(adapter);
+const db = main$1(adapter);
 db
     .defaults({
     commitMessages: {},
