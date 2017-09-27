@@ -53,7 +53,13 @@ async function segmentRequest(path, body): Promise<any> {
 
 export async function init() {
   if (ConfigManager.get('sendUsageStatistics')) {
-    let userEmail = await email();
+    let userEmail;
+    try {
+      userEmail = await email();
+    } catch(e){
+      console.error(e)
+    }
+    if (!userEmail) return;
     const hash = crypto.createHash('sha256');
     hash.update(userEmail);
     userHash = hash.digest('hex');
@@ -82,7 +88,7 @@ export async function init() {
 }
 
 export function track(name, data = {}) {
-  if (ConfigManager.get('sendUsageStatistics')) {
+  if (ConfigManager.get('sendUsageStatistics') && userHash) {
     segmentRequest('/track', {
       event: `BGB ${name}`,
       userId: userHash,

@@ -8,7 +8,8 @@ export default {
   input: 'lib/index.ts',
   output: {
     file: 'dist/bundle.js',
-    format: 'cjs'
+    format: 'cjs',
+    sourcemap: false
   },
   external: ['https', 'atom', 'dgram', 'fs', 'child_process', 'crypto', 'path', 'os'],
   plugins: [

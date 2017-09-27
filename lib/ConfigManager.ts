@@ -1,5 +1,8 @@
 'use babel';
-const packageName = 'better-git-blame';
+
+import { name } from '../package.json'
+const packageName = name;
+
 export const config = {
   defaultWidth: {
     title: 'Gutter width (px)',
