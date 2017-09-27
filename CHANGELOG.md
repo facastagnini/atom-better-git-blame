@@ -1,6 +1,7 @@
-## 0.1.1 & 0.1.2 - Hotfixes
+## 0.1.1 & 0.1.2 & 0.1.4 - Hotfixes
 * Fixed a bug that would prevent the Layer desktop app performing a search when clicking the Search in Layer button after the Layer process has been terminated (#3)
 * Updated package keywords
+* Fix errors being thrown on launch when no git config is present (#5)
 
 ## 0.1.0 - First Official Release
 ### New features <small>- Introducing the Better Git Blame gutter view!</small>
