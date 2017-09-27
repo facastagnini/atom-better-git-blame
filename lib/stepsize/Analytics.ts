@@ -56,8 +56,8 @@ export async function init() {
     let userEmail;
     try {
       userEmail = await email();
-    } catch(e){
-      console.error(e)
+    } catch (e) {
+      console.error(e);
     }
     if (!userEmail) return;
     const hash = crypto.createHash('sha256');

@@ -19,7 +19,9 @@ function runGitCommand(
     child.on('exit', exitCode => {
       if (exitCode !== 0 && exitCode !== 128) {
         console.error(command);
-        return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
+        return reject(
+          new Error(`Git exited with unexpected code: ${exitCode}`)
+        );
       }
     });
 

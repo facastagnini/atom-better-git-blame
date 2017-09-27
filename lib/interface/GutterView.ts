@@ -5,6 +5,7 @@ import IDisplayBufferMarker = AtomCore.IDisplayBufferMarker;
 import IGutterView = AtomCore.IGutterView;
 import Decoration = AtomCore.Decoration;
 import { CompositeDisposable, Range } from 'atom';
+import _ from 'lodash';
 import * as childProcess from 'child_process';
 import GutterRange from './GutterRange';
 import GutterItem from './GutterItem';
@@ -109,22 +110,31 @@ class GutterView {
     });
   }
 
+  searchInLayerClickHandler(codeFold) {
+    return () => {
+      Analytics.track('Search in Layer clicked');
+      const range = new Range([codeFold.start, 0], [codeFold.end + 1, 0]);
+      const event = this.outgoing.buildEvent(
+        this.editor,
+        [range],
+        'selection',
+        true
+      );
+      this.outgoing.send(event, () => {
+        childProcess.exec('open -a Layer');
+      });
+    };
+  }
+
   handleLayerSearch(item, marker) {
     const codeFold = this.codeSelector.getFoldForRange(marker.getBufferRange());
     if (codeFold) {
-      item.emitter.on('clickedSearch', () => {
-        Analytics.track('Search in Layer clicked');
-        const range = new Range([codeFold.start, 0], [codeFold.end + 1, 0]);
-        const event = this.outgoing.buildEvent(
-          this.editor,
-          [range],
-          'selection',
-          true
-        );
-        this.outgoing.send(event, () => {
-          childProcess.exec('open -a Layer');
-        });
-      });
+      item.emitter.on(
+        'clickedSearch',
+        _.debounce(this.searchInLayerClickHandler(codeFold), 250, {
+          leading: true,
+        })
+      );
       item.emitter.on('mouseEnterLayerSearch', () => {
         this.removeHighlight();
         this.highlightMarker(codeFold.marker);
