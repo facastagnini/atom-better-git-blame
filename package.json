@@ -1,7 +1,7 @@
 {
   "name": "better-git-blame",
   "main": "dist/bundle.js",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Git blame gutter with pull requests, related issues, and age color-coding of code.",
   "keywords": [
     "stepsize",
@@ -23,8 +23,7 @@
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/atom": "^0.0.39",
     "@types/lodash": "^4.14.74",
