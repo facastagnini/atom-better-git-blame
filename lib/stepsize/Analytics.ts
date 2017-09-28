@@ -2,8 +2,8 @@
 
 import email from '../git/email';
 import crypto from 'crypto';
-import https from 'https';
 import os from 'os';
+import * as https from 'https';
 import * as ConfigManager from '../ConfigManager';
 import { version } from '../../package.json';
 
