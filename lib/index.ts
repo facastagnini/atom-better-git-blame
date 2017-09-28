@@ -11,6 +11,7 @@ import os from 'os';
 import * as ConfigManager from './ConfigManager';
 import * as ColorScale from './interface/ColourScale';
 import * as Analytics from './stepsize/Analytics';
+import * as IntegrationNotification from './interface/IntegrationNotification';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;
@@ -62,11 +63,13 @@ function toggleGutterView() {
       } else {
         Analytics.track('Gutter shown');
         gutter.show();
+        IntegrationNotification.handleGutterShown();
       }
     } else {
       Analytics.track('Gutter shown');
       gutters.set(editor, new GutterView(editor, outgoing));
       ColorScale.setEditor(editor);
+      IntegrationNotification.handleGutterShown();
     }
   }
 }

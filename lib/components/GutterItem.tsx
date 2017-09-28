@@ -11,6 +11,7 @@ import SearchInLayer from './SearchInLayer';
 import * as ConfigManager from '../ConfigManager';
 import BuildStatus from './BuildStatus';
 import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 interface IGutterItemProps {
   commit: any;
@@ -123,6 +124,8 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
 
   tooltip() {
     const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
+    const { pullRequests, githubIssues, jiraIssues } = this.state;
+    IntegrationNotification.trackTooltipShown(pullRequests.length, githubIssues.length + jiraIssues.length);
     return (
       <div className="layer-tooltip">
         <div className="section">
@@ -150,7 +153,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
               </span>
           </div>
         </div>
-        {this.state.pullRequests.map((pullRequest) => {
+        {pullRequests.map((pullRequest) => {
           const verb = pullRequest.state.toLowerCase();
           return (
             <div className="section">
@@ -178,7 +181,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             </div>
           )
         })}
-        {this.state.githubIssues.map((issue) => {
+        {githubIssues.map((issue) => {
           let issueIcon = 'icon icon-issue-opened green';
           if(issue.state === 'CLOSED'){
             issueIcon = 'icon icon-issue-closed red'
@@ -203,7 +206,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             </div>
           )
         })}
-        {this.state.jiraIssues.map((issue) => {
+        {jiraIssues.map((issue) => {
           return (
             <div className="section">
               <div className="section-icon">
