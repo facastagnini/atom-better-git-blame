@@ -10,8 +10,8 @@ var fs = _interopDefault(require('fs'));
 var https = require('https');
 var childProcess = require('child_process');
 var crypto = _interopDefault(require('crypto'));
-var path = _interopDefault(require('path'));
 var os = _interopDefault(require('os'));
+var path = _interopDefault(require('path'));
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -17246,9 +17246,9 @@ class StepsizeHelper {
     }
     static checkLayerRunning() {
         return new Promise((resolve, reject) => {
-            childProcess.exec("pgrep Layer", { cwd: '/' }, err => {
+            childProcess.exec('pgrep Layer', { cwd: '/' }, err => {
                 if (err) {
-                    return reject(new Error('No process with name \'Layer\' is running'));
+                    return reject(new Error("No process with name 'Layer' is running"));
                 }
                 resolve();
             });
@@ -17288,7 +17288,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.1.5";
+var version = "0.1.6";
 
 'use babel';
 class StepsizeOutgoing {
@@ -17320,8 +17320,10 @@ class StepsizeOutgoing {
             if (parsedMessage.type === 'ready' &&
                 parsedMessage.source.name === 'Layer') {
                 this.layerReady = true;
+                this.readyTries = 1;
                 if (this.cachedMessage) {
                     this.send(this.cachedMessage);
+                    this.cachedMessage = null;
                 }
                 clearInterval(this.readyInterval);
             }
@@ -17343,14 +17345,16 @@ class StepsizeOutgoing {
         }, this.readyRetryTimer * 1000);
     }
     send(event, callback) {
-        StepsizeHelper.checkLayerRunning().then(() => {
+        StepsizeHelper.checkLayerRunning()
+            .then(() => {
             let msg = JSON.stringify(event);
             this.OUTGOING_SOCK.send(msg, 0, msg.length, this.UDP_PORT, this.UDP_HOST, callback);
-        }).catch(() => {
+        })
+            .catch(() => {
             this.layerReady = false;
             if (event.type !== 'ready') {
-                this.checkLayerIsReady();
                 this.cachedMessage = event;
+                this.checkLayerIsReady();
                 if (callback) {
                     callback();
                 }
@@ -24382,7 +24386,14 @@ function runGitCommand(repoPath, command, shell = false) {
 'use babel';
 function email() {
     return __awaiter(this, void 0, void 0, function* () {
-        return runGitCommand('/', `config --global user.email`);
+        let gitEmail;
+        try {
+            gitEmail = (yield runGitCommand('/', `config --global user.email`));
+        }
+        catch (e) {
+            throw e;
+        }
+        return gitEmail.trim();
     });
 }
 
@@ -24482,10 +24493,16 @@ const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
 function segmentRequest(path$$1, body) {
     return __awaiter(this, void 0, void 0, function* () {
         let payload = body;
+        payload.timestamp = new Date().toISOString();
         payload.context = {
             app: {
                 name: 'Atom Better Git Blame',
+                version: version
             },
+            os: {
+                name: os.type(),
+                version: os.release()
+            }
         };
         return new Promise((resolve, reject) => {
             let responseData = '';
@@ -24519,21 +24536,33 @@ function segmentRequest(path$$1, body) {
         });
     });
 }
+function getUserHash() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let savedHash = localStorage.getItem('better-git-blame-analytics-hash');
+        if (savedHash) {
+            return savedHash;
+        }
+        let userEmail;
+        try {
+            userEmail = yield email();
+        }
+        catch (e) {
+            console.error(e);
+            userEmail = crypto.randomBytes(28);
+        }
+        if (!userEmail)
+            throw new Error('Failed to fetch email or create fallback');
+        const hash = crypto.createHash('sha256');
+        hash.update(userEmail);
+        const hashedEmail = hash.digest('hex');
+        localStorage.setItem('better-git-blame-analytics-hash', hashedEmail);
+        return hashedEmail;
+    });
+}
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         if (get('sendUsageStatistics')) {
-            let userEmail;
-            try {
-                userEmail = yield email();
-            }
-            catch (e) {
-                console.error(e);
-            }
-            if (!userEmail)
-                return;
-            const hash = crypto.createHash('sha256');
-            hash.update(userEmail);
-            userHash = hash.digest('hex');
+            userHash = yield getUserHash();
             const randomString = crypto.randomBytes(8).toString('hex');
             const configKeys = Object.keys(getConfig());
             let pluginConfig = {};
@@ -24550,15 +24579,15 @@ function init() {
             }
             yield segmentRequest('/identify', {
                 userId: userHash,
-                traits: Object.assign({ name: `Plugin User ${randomString}` }, pluginConfig),
+                traits: Object.assign({ 'User Hash': userHash, name: `Plugin User ${randomString}` }, pluginConfig),
             });
         }
     });
 }
-function track(name, data = {}) {
+function track(name$$1, data = {}) {
     if (get('sendUsageStatistics') && userHash) {
         segmentRequest('/track', {
-            event: `BGB ${name}`,
+            event: `BGB ${name$$1}`,
             userId: userHash,
             properties: data,
         });
@@ -28347,17 +28376,22 @@ class GutterView {
             this.previousResize = 0;
         });
     }
+    searchInLayerClickHandler(codeFold) {
+        return () => {
+            track('Search in Layer clicked');
+            const range = new atom$1.Range([codeFold.start, 0], [codeFold.end + 1, 0]);
+            const event = this.outgoing.buildEvent(this.editor, [range], 'selection', true);
+            this.outgoing.send(event, () => {
+                childProcess.exec('open -a Layer');
+            });
+        };
+    }
     handleLayerSearch(item, marker) {
         const codeFold = this.codeSelector.getFoldForRange(marker.getBufferRange());
         if (codeFold) {
-            item.emitter.on('clickedSearch', () => {
-                track('Search in Layer clicked');
-                const range = new atom$1.Range([codeFold.start, 0], [codeFold.end + 1, 0]);
-                const event = this.outgoing.buildEvent(this.editor, [range], 'selection', true);
-                this.outgoing.send(event, () => {
-                    childProcess.exec('open -a Layer');
-                });
-            });
+            item.emitter.on('clickedSearch', lodash.debounce(this.searchInLayerClickHandler(codeFold), 250, {
+                leading: true,
+            }));
             item.emitter.on('mouseEnterLayerSearch', () => {
                 this.removeHighlight();
                 this.highlightMarker(codeFold.marker);

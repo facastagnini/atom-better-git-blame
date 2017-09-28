@@ -1,9 +1,15 @@
-## 0.1.1 & 0.1.2 & 0.1.4 - Hotfixes
+## 0.1.6: Layer & Analytics
+* Fixed issues with analytics not recording timestamps
+* Fixed bugs that would cause Layer to perform multiple searches when using the Search in Layer functionality
+* Trimmed new lines in git stdout to prevent user hashes being incorrectly calculated
+* Added random user hashes for analytics where users have no global git config email set (#8)
+
+## 0.1.1 - 0.1.5: Hotfixes
 * Fixed a bug that would prevent the Layer desktop app performing a search when clicking the Search in Layer button after the Layer process has been terminated (#3)
 * Updated package keywords
 * Fix errors being thrown on launch when no git config is present (#5)
 
-## 0.1.0 - First Official Release
+## 0.1.0: First Official Release
 ### New features <small>- Introducing the Better Git Blame gutter view!</small>
 * Toggle gutter with `ctrl-b` to display `git blame` data
 * Mouse over the gutter to show the blame popover
