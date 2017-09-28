@@ -11,6 +11,9 @@ import BlameTooltip from './BlameTooltip';
 interface IGutterItemProps {
   commit: any;
   emitter: any;
+  inidcatorColor: string;
+  firstCommitDate: Date;
+  commitDay: number;
 }
 
 interface IGutterItemState {
@@ -130,21 +133,67 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     return `${formattedDate} ${author}`
   }
 
+  ageTooltip(){
+    const totalDays = (Date.now() - new Date(this.props.firstCommitDate).getTime()) / 1000 / 3600 / 24;
+    const pointPosition = (this.props.commitDay / totalDays) * 100;
+    console.log(pointPosition, totalDays);
+    return (
+      <div className="layer-tooltip">
+        <div className="age-graph">
+          <div className="markers">
+            <div className="start">
+              <div className="start-inner">
+                <h3>Repo Created</h3>
+                <code>
+                  {moment(this.props.firstCommitDate).format(ConfigManager.get('gutterDateFormat'))}
+                </code>
+              </div>
+            </div>
+            <div className="end">
+              <div className="end-inner">
+                <h3>Today</h3>
+                <code>{moment(Date.now()).format(ConfigManager.get('gutterDateFormat'))}</code>
+              </div>
+            </div>
+          </div>
+          <div className="rail">
+          </div>
+          <div className="markers">
+            <div className="point" style={{marginLeft: `${pointPosition}%`}}>
+              <i className="icon icon-git-commit" /> <br />
+              <h3>{moment(this.props.commit.commitedAt).fromNow()}</h3>
+              <code>
+                {moment(this.props.commit.commitedAt).format(ConfigManager.get('gutterDateFormat'))}
+              </code>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   render() {
     if(this.state.commit.commitHash.substr(0,6) === '000000'){
       return (
-        <div className="item-component">
+        <div className="gutter-text">
           {this.formattedText()}
         </div>
       );
     }
     return (
-      <TooltipContainer
-        className="item-component"
-        tooltipContent={this.tooltip.bind(this)}
-      >
-        {this.formattedText()}
-      </TooltipContainer>
+      <div>
+        <TooltipContainer
+          className="gutter-text"
+          tooltipContent={this.tooltip.bind(this)}
+        >
+          {this.formattedText()}
+        </TooltipContainer>
+        <TooltipContainer
+          style={{background: this.props.inidcatorColor}}
+          className="gutter-age"
+          tooltipContent={this.ageTooltip.bind(this)}
+        />
+      </div>
     );
   }
 

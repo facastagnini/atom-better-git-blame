@@ -71,7 +71,11 @@ class GutterView {
         const markers = this.markers[identifier];
         for (const i in markers) {
           const marker = markers[i];
-          const item = new GutterItem(commit);
+          const item = new GutterItem({
+            commit,
+            commitDay: commitDay,
+            firstCommitDate: this.firstCommitDate,
+          });
           this.handleResizes(item);
           item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
           if (scale[commitDay]) {

@@ -125,6 +125,102 @@
       vertical-align: middle;
     }
   }
+  .age-graph{
+    margin: 0 auto;
+    padding-left: 8px;
+    width:80%;
+    position: relative;
+    .rail {
+      height:10px;
+      width: 100%;
+      background: blue;
+      margin: 0 auto;
+      border-radius: 20px;
+      background: linear-gradient(
+        90deg,
+        rgb(63, 116, 212),
+        rgb(60, 125, 199),
+        rgb(55, 136, 228),
+        rgb(78, 161, 216),
+        rgb(83, 175, 202),
+        rgb(96, 202, 197),
+        rgb(127, 225, 221),
+        rgb(167, 239, 236),
+        rgb(203, 248, 247),
+        rgb(255, 255, 255),
+        rgb(253, 245, 234),
+        rgb(251, 231, 204),
+        rgb(246, 208, 158),
+        rgb(243, 179, 99),
+        rgb(240, 159, 96),
+        rgb(240, 141, 89),
+        rgb(239, 128, 88),
+        rgb(238, 115, 73),
+        rgb(237, 98, 59),
+        rgb(235, 62, 37)
+      )
+    }
+    .markers{
+      margin: 10px 0;
+      display: flex;
+      flex-direction: row;
+      font-family: sans-serif;
+      color: white;
+      width: 100%;
+      h3{
+        margin:0;
+        padding:0;
+        margin-bottom: 4px;
+      }
+      code {
+        background: none;
+        padding: 0;
+      }
+      .start {
+        flex: 1;
+        text-align: center;
+        .start-inner{
+          transform: translateX(-38%);
+          float: left;
+          display:inline-block;
+        }
+      }
+      .end {
+        flex: 1;
+        text-align: center;
+        .end-inner{
+          transform: translateX(50%);
+          float: right;
+          display: inline-block;
+        }
+      }
+      .point {
+        flex: 0;
+        text-align: center;
+        white-space: nowrap;
+        margin-left: 65%;
+        margin-top: 5px;
+        transform: translateX(-50%);
+        .icon::before{
+          margin: 0;
+        }
+      }
+      .point::before{
+        opacity: 0.3;
+        display: block;
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-100%);
+        background: #fff;
+        border-radius: 10px;
+        border: 0px solid;
+        height: 10px;
+        width: 2px;
+      }
+    }
+  }
 }
 
 atom-text-editor {
@@ -144,7 +240,7 @@ atom-text-editor {
   }
   .layer-resize-handle {
     position: absolute;
-    width: 4px;
+    width: 1px;
     background: transparent;
     right: 0;
     top: 0;
@@ -165,9 +261,18 @@ atom-text-editor {
       width: 100%;
       text-align: left;
       transition: 0.3s background;
-      .item-component{
+      position: relative;
+      .gutter-text{
         width: 100%;
         padding: 0 5px 0 5px;
+      }
+      .gutter-age{
+        width: 5px;
+        background: red;
+        position: absolute;
+        right:0;
+        top:0;
+        bottom:0;
       }
     }
   }
