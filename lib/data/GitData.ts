@@ -75,10 +75,7 @@ export async function getCommitsForFile(filePath: string) {
     .write();
   loadCommits(
     repoPath,
-    _.filter(
-      _.map(commits, 'commitHash'),
-      hash => hash.substr(0, 6) !== '000000'
-    )
+    _.filter(_.map(commits, 'commitHash'), hash => hash.substr(0, 6) !== '000000')
   );
   return db
     .get('fileCommits')

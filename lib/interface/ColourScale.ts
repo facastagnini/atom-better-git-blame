@@ -21,9 +21,7 @@ export async function colorScale(editor: IEditor) {
 async function getScaleForEditor(editor: IEditor) {
   const projectDir = await GitData.getRepoRootPath(editor.getPath());
   let firstCommitDate: Date = await datePromises[projectDir];
-  const totalDays = Math.floor(
-    (Date.now() - firstCommitDate.getTime()) / 1000 / 3600 / 24
-  );
+  const totalDays = Math.floor((Date.now() - firstCommitDate.getTime()) / 1000 / 3600 / 24);
   const gradient = calculateScale(totalDays);
 
   // Hack to fix color scale calculation coming up short with steps
@@ -43,9 +41,7 @@ export function setEditor(editor: IEditor) {
       return;
     }
     editors[projectDir] = editor;
-    datePromises[projectDir] = GitData.getFirstCommitDateForRepo(
-      editor.getPath()
-    );
+    datePromises[projectDir] = GitData.getFirstCommitDateForRepo(editor.getPath());
   });
 }
 

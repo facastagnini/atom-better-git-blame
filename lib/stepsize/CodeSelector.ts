@@ -36,20 +36,14 @@ class CodeSelector {
       const startIndent = codeFold.indentation;
       let foldEnd = parseInt(codeFold.start);
       let skipLine = false;
-      while (
-        this.editor.indentationForBufferRow(++foldEnd) > startIndent ||
-        skipLine
-      ) {
+      while (this.editor.indentationForBufferRow(++foldEnd) > startIndent || skipLine) {
         const nextLineText = this.editor.lineTextForBufferRow(foldEnd + 1);
         if (nextLineText) {
           skipLine = nextLineText.match(/^\s+$/) || nextLineText.length === 0;
         }
       }
       codeFold.end = foldEnd;
-      codeFold.marker = this.editor.markBufferRange([
-        [codeFold.start, 0],
-        [foldEnd, 9001],
-      ]);
+      codeFold.marker = this.editor.markBufferRange([[codeFold.start, 0], [foldEnd, 9001]]);
     }
   }
 
