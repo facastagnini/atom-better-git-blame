@@ -32,8 +32,10 @@ class StepsizeOutgoing {
         parsedMessage.source.name === 'Layer'
       ) {
         this.layerReady = true;
+        this.readyTries = 1;
         if (this.cachedMessage) {
           this.send(this.cachedMessage);
+          this.cachedMessage = null;
         }
         clearInterval(this.readyInterval);
       }
@@ -58,26 +60,28 @@ class StepsizeOutgoing {
   }
 
   public send(event, callback?) {
-    StepsizeHelper.checkLayerRunning().then(() => {
-      let msg = JSON.stringify(event);
-      this.OUTGOING_SOCK.send(
-        msg,
-        0,
-        msg.length,
-        this.UDP_PORT,
-        this.UDP_HOST,
-        callback
-      );
-    }).catch(() => {
-      this.layerReady = false;
-      if (event.type !== 'ready') {
-        this.checkLayerIsReady();
-        this.cachedMessage = event;
-        if (callback) {
-          callback();
+    StepsizeHelper.checkLayerRunning()
+      .then(() => {
+        let msg = JSON.stringify(event);
+        this.OUTGOING_SOCK.send(
+          msg,
+          0,
+          msg.length,
+          this.UDP_PORT,
+          this.UDP_HOST,
+          callback
+        );
+      })
+      .catch(() => {
+        this.layerReady = false;
+        if (event.type !== 'ready') {
+          this.cachedMessage = event;
+          this.checkLayerIsReady();
+          if (callback) {
+            callback();
+          }
         }
-      }
-    });
+      });
   }
 
   sendReady() {

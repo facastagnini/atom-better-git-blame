@@ -1,6 +1,6 @@
 'use babel';
 
-import { name } from '../package.json'
+import { name } from '../package.json';
 const packageName = name;
 
 export const config = {
