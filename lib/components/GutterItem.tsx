@@ -133,13 +133,14 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
   render() {
     if(this.state.commit.commitHash.substr(0,6) === '000000'){
       return (
-        <div>
+        <div className="item-component">
           {this.formattedText()}
         </div>
       );
     }
     return (
       <TooltipContainer
+        className="item-component"
         tooltipContent={this.tooltip.bind(this)}
       >
         {this.formattedText()}

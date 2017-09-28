@@ -159,14 +159,16 @@ atom-text-editor {
     }
     .layer-gutter-item {
       overflow-x: hidden;
-      //border-bottom: 1px solid fade(@base-border-color, 20%);
-      padding: 0 5px 0 5px;
       box-sizing: border-box;
       white-space: nowrap;
       text-overflow: ellipsis;
       width: 100%;
       text-align: left;
       transition: 0.3s background;
+      .item-component{
+        width: 100%;
+        padding: 0 5px 0 5px;
+      }
     }
   }
   .layer-gutter:nth-child(even) {
