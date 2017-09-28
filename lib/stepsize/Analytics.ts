@@ -71,7 +71,7 @@ async function getUserHash() : Promise<string> {
     console.error(e);
     userEmail = crypto.randomBytes(28);
   }
-  if (!userEmail) throw new Error('Could not fetch email');
+  if (!userEmail) throw new Error('Failed to fetch email or create fallback');
   const hash = crypto.createHash('sha256');
   hash.update(userEmail);
   const hashedEmail = hash.digest('hex');
