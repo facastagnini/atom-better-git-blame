@@ -1,3 +1,5 @@
+[![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![bitHound Overall Score](https://www.bithound.io/github/Stepsize/atom-better-git-blame/badges/score.svg)](https://www.bithound.io/github/Stepsize/atom-better-git-blame) [![bitHound Dependencies](https://img.shields.io/bithound/dependencies/github/Stepsize/atom-better-git-blame.svg)](https://www.bithound.io/github/Stepsize/atom-better-git-blame/master/dependencies/npm) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
+
 # Better Git Blame Atom package
 
 **A better way to view git blame info in Atom.**
