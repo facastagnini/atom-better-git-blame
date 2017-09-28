@@ -6,10 +6,7 @@ import findRepoRoot from './findRepoRoot';
 async function email() {
   let gitEmail: string;
   try {
-    gitEmail = (await runGitCommand(
-      '/',
-      `config --global user.email`
-    )) as string;
+    gitEmail = (await runGitCommand('/', `config --global user.email`)) as string;
   } catch (e) {
     throw e;
   }

@@ -85,10 +85,7 @@ function pullRequestsCommitsPivot(pullRequests) {
   return db.get('pullRequestsCommitsPivot').value();
 }
 
-export async function getPullRequestsForCommit(
-  filePath: string,
-  commitHash: string
-) {
+export async function getPullRequestsForCommit(filePath: string, commitHash: string) {
   if (pendingRequests[filePath]) {
     await pendingRequests[filePath];
   }

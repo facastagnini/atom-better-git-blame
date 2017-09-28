@@ -20,8 +20,7 @@ export const config = {
   },
   colorScale: {
     title: 'Gutter color scale',
-    description:
-      'Preset scales for coloring commits based on age (requires editor reload)',
+    description: 'Preset scales for coloring commits based on age (requires editor reload)',
     type: 'string',
     default: 'RoyalPomegranate',
     enum: [
@@ -61,8 +60,7 @@ export const config = {
   },
   sendUsageStatistics: {
     title: 'Send anonymous usage statistics',
-    description:
-      'Send anonymous usage data to Stepsize so we can improve the plugin',
+    description: 'Send anonymous usage data to Stepsize so we can improve the plugin',
     type: 'boolean',
     default: true,
     order: 7,
