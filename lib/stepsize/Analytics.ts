@@ -2,8 +2,10 @@
 
 import email from '../git/email';
 import crypto from 'crypto';
-import * as ConfigManager from '../ConfigManager';
+import os from 'os';
 import * as https from 'https';
+import * as ConfigManager from '../ConfigManager';
+import { version } from '../../package.json';
 
 let userHash: string;
 
@@ -12,10 +14,16 @@ const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
 
 async function segmentRequest(path, body): Promise<any> {
   let payload = body;
+  payload.timestamp = new Date().toISOString();
   payload.context = {
     app: {
       name: 'Atom Better Git Blame',
+      version: version
     },
+    os: {
+      name: os.type(),
+      version: os.release()
+    }
   };
   return new Promise((resolve, reject) => {
     let responseData = '';
@@ -51,18 +59,29 @@ async function segmentRequest(path, body): Promise<any> {
   });
 }
 
-export async function init() {
+async function getUserHash() : Promise<string> {
+  let savedHash = localStorage.getItem('better-git-blame-analytics-hash');
+  if (savedHash) {
+    return savedHash
+  }
+  let userEmail;
+  try {
+    userEmail = await email();
+  } catch(e){
+    console.error(e);
+    userEmail = crypto.randomBytes(28);
+  }
+  if (!userEmail) throw new Error('Failed to fetch email or create fallback');
+  const hash = crypto.createHash('sha256');
+  hash.update(userEmail);
+  const hashedEmail = hash.digest('hex');
+  localStorage.setItem('better-git-blame-analytics-hash', hashedEmail);
+  return hashedEmail;
+}
+
+export async function init() : Promise<void> {
   if (ConfigManager.get('sendUsageStatistics')) {
-    let userEmail;
-    try {
-      userEmail = await email();
-    } catch (e) {
-      console.error(e);
-    }
-    if (!userEmail) return;
-    const hash = crypto.createHash('sha256');
-    hash.update(userEmail);
-    userHash = hash.digest('hex');
+    userHash = await getUserHash();
     const randomString = crypto.randomBytes(8).toString('hex');
     const configKeys = Object.keys(ConfigManager.getConfig());
     let pluginConfig = {};
@@ -80,6 +99,7 @@ export async function init() {
     await segmentRequest('/identify', {
       userId: userHash,
       traits: {
+        'User Hash': userHash,
         name: `Plugin User ${randomString}`,
         ...pluginConfig,
       },
@@ -87,7 +107,7 @@ export async function init() {
   }
 }
 
-export function track(name, data = {}) {
+export function track(name, data = {}) : void {
   if (ConfigManager.get('sendUsageStatistics') && userHash) {
     segmentRequest('/track', {
       event: `BGB ${name}`,
