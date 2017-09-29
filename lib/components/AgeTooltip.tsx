@@ -37,7 +37,6 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState>
         return color.hsl().string();
       })
     });
-    console.log(gradient);
   }
 
   render() {
@@ -48,7 +47,7 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState>
       pointAlign = 'left';
     }
     if(this.pointPosition > 70) {
-      pointTransform = 'translateX(-100%) translateX(5px)';
+      pointTransform = 'translateX(-100%) translateX(8px)';
       pointAlign = 'right';
     }
     const gradient = this.state.gradient.join(',');
