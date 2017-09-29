@@ -5,10 +5,13 @@ import AgeTooltip from './AgeTooltip';
 import React from 'preact-compat';
 import moment from 'moment';
 import TooltipContainer from './TooltipContainer';
+import BuildStatus from './BuildStatus';
+import BlameTooltip from './BlameTooltip';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
 import * as ConfigManager from '../ConfigManager';
-import BlameTooltip from './BlameTooltip';
+import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 interface IGutterItemProps {
   commit: any;
