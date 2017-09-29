@@ -3,7 +3,7 @@
 import React from 'preact-compat';
 import moment from 'moment';
 import * as ConfigManager from '../ConfigManager';
-import { scales } from '../interface/ColourScale';
+import * as ColorScale from '../interface/ColourScale';
 
 interface IAgeTooltipProps {
   firstCommitDate: Date
@@ -11,30 +11,47 @@ interface IAgeTooltipProps {
   commit: any
 }
 
-class AgeTooltip extends React.PureComponent<IAgeTooltipProps, object> {
+interface IAgeTooltipState {
+  gradient: Array<string>;
+}
+
+class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState> {
 
   totalDays: number;
   pointPosition: number;
+  state: any;
 
-  componentWillMount() {
+  constructor(...props: any[]){
+    super(...props);
+    this.state = {
+      gradient: ['#000']
+    }
+  }
+
+  async componentWillMount() {
     this.totalDays = (Date.now() - new Date(this.props.firstCommitDate).getTime()) / 1000 / 3600 / 24;
     this.pointPosition = (this.props.commitDay / this.totalDays) * 100;
+    const gradient = await ColorScale.colorScale(atom.workspace.getActiveTextEditor());
+    this.setState({
+      gradient: gradient.map((color) => {
+        return color.hsl().string();
+      })
+    });
+    console.log(gradient);
   }
 
   render() {
     let pointAlign = 'center';
-    let pointTransform = 'translateX(-50%) translateX(2px)';
+    let pointTransform = 'translateX(-50%) translateX(1px)';
     if(this.pointPosition < 20) {
-      pointTransform = 'translateX(-6px)';
+      pointTransform = 'translateX(-5px)';
       pointAlign = 'left';
     }
     if(this.pointPosition > 70) {
-      pointTransform = 'translateX(-100%) translateX(6px)';
+      pointTransform = 'translateX(-100%) translateX(5px)';
       pointAlign = 'right';
     }
-    const gradient = scales[ConfigManager.get('colorScale')].map((el) => {
-      return `rgb(${el.join(',')})`
-    }).join(',');
+    const gradient = this.state.gradient.join(',');
     return (
       <div className="layer-tooltip">
         <div className="age-graph">

@@ -113,7 +113,7 @@ export const scales: { [name: string]: Array<number[]> } = {
     [84, 39, 136],
   ],
   PoppyLochmara: [
-    [178, 24, 43],
+    [235, 62, 37],
     [214, 96, 77],
     [244, 165, 130],
     [253, 219, 199],
