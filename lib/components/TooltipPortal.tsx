@@ -27,7 +27,6 @@ class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
   }
 
   getTooltipStyle() : DetailedHTMLProps<any, any> {
-    let rect = this.props.parent.getBoundingClientRect();
     return {
       webkitFontSmoothing: 'subpixel-antialiased',
       position: 'absolute',

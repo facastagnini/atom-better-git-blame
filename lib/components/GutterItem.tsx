@@ -1,3 +1,5 @@
+import AgeTooltip from './AgeTooltip';
+
 'use babel';
 
 import React from 'preact-compat';
@@ -134,55 +136,11 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
   }
 
   ageTooltip(){
-    const totalDays = (Date.now() - new Date(this.props.firstCommitDate).getTime()) / 1000 / 3600 / 24;
-    const pointPosition = (this.props.commitDay / totalDays) * 100;
-    console.log(pointPosition, totalDays);
-    let pointAlign = 'center';
-    let pointTransform = 'translateX(-50%) translateX(3px)';
-    if(pointPosition < 20) {
-      pointTransform = 'translateX(-6px)';
-      pointAlign = 'left';
-    }
-    if(pointPosition > 70) {
-      pointTransform = 'translateX(-100%) translateX(6px)';
-      pointAlign = 'right';
-    }
-    return (
-      <div className="layer-tooltip">
-        <div className="age-graph">
-          <div className="markers">
-            <div className="start">
-              <div className="start-inner">
-                <h3>Repo Created</h3>
-              </div>
-            </div>
-            <div className="end">
-              <div className="end-inner">
-                <h3>Today</h3>
-              </div>
-            </div>
-          </div>
-          <div className="rail">
-            <div className="tick" style={{
-              left: `${pointPosition}%`,
-            }} />
-          </div>
-          <div className="markers">
-            <div className="point" style={{
-              marginLeft: `${pointPosition}%`,
-              textAlign: pointAlign,
-              transform: pointTransform,
-            }}>
-              <i className="icon icon-git-commit" />
-              <p>{moment(this.props.commit.commitedAt).fromNow()}</p>
-              <code>
-                {moment(this.props.commit.commitedAt).format(ConfigManager.get('gutterDateFormat'))}
-              </code>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <AgeTooltip
+      commitDay={this.props.commitDay}
+      firstCommitDate={this.props.firstCommitDate}
+      commit={this.props.commit}
+    />
   }
 
   render() {
