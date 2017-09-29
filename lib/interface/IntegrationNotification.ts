@@ -50,7 +50,8 @@ function showIntegrationNotificationIfAppropriate() {
 
 function showIntegrationNotification() {
   atom.notifications.addInfo('Boss mode blame', {
-    description: 'Want to see pull requests and issues in `better-git-blame` popovers?\n\n<img src="https://i.imgur.com/vUTvxHv.png" width="400" height="172" />\n\nJust setup one of our integrations to level up 🔥',
+    description:
+      'Want to see pull requests and issues in `better-git-blame` popovers?\n\n<img src="https://i.imgur.com/vUTvxHv.png" width="400" height="172" />\n\nJust setup one of our integrations to level up 🔥',
     dismissable: true,
     buttons: [
       {
@@ -64,14 +65,18 @@ function showIntegrationNotification() {
         text: 'Jira integration',
         onDidClick: () => {
           Analytics.track('Integration notification button clicked', { type: 'jira' });
-          shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
+          shell.openExternal(
+            'https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration'
+          );
         },
       },
       {
         text: 'Tell me more',
         onDidClick: () => {
           Analytics.track('Integration notification button clicked', { type: 'more' });
-          shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
+          shell.openExternal(
+            'https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup'
+          );
         },
       },
     ],
@@ -84,7 +89,11 @@ export function trackTooltipShown() {
   saveIntegrationNotificationData(notifData);
 }
 
-export function checkIntegrationDataRetrieved(pullRequests: any, githubIssues: any, jiraIssues: any) {
+export function checkIntegrationDataRetrieved(
+  pullRequests: any,
+  githubIssues: any,
+  jiraIssues: any
+) {
   const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
   const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
   const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
