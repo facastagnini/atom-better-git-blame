@@ -10,10 +10,7 @@ async function blame(filePath) {
     throw new Error('File does not exist inside a git repo');
   }
   const relPath = path.relative(repoRoot, filePath);
-  return runGitCommand(
-    repoRoot,
-    `blame --show-number --show-name -l --root ${relPath}`
-  );
+  return runGitCommand(repoRoot, `blame --show-number --show-name -l --root ${relPath}`);
 }
 
 export default blame;

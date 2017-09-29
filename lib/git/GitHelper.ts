@@ -13,9 +13,7 @@ class GitHelper {
    * @param   {Array<any>} remotes  Array of remote URLs of the form { url, name, type }
    * @returns {Object}     Object containing the extract repo metadata
    */
-  static extractRepoMetadataFromRemotes(
-    remotes: Array<any>
-  ): { [prop: string]: any } {
+  static extractRepoMetadataFromRemotes(remotes: Array<any>): { [prop: string]: any } {
     if (!Array.isArray(remotes) || remotes.length === 0) return {};
     let parsedUrl;
     try {
@@ -29,10 +27,7 @@ class GitHelper {
       repoSource: parsedUrl.source,
       repoRootUrl: parsedUrl.toString('https').replace('.git', ''),
     };
-    if (
-      repoMetadata.repoSource === 'github.com' ||
-      repoMetadata.repoSource === 'gitlab.com'
-    ) {
+    if (repoMetadata.repoSource === 'github.com' || repoMetadata.repoSource === 'gitlab.com') {
       repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commit`;
     } else if (repoMetadata.repoSource === 'bitbucket.org') {
       repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commits`;
@@ -67,9 +62,7 @@ class GitHelper {
       originalLineNumber: matched[3].trim(),
       lineNumber: matched[8].trim(),
       author: matched[4].trim(),
-      commitedAt: new Date(
-        `${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`
-      ),
+      commitedAt: new Date(`${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`),
       line: matched[9],
     };
   }

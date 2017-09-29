@@ -23,10 +23,7 @@ class StepsizeHelper {
     return [];
   }
 
-  public static async fetchIntegrationData(
-    repoMetadata,
-    commitHashes
-  ): Promise<any> {
+  public static async fetchIntegrationData(repoMetadata, commitHashes): Promise<any> {
     const payload = {
       searchId: uuid(),
       repoName: repoMetadata.repoName,
@@ -70,16 +67,12 @@ class StepsizeHelper {
 
   public static checkLayerInstallation(): Promise<void> {
     return new Promise((resolve, reject) => {
-      childProcess.exec(
-        "ls | grep 'Layer.app'",
-        { cwd: '/Applications' },
-        err => {
-          if (err) {
-            return reject(new Error('Could not detect Layer installation'));
-          }
-          resolve();
+      childProcess.exec("ls | grep 'Layer.app'", { cwd: '/Applications' }, err => {
+        if (err) {
+          return reject(new Error('Could not detect Layer installation'));
         }
-      );
+        resolve();
+      });
     });
   }
 

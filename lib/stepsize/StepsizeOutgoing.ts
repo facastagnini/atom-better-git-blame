@@ -27,10 +27,7 @@ class StepsizeOutgoing {
     this.layerReady = false;
     this.OUTGOING_SOCK.on('message', msg => {
       const parsedMessage = JSON.parse(msg);
-      if (
-        parsedMessage.type === 'ready' &&
-        parsedMessage.source.name === 'Layer'
-      ) {
+      if (parsedMessage.type === 'ready' && parsedMessage.source.name === 'Layer') {
         this.layerReady = true;
         this.readyTries = 1;
         if (this.cachedMessage) {
@@ -63,14 +60,7 @@ class StepsizeOutgoing {
     StepsizeHelper.checkLayerRunning()
       .then(() => {
         let msg = JSON.stringify(event);
-        this.OUTGOING_SOCK.send(
-          msg,
-          0,
-          msg.length,
-          this.UDP_PORT,
-          this.UDP_HOST,
-          callback
-        );
+        this.OUTGOING_SOCK.send(msg, 0, msg.length, this.UDP_PORT, this.UDP_HOST, callback);
       })
       .catch(() => {
         this.layerReady = false;
@@ -116,9 +106,7 @@ class StepsizeOutgoing {
   }
 
   buildEvent(editor, ranges, action, shouldPerformSearch = false) {
-    const selectedLineNumbers = StepsizeHelper.rangesToSelectedLineNumbers(
-      ranges
-    );
+    const selectedLineNumbers = StepsizeHelper.rangesToSelectedLineNumbers(ranges);
     return {
       source: 'atom',
       action: action,

@@ -33,37 +33,30 @@ class GutterItem {
     this.emitter = new Emitter();
     this.boundMouseEnterListener = this.mouseEnterListener.bind(this);
     this.boundMouseLeaveListener = this.mouseLeaveListener.bind(this);
-    this.itemElement.addEventListener(
-      'mouseenter',
-      this.boundMouseEnterListener
-    );
+    this.itemElement.addEventListener('mouseenter', this.boundMouseEnterListener);
   }
 
   public setIndicator(value) {
     this.inidcatorColor = value;
-    this.itemElement.style['border-right'] = `4px solid ${value}`;
   }
 
   public mouseEnterListener(event: MouseEvent) {
     this.emitter.emit('mouseEnter', event);
-    this.itemElement.addEventListener(
-      'mouseleave',
-      this.boundMouseLeaveListener
-    );
+    this.itemElement.addEventListener('mouseleave', this.boundMouseLeaveListener);
   }
 
   public mouseLeaveListener(event: MouseEvent) {
     this.emitter.emit('mouseLeave', event);
-    this.itemElement.removeEventListener(
-      'mouseleave',
-      this.boundMouseLeaveListener
-    );
+    this.itemElement.removeEventListener('mouseleave', this.boundMouseLeaveListener);
   }
 
   public element() {
     const item = React.createElement(Item, {
-      commit: this.data,
+      commit: this.data.commit,
+      firstCommitDate: this.data.firstCommitDate,
+      commitDay: this.data.commitDay,
       emitter: this.emitter,
+      inidcatorColor: this.inidcatorColor,
     });
     ReactDOM.render(item, this.contentElement);
     return this.itemElement;

@@ -26,9 +26,9 @@ TL;DR: it does more than just display `git blame` annotations in the gutter – 
 
 ![Line highlighting](https://i.imgur.com/WsJTl7s.png)
 
-**Color-coding indicates the age of each line of code relative to the whole repo.**
+**Color-coding indicates the age of each line of code relative to the whole repo. Check the popover to visualise that time span.**
 
-![Age color-coding](https://i.imgur.com/qMLLPIS.png)
+![Age color-coding](https://i.imgur.com/jg0Xsg4.png)
 
 Oh and it's also fast and nicely designed.
 
