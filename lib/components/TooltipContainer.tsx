@@ -68,9 +68,8 @@ class TooltipContainer extends React.Component<ITooltipContainerProps, ITooltipC
   render() {
     return (
       <div
-        style={{
-          width: '100%',
-        }}
+        style={this.props.style}
+        className={this.props.className}
         onMouseEnter={this.mouseEnterHandler.bind(this)}
         onMouseLeave={this.mouseLeaveHandler.bind(this)}
         ref={(el) => this.containerElement = el}

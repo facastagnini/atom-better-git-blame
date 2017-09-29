@@ -18,12 +18,12 @@ async function segmentRequest(path, body): Promise<any> {
   payload.context = {
     app: {
       name: 'Atom Better Git Blame',
-      version: version
+      version: version,
     },
     os: {
       name: os.type(),
-      version: os.release()
-    }
+      version: os.release(),
+    },
   };
   return new Promise((resolve, reject) => {
     let responseData = '';
@@ -59,15 +59,15 @@ async function segmentRequest(path, body): Promise<any> {
   });
 }
 
-async function getUserHash() : Promise<string> {
+async function getUserHash(): Promise<string> {
   let savedHash = localStorage.getItem('better-git-blame-analytics-hash');
   if (savedHash) {
-    return savedHash
+    return savedHash;
   }
   let userEmail;
   try {
     userEmail = await email();
-  } catch(e){
+  } catch (e) {
     console.error(e);
     userEmail = crypto.randomBytes(28);
   }
@@ -79,7 +79,7 @@ async function getUserHash() : Promise<string> {
   return hashedEmail;
 }
 
-export async function init() : Promise<void> {
+export async function init(): Promise<void> {
   if (ConfigManager.get('sendUsageStatistics')) {
     userHash = await getUserHash();
     const randomString = crypto.randomBytes(8).toString('hex');
@@ -107,7 +107,7 @@ export async function init() : Promise<void> {
   }
 }
 
-export function track(name, data = {}) : void {
+export function track(name, data = {}): void {
   if (ConfigManager.get('sendUsageStatistics') && userHash) {
     segmentRequest('/track', {
       event: `BGB ${name}`,
