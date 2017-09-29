@@ -9,9 +9,10 @@ var dgram = require('dgram');
 var fs = _interopDefault(require('fs'));
 var https = require('https');
 var childProcess = require('child_process');
-var crypto = _interopDefault(require('crypto'));
-var os = _interopDefault(require('os'));
 var path = _interopDefault(require('path'));
+var os = _interopDefault(require('os'));
+var crypto = _interopDefault(require('crypto'));
+var shell = _interopDefault(require('shell'));
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -17288,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.1.6";
+var version = "0.2.0";
 
 'use babel';
 class StepsizeOutgoing {
@@ -17317,8 +17318,7 @@ class StepsizeOutgoing {
         this.layerReady = false;
         this.OUTGOING_SOCK.on('message', msg => {
             const parsedMessage = JSON.parse(msg);
-            if (parsedMessage.type === 'ready' &&
-                parsedMessage.source.name === 'Layer') {
+            if (parsedMessage.type === 'ready' && parsedMessage.source.name === 'Layer') {
                 this.layerReady = true;
                 this.readyTries = 1;
                 if (this.cachedMessage) {
@@ -24301,103 +24301,6 @@ return hooks;
 });
 
 'use babel';
-class TooltipPortal extends index.Component {
-    componentDidMount() {
-        this.portal = document.createElement('div');
-        document.body.appendChild(this.portal);
-        this.renderTooltipContent(this.props);
-    }
-    componentWillUnmount() {
-        index.unmountComponentAtNode(this.portal);
-    }
-    getTooltipStyle() {
-        let rect = this.props.parent.getBoundingClientRect();
-        return {
-            webkitFontSmoothing: 'subpixel-antialiased',
-            position: 'absolute',
-            zIndex: 100,
-        };
-    }
-    positionTooltip() {
-        const parentRect = this.props.parent.getBoundingClientRect();
-        const tooltipRect = this.tooltipElement.getBoundingClientRect();
-        const tooltipWidth = tooltipRect.right - tooltipRect.left;
-        const tooltipHeight = tooltipRect.bottom - tooltipRect.top;
-        let leftPos = parentRect.right - tooltipWidth;
-        if (leftPos < 0)
-            leftPos += (Math.abs(leftPos) + 5);
-        this.tooltipElement.style['left'] = `${leftPos}px`;
-        let topPos = parentRect.top - tooltipHeight - 5;
-        if (topPos < 0)
-            topPos = parentRect.bottom + 5;
-        this.tooltipElement.style['top'] = `${topPos}px`;
-    }
-    renderTooltipContent(props) {
-        this.tooltipElement = index.render(index.createElement("div", { style: this.getTooltipStyle(), onMouseEnter: this.props.mouseEnter, onMouseLeave: this.props.mouseLeave }, props.children), this.portal);
-        this.positionTooltip();
-    }
-    render() {
-        return null;
-    }
-}
-
-'use babel';
-function runGitCommand(repoPath, command, shell = false) {
-    return new Promise((resolve, reject) => {
-        const args = command.split(' ');
-        const child = childProcess.spawn('git', args, { cwd: repoPath, shell });
-        child.on('error', error => {
-            console.error(command);
-            return reject(error);
-        });
-        child.on('exit', exitCode => {
-            if (exitCode !== 0 && exitCode !== 128) {
-                console.error(command);
-                return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
-            }
-        });
-        let stdOutPromise = new Promise((resolve, reject) => {
-            let stdOut = '';
-            child.stdout.on('data', data => (stdOut += data));
-            child.stdout.on('end', () => resolve(stdOut));
-            child.stdout.on('error', error => reject(error));
-        });
-        let stdErrPromise = new Promise((resolve, reject) => {
-            let stdErr = '';
-            child.stderr.on('data', data => (stdErr += data));
-            child.stderr.on('end', () => resolve(stdErr));
-            child.stderr.on('error', error => reject(error));
-        });
-        Promise.all([stdOutPromise, stdErrPromise])
-            .then(results => {
-            const stdOut = results[0];
-            const stdErr = results[1];
-            if (stdErr !== '') {
-                return reject(new Error(stdErr));
-            }
-            return resolve(stdOut);
-        })
-            .catch(err => {
-            reject(err);
-        });
-    });
-}
-
-'use babel';
-function email() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let gitEmail;
-        try {
-            gitEmail = (yield runGitCommand('/', `config --global user.email`));
-        }
-        catch (e) {
-            throw e;
-        }
-        return gitEmail.trim();
-    });
-}
-
-'use babel';
 const packageName = name;
 const config$1 = {
     defaultWidth: {
@@ -24484,1512 +24387,6 @@ function set(key, value) {
 
 function onDidChange(key, ...args) {
     return atom.config.onDidChange(`${packageName}.${key}`, ...args);
-}
-
-'use babel';
-let userHash;
-const writeKey = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
-const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
-function segmentRequest(path$$1, body) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let payload = body;
-        payload.timestamp = new Date().toISOString();
-        payload.context = {
-            app: {
-                name: 'Atom Better Git Blame',
-                version: version
-            },
-            os: {
-                name: os.type(),
-                version: os.release()
-            }
-        };
-        return new Promise((resolve, reject) => {
-            let responseData = '';
-            const req = https.request({
-                hostname: 'api.segment.io',
-                path: `/v1${path$$1}`,
-                method: 'POST',
-                headers: {
-                    Authorization: authHeader,
-                    'Content-Type': 'application/json',
-                },
-            }, function (response) {
-                let code = response.statusCode;
-                response.on('data', function (chunk) {
-                    responseData += chunk;
-                });
-                response.on('end', function () {
-                    if (code < 400) {
-                        resolve(JSON.parse(responseData));
-                    }
-                    else {
-                        reject(responseData);
-                    }
-                });
-            });
-            req.on('error', function (error) {
-                reject(error.message);
-            });
-            req.write(JSON.stringify(payload));
-            req.end();
-        });
-    });
-}
-function getUserHash() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let savedHash = localStorage.getItem('better-git-blame-analytics-hash');
-        if (savedHash) {
-            return savedHash;
-        }
-        let userEmail;
-        try {
-            userEmail = yield email();
-        }
-        catch (e) {
-            console.error(e);
-            userEmail = crypto.randomBytes(28);
-        }
-        if (!userEmail)
-            throw new Error('Failed to fetch email or create fallback');
-        const hash = crypto.createHash('sha256');
-        hash.update(userEmail);
-        const hashedEmail = hash.digest('hex');
-        localStorage.setItem('better-git-blame-analytics-hash', hashedEmail);
-        return hashedEmail;
-    });
-}
-function init() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (get('sendUsageStatistics')) {
-            userHash = yield getUserHash();
-            const randomString = crypto.randomBytes(8).toString('hex');
-            const configKeys = Object.keys(getConfig());
-            let pluginConfig = {};
-            for (let i in configKeys) {
-                const key = configKeys[i];
-                pluginConfig[`BGB Config ${key}`] = get(key);
-                onDidChange(key, value => {
-                    track('Changed config', {
-                        Config: key,
-                        'Old Value': value.oldValue,
-                        'New Value': value.newValue,
-                    });
-                });
-            }
-            yield segmentRequest('/identify', {
-                userId: userHash,
-                traits: Object.assign({ 'User Hash': userHash, name: `Plugin User ${randomString}` }, pluginConfig),
-            });
-        }
-    });
-}
-function track(name$$1, data = {}) {
-    if (get('sendUsageStatistics') && userHash) {
-        segmentRequest('/track', {
-            event: `BGB ${name$$1}`,
-            userId: userHash,
-            properties: data,
-        });
-    }
-}
-
-'use babel';
-class TooltipContainer extends index.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            show: false,
-        };
-    }
-    showTooltip() {
-        track('Tooltip shown');
-        this.setState({ show: true });
-    }
-    hideTooltip() {
-        this.setState({ show: false });
-    }
-    mouseEnterHandler() {
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => {
-            this.showTooltip();
-        }, 500);
-    }
-    mouseLeaveHandler() {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-        }
-        this.timeout = setTimeout(() => {
-            this.hideTooltip();
-        }, 500);
-    }
-    ;
-    renderTooltip() {
-        if (this.state.show) {
-            return (index.createElement(TooltipPortal, { parent: this.containerElement, mouseEnter: this.mouseEnterHandler.bind(this), mouseLeave: this.mouseLeaveHandler.bind(this) }, this.props.tooltipContent()));
-        }
-        return null;
-    }
-    render() {
-        return (index.createElement("div", { style: {
-                width: '100%',
-            }, onMouseEnter: this.mouseEnterHandler.bind(this), onMouseLeave: this.mouseLeaveHandler.bind(this), ref: (el) => this.containerElement = el },
-            this.renderTooltip(),
-            this.props.children));
-    }
-}
-
-"use strict";
-
-/**
- * protocols
- * Returns the protocols of an input url.
- *
- * @name protocols
- * @function
- * @param {String} input The input url.
- * @param {Boolean|Number} first If `true`, the first protocol will be returned. If number, it will represent the zero-based index of the protocols array.
- * @return {Array|String} The array of protocols or the specified protocol.
- */
-var lib$5 = function protocols(input, first) {
-
-    if (first === true) {
-        first = 0;
-    }
-
-    var index = input.indexOf("://"),
-        splits = input.substring(0, index).split("+").filter(Boolean);
-
-    if (typeof first === "number") {
-        return splits[first];
-    }
-
-    return splits;
-};
-
-// Dependencies
-
-
-/**
- * isSsh
- * Checks if an input value is a ssh url or not.
- *
- * @name isSsh
- * @function
- * @param {String|Array} input The input url or an array of protocols.
- * @return {Boolean} `true` if the input is a ssh url, `false` otherwise.
- */
-function isSsh(input) {
-
-    if (Array.isArray(input)) {
-        return input.indexOf("ssh") !== -1 || input.indexOf("rsync") !== -1;
-    }
-
-    if (typeof input !== "string") {
-        return false;
-    }
-
-    var prots = lib$5(input);
-    input = input.substring(input.indexOf("://") + 3);
-    if (isSsh(prots)) {
-        return true;
-    }
-
-    // TODO This probably could be improved :)
-    return input.indexOf("@") < input.indexOf(":");
-}
-
-var lib$7 = isSsh;
-
-"use strict";
-
-// Dependencies
-
-
-/**
- * parseUrl
- * Parses the input url.
- *
- * @name parseUrl
- * @function
- * @param {String} url The input url.
- * @return {Object} An object containing the following fields:
- *
- *  - `protocols` (Array): An array with the url protocols (usually it has one element).
- *  - `protocol` (String): The first protocol, `"ssh"` (if the url is a ssh url) or `"file"`.
- *  - `port` (null|Number): The domain port.
- *  - `resource` (String): The url domain (including subdomains).
- *  - `user` (String): The authentication user (usually for ssh urls).
- *  - `pathname` (String): The url pathname.
- *  - `hash` (String): The url hash.
- *  - `search` (String): The url querystring value.
- *  - `href` (String): The input url.
- */
-function parseUrl(url) {
-    var output = {
-        protocols: lib$5(url),
-        protocol: null,
-        port: null,
-        resource: "",
-        user: "",
-        pathname: "",
-        hash: "",
-        search: "",
-        href: url
-    },
-        protocolIndex = url.indexOf("://"),
-        resourceIndex = -1,
-        splits = null,
-        parts = null;
-
-    if (url.startsWith(".")) {
-        if (url.startsWith("./")) {
-            url = url.substring(2);
-        }
-        output.pathname = url;
-        output.protocol = "file";
-    }
-
-    output.protocol = output.protocol || output.protocols[0] || (lib$7(url) ? "ssh" : url.charAt(1) === "/" ? (url = url.substring(2)) && "" : "file");
-
-    if (protocolIndex !== -1) {
-        url = url.substring(protocolIndex + 3);
-    }
-
-    parts = url.split("/");
-    if (output.protocol !== "file") {
-        output.resource = parts.shift();
-    }
-
-    // user@domain
-    splits = output.resource.split("@");
-    if (splits.length === 2) {
-        output.user = splits[0];
-        output.resource = splits[1];
-    }
-
-    // domain.com:port
-    splits = output.resource.split(":");
-    if (splits.length === 2) {
-        output.resource = splits[0];
-        output.port = parseInt(splits[1]);
-        if (isNaN(output.port)) {
-            output.port = null;
-            parts.unshift(splits[1]);
-        }
-    }
-
-    // Remove empty elements
-    parts = parts.filter(Boolean);
-
-    // Stringify the pathname
-    output.pathname = output.pathname || (output.protocol !== "file" || output.href[0] === "/" ? "/" : "") + parts.join("/");
-
-    // #some-hash
-    splits = output.pathname.split("#");
-    if (splits.length === 2) {
-        output.pathname = splits[0];
-        output.hash = splits[1];
-    }
-
-    // ?foo=bar
-    splits = output.pathname.split("?");
-    if (splits.length === 2) {
-        output.pathname = splits[0];
-        output.search = splits[1];
-    }
-
-    return output;
-}
-
-var lib$3 = parseUrl;
-
-"use strict";
-
-// Dependencies
-
-
-
-/**
- * gitUp
- * Parses the input url.
- *
- * @name gitUp
- * @function
- * @param {String} input The input url.
- * @return {Object} An object containing the following fields:
- *
- *  - `protocols` (Array): An array with the url protocols (usually it has one element).
- *  - `port` (null|Number): The domain port.
- *  - `resource` (String): The url domain (including subdomains).
- *  - `user` (String): The authentication user (usually for ssh urls).
- *  - `pathname` (String): The url pathname.
- *  - `hash` (String): The url hash.
- *  - `search` (String): The url querystring value.
- *  - `href` (String): The input url.
- *  - `protocol` (String): The git url protocol.
- *  - `token` (String): The oauth token (could appear in the https urls).
- */
-function gitUp(input) {
-    var output = lib$3(input);
-    output.token = "";
-
-    var splits = output.user.split(":");
-    if (splits.length === 2) {
-        if (splits[1] === "x-oauth-basic") {
-            output.token = splits[0];
-        } else if (splits[0] === "x-token-auth") {
-            output.token = splits[1];
-        }
-    }
-
-    if (lib$7(output.protocols) || lib$7(input)) {
-        output.protocol = "ssh";
-    } else if (output.protocols.length) {
-        output.protocol = output.protocols[0];
-    } else {
-        output.protocol = "file";
-    }
-
-    return output;
-}
-
-var lib$1 = gitUp;
-
-"use strict";
-
-
-
-/**
- * gitUrlParse
- * Parses a Git url.
- *
- * @name gitUrlParse
- * @function
- * @param {String} url The Git url to parse.
- * @return {GitUrl} The `GitUrl` object containing:
- *
- *  - `protocols` (Array): An array with the url protocols (usually it has one element).
- *  - `port` (null|Number): The domain port.
- *  - `resource` (String): The url domain (including subdomains).
- *  - `user` (String): The authentication user (usually for ssh urls).
- *  - `pathname` (String): The url pathname.
- *  - `hash` (String): The url hash.
- *  - `search` (String): The url querystring value.
- *  - `href` (String): The input url.
- *  - `protocol` (String): The git url protocol.
- *  - `token` (String): The oauth token (could appear in the https urls).
- *  - `source` (String): The Git provider (e.g. `"github.com"`).
- *  - `owner` (String): The repository owner.
- *  - `name` (String): The repository name.
- *  - `full_name` (String): The owner and name values in the `owner/name` format.
- *  - `toString` (Function): A function to stringify the parsed url into another url type.
- *  - `organization` (String): The organization the owner belongs to. This is CloudForge specific.
- *
- */
-function gitUrlParse(url) {
-
-    if (typeof url !== "string") {
-        throw new Error("The url must be a string.");
-    }
-
-    var urlInfo = lib$1(url),
-        sourceParts = urlInfo.resource.split("."),
-        splits = null;
-
-    urlInfo.toString = function (type) {
-        return gitUrlParse.stringify(this, type);
-    };
-
-    urlInfo.source = sourceParts.length > 2 ? sourceParts.slice(-2).join(".") : urlInfo.source = urlInfo.resource;
-
-    urlInfo.name = urlInfo.pathname.substring(1).replace(/\.git$/, "");
-    urlInfo.owner = urlInfo.user;
-    urlInfo.organization = urlInfo.owner;
-
-    switch (urlInfo.source) {
-        case "cloudforge.com":
-            urlInfo.owner = urlInfo.user;
-            urlInfo.organization = sourceParts[0];
-            break;
-        default:
-            splits = urlInfo.name.split("/");
-            if (splits.length === 2) {
-                urlInfo.owner = splits[0];
-                urlInfo.name = splits[1];
-            }
-            break;
-    }
-
-    urlInfo.full_name = urlInfo.owner;
-    if (urlInfo.name) {
-        urlInfo.full_name && (urlInfo.full_name += "/");
-        urlInfo.full_name += urlInfo.name;
-    }
-
-    return urlInfo;
-}
-
-/**
- * stringify
- * Stringifies a `GitUrl` object.
- *
- * @name stringify
- * @function
- * @param {GitUrl} obj The parsed Git url object.
- * @param {String} type The type of the stringified url (default `obj.protocol`).
- * @return {String} The stringified url.
- */
-gitUrlParse.stringify = function (obj, type) {
-    type = type || (obj.protocols && obj.protocols.length ? obj.protocols.join('+') : obj.protocol);
-    var port = obj.port ? ":" + obj.port : '';
-    var user = obj.user || 'git';
-    switch (type) {
-        case "ssh":
-            if (port) return "ssh://" + user + "@" + obj.resource + port + "/" + obj.full_name + ".git";else return user + "@" + obj.resource + ":" + obj.full_name + ".git";
-        case "git+ssh":
-        case "ssh+git":
-        case "ftp":
-        case "ftps":
-            return type + "://" + user + "@" + obj.resource + port + "/" + obj.full_name + ".git";
-        case "http":
-        case "https":
-            var token = "";
-            if (obj.token) {
-                token = buildToken(obj);
-            }
-            return type + "://" + token + obj.resource + port + "/" + obj.full_name + ".git";
-        default:
-            return obj.href;
-    }
-};
-
-/*!
- * buildToken
- * Builds OAuth token prefix (helper function)
- *
- * @name buildToken
- * @function
- * @param {GitUrl} obj The parsed Git url object.
- * @return {String} token prefix
- */
-function buildToken(obj) {
-    switch (obj.source) {
-        case "bitbucket.org":
-            return "x-token-auth:" + obj.token + "@";
-        default:
-            return obj.token + "@";
-    }
-}
-
-var lib = gitUrlParse;
-
-'use babel';
-class GitHelper {
-    /**
-     * extractRepoMetadataFromRemotes() gets some details about the repo from the remote URLs.
-     * Specifically, we get the repo's origin (i.e. code hosting service), its name, its owner, and its
-     * root & commit URLs. These details are used later to augment commit-level code search results with
-     * data from code hosting & project management integrations.
-     *
-     * @param   {Array<any>} remotes  Array of remote URLs of the form { url, name, type }
-     * @returns {Object}     Object containing the extract repo metadata
-     */
-    static extractRepoMetadataFromRemotes(remotes) {
-        if (!Array.isArray(remotes) || remotes.length === 0)
-            return {};
-        let parsedUrl;
-        try {
-            parsedUrl = lib(remotes[0].url);
-        }
-        catch (error) {
-            return {};
-        }
-        const repoMetadata = {
-            repoName: parsedUrl.name,
-            repoOwner: parsedUrl.owner,
-            repoSource: parsedUrl.source,
-            repoRootUrl: parsedUrl.toString('https').replace('.git', ''),
-        };
-        if (repoMetadata.repoSource === 'github.com' ||
-            repoMetadata.repoSource === 'gitlab.com') {
-            repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commit`;
-        }
-        else if (repoMetadata.repoSource === 'bitbucket.org') {
-            repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commits`;
-        }
-        return repoMetadata;
-    }
-    static getHashesFromBlame(blame) {
-        return lodash.uniq(blame.map(line => {
-            return line.split(' ')[0];
-        }));
-    }
-    static parseBlameLine(blameLine) {
-        /*
-                            Commit Hash     Original Line Number               Date                                            Timezone Offset               Line
-                                  ^     File Path    ^       Author              ^                           Time                     ^          Line Number   ^
-                                  |         ^        |          ^                |                             ^                      |               ^        |
-                                  |         |        |          |                |                             |                      |               |        |
-                             |---------|  |---|   |------|    |--|   |--------------------------|  |--------------------------|  |------------|   |--------||----|  */
-        const blameRegex = /^([a-z0-9]+)\s(\S+)\s+([0-9]+)\s\((.+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([+-][0-9]{4})\s+([0-9]+)\)(.+|$)/;
-        const matched = blameLine.match(blameRegex);
-        if (!matched) {
-            console.log(blameLine);
-            throw new Error("Couldn't parse blame line");
-        }
-        return {
-            commitHash: matched[1].trim(),
-            filePath: matched[2].trim(),
-            originalLineNumber: matched[3].trim(),
-            lineNumber: matched[8].trim(),
-            author: matched[4].trim(),
-            commitedAt: new Date(`${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`),
-            line: matched[9],
-        };
-    }
-}
-
-'use babel';
-// Modified from: https://github.com/josa42/atom-blame/blob/master/lib/utils/find-repo.js
-/*
-Copyright (c) 2015 Josa Gesell
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-function findRepoRoot(currentPath) {
-    let lastPath;
-    while (currentPath && lastPath !== currentPath) {
-        lastPath = currentPath;
-        const repoPath = path.join(currentPath, '.git');
-        if (fs.existsSync(repoPath)) {
-            return currentPath;
-        }
-        currentPath = path.dirname(currentPath);
-    }
-    return null;
-}
-
-'use babel';
-function blame(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let repoRoot = findRepoRoot(filePath);
-        if (!repoRoot) {
-            throw new Error('File does not exist inside a git repo');
-        }
-        const relPath = path.relative(repoRoot, filePath);
-        return runGitCommand(repoRoot, `blame --show-number --show-name -l --root ${relPath}`);
-    });
-}
-
-'use babel';
-const cpuCount = os.cpus().length;
-function show(filePath, hashes) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const useParallel = get('parallelGitProcessing');
-        let processCount = 1;
-        if (useParallel) {
-            processCount = cpuCount / 2;
-        }
-        let repoRoot = findRepoRoot(filePath);
-        if (!repoRoot) {
-            throw new Error('File does not exist inside a git repo');
-        }
-        const chunkSize = Math.ceil(hashes.length / processCount);
-        const chunkedHashes = lodash.chunk(hashes, chunkSize);
-        const promises = chunkedHashes.map(hashes => {
-            return runGitCommand(repoRoot, `show --format==@COMMIT@=%n%H%n%ae%n%an%n%B --shortstat ${hashes.join(' ')}`);
-        });
-        return Promise.all(promises).then(results => {
-            const parsed = results.map(result => {
-                const commits = result.split('=@COMMIT@=');
-                commits.shift();
-                let parsedCommits = [];
-                for (const i in commits) {
-                    const lines = commits[i].trim().split('\n');
-                    const stats = lines.pop();
-                    const matchedStats = stats.match(/\D+(\d+)\D+(\d+)?\D+(\d+)?/);
-                    let commit = {
-                        hash: lines.shift(),
-                        email: lines.shift(),
-                        author: lines.shift(),
-                        subject: lines.shift(),
-                        message: lines.join('\n').trim(),
-                        filesChanged: 0,
-                        insertions: 0,
-                        deletions: 0,
-                    };
-                    if (matchedStats) {
-                        commit.filesChanged = matchedStats[1] || 0;
-                        commit.insertions = matchedStats[2] || 0;
-                        commit.deletions = matchedStats[3] || 0;
-                    }
-                    parsedCommits.push(commit);
-                }
-                return parsedCommits;
-            });
-            return [].concat.apply([], parsed);
-        });
-    });
-}
-
-'use babel';
-function getRepoRemotes(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const repoRoot = findRepoRoot(filePath);
-        try {
-            const remotes = yield runGitCommand(repoRoot, 'remote -v');
-            if (remotes === '') {
-                return [];
-            }
-            return remotes
-                .trim()
-                .split('\n')
-                .map(remote => {
-                const matchedRemote = remote.match(/(.+)\t(.+)\s\((.+)\)/);
-                return {
-                    name: matchedRemote[1],
-                    url: matchedRemote[2],
-                    type: matchedRemote[3],
-                };
-            });
-        }
-        catch (e) {
-            throw e;
-        }
-    });
-}
-
-'use babel';
-function getFirstCommitDate(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const repoRoot = findRepoRoot(filePath);
-        try {
-            const firstCommit = yield runGitCommand(repoRoot, 'log --reverse --date-order --pretty=%ad | head -n 1', true);
-            return new Date(firstCommit);
-        }
-        catch (e) {
-            throw e;
-        }
-    });
-}
-
-'use babel';
-class GutterRange {
-    constructor(currentLine, identifier) {
-        if (identifier) {
-            this.identifier = identifier;
-        }
-        this.range = {
-            start: currentLine,
-            end: currentLine,
-        };
-    }
-    incrementRange() {
-        this.range.end = this.range.end + 1;
-    }
-    toAtomRange() {
-        return [[this.range.start, 0], [this.range.end, 900000]];
-    }
-}
-
-var isPromise_1 = isPromise;
-
-function isPromise(obj) {
-  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
-}
-
-'use strict';
-
-
-
-
-var main$1 = function (adapter) {
-  if (typeof adapter !== 'object') {
-    throw new Error('An adapter must be provided, see https://github.com/typicode/lowdb/#usage');
-  }
-
-  // Create a fresh copy of lodash
-  var _ = lodash.runInContext();
-  var db = _.chain({});
-
-  // Add write function to lodash
-  // Calls save before returning result
-  _.prototype.write = _.wrap(_.prototype.value, function (func) {
-    var funcRes = func.apply(this);
-    return db.write(funcRes);
-  });
-
-  function plant(state) {
-    db.__wrapped__ = state;
-    return db;
-  }
-
-  // Lowdb API
-  // Expose _ for mixins
-  db._ = _;
-
-  db.read = function () {
-    var r = adapter.read();
-    return isPromise_1(r) ? r.then(plant) : plant(r);
-  };
-
-  db.write = function (returnValue) {
-    var w = adapter.write(db.getState());
-    return isPromise_1(w) ? w.then(function () {
-      return returnValue;
-    }) : returnValue;
-  };
-
-  db.getState = function () {
-    return db.__wrapped__;
-  };
-
-  db.setState = function (state) {
-    return plant(state);
-  };
-
-  return db.read();
-};
-
-"use strict";
-
-// Pretty stringify
-var _stringify = function stringify(obj) {
-  return JSON.stringify(obj, null, 2);
-};
-
-'use strict';
-
-function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-
-
-var Base = function Base(source) {
-  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-      _ref$defaultValue = _ref.defaultValue,
-      defaultValue = _ref$defaultValue === undefined ? {} : _ref$defaultValue,
-      _ref$serialize = _ref.serialize,
-      serialize = _ref$serialize === undefined ? _stringify : _ref$serialize,
-      _ref$deserialize = _ref.deserialize,
-      deserialize = _ref$deserialize === undefined ? JSON.parse : _ref$deserialize;
-
-  _classCallCheck$1(this, Base);
-
-  this.source = source;
-  this.defaultValue = defaultValue;
-  this.serialize = serialize;
-  this.deserialize = deserialize;
-};
-
-var Base_1 = Base;
-
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-var Memory = function (_Base) {
-  _inherits(Memory, _Base);
-
-  function Memory() {
-    _classCallCheck(this, Memory);
-
-    return _possibleConstructorReturn(this, (Memory.__proto__ || Object.getPrototypeOf(Memory)).apply(this, arguments));
-  }
-
-  _createClass(Memory, [{
-    key: 'read',
-    value: function read() {
-      return this.defaultValue;
-    }
-  }, {
-    key: 'write',
-    value: function write() {}
-  }]);
-
-  return Memory;
-}(Base_1);
-
-'use babel';
-const adapter = new Memory();
-const db = main$1(adapter);
-db
-    .defaults({
-    commitMessages: {},
-    blames: [],
-    fileCommits: [],
-    rootPaths: {},
-    startDates: {},
-    repoMetadata: {},
-    pullRequests: [],
-    pullRequestsCommitsPivot: {},
-    githubIssues: [],
-    jiraIssues: [],
-})
-    .write();
-window.layerCacheDump = function (path$$1 = __dirname) {
-    let savePath = `${path$$1}/layer-${Date.now()}.json`;
-    fs.writeFileSync(savePath, JSON.stringify(db));
-    console.log('Cache dumped to', savePath);
-};
-
-'use babel';
-const blamePromises = {};
-function getBlameForFile(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let existing = db
-            .get('blames')
-            .find({ path: filePath })
-            .value();
-        if (existing && Date.now() - existing.fetchedAt < 1000) {
-            return existing;
-        }
-        if (!blamePromises[filePath]) {
-            blamePromises[filePath] = blame(filePath);
-        }
-        const blame$$1 = yield blamePromises[filePath];
-        db
-            .get('blames')
-            .remove({ path: filePath })
-            .write();
-        db
-            .get('blames')
-            .push({
-            path: filePath,
-            lines: blame$$1.replace(/\s+$/, '').split('\n'),
-            fetchedAt: new Date(),
-        })
-            .write();
-        delete blamePromises[filePath];
-        return db
-            .get('blames')
-            .find({ path: filePath })
-            .value();
-    });
-}
-function getCommitsForFile(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let existing = db
-            .get('fileCommits')
-            .find({ path: filePath })
-            .value();
-        if (existing && Date.now() - existing.fetchedAt < 1000) {
-            return existing;
-        }
-        const blame$$1 = yield getBlameForFile(filePath);
-        const repoPath = yield getRepoRootPath(filePath);
-        const commits = blame$$1.lines.reduce((acc, line) => {
-            const parsed = GitHelper.parseBlameLine(line);
-            parsed.repoPath = repoPath;
-            if (acc[parsed.commitHash]) {
-                return acc;
-            }
-            acc[parsed.commitHash] = parsed;
-            return acc;
-        }, {});
-        db
-            .get('fileCommits')
-            .remove({ path: filePath })
-            .write();
-        db
-            .get('fileCommits')
-            .push({
-            path: filePath,
-            commits,
-            fetchedAt: new Date(),
-        })
-            .write();
-        loadCommits(repoPath, lodash.filter(lodash.map(commits, 'commitHash'), hash => hash.substr(0, 6) !== '000000'));
-        return db
-            .get('fileCommits')
-            .find({ path: filePath })
-            .value();
-    });
-}
-function getGutterRangesForFile(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const blame$$1 = yield getBlameForFile(filePath);
-        let lineRanges = [];
-        for (let i = 0; i < blame$$1.lines.length; i++) {
-            const line = blame$$1.lines[i];
-            const commitHash = line.split(' ')[0];
-            // Build array of ranges
-            if (lineRanges.length == 0) {
-                // No ranges exist
-                lineRanges.push(new GutterRange(i, commitHash));
-            }
-            else {
-                const currentRange = lineRanges[lineRanges.length - 1]; // Get last range
-                if (currentRange.identifier === commitHash) {
-                    currentRange.incrementRange();
-                }
-                else {
-                    // Add new range
-                    lineRanges.push(new GutterRange(i, commitHash));
-                }
-            }
-        }
-        return {
-            path: filePath,
-            ranges: lodash.groupBy(lineRanges, 'identifier'),
-            fetchedAt: new Date(),
-        };
-    });
-}
-const firstDatePromises = {};
-function getFirstCommitDateForRepo(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return getRepoRootPath(filePath).then((repoPath) => __awaiter(this, void 0, void 0, function* () {
-            const cached = db
-                .get('startDates')
-                .get(repoPath)
-                .value();
-            if (cached) {
-                return cached;
-            }
-            if (!firstDatePromises[filePath]) {
-                firstDatePromises[filePath] = getFirstCommitDate(repoPath);
-            }
-            const date = yield firstDatePromises[filePath];
-            db
-                .get('startDates')
-                .set(filePath, date)
-                .write();
-            delete firstDatePromises[filePath];
-            return date;
-        }));
-    });
-}
-let loadPromise;
-function loadCommits(filePath, hashes) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (loadPromise) {
-            yield loadPromise;
-        }
-        loadPromise = show(filePath, hashes);
-        const commits = yield loadPromise;
-        for (const i in commits) {
-            const commit = commits[i];
-            if (commit) {
-                const toWrite = Object.assign({ commitHash: commit.hash }, commit, { fetchedAt: new Date() });
-                db
-                    .get('commitMessages')
-                    .set(commit.hash, toWrite)
-                    .write();
-            }
-        }
-    });
-}
-const commitPromises = {};
-function getCommit(filePath, hash) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (loadPromise) {
-            yield loadPromise;
-        }
-        let existing = db
-            .get('commitMessages')
-            .get(hash)
-            .value();
-        if (existing) {
-            return existing;
-        }
-        if (!commitPromises[hash]) {
-            commitPromises[hash] = show(filePath, [hash]);
-        }
-        const commit = yield commitPromises[hash];
-        const toWrite = Object.assign({ commitHash: hash }, commit[0], { fetchedAt: new Date() });
-        db
-            .get('commitMessages')
-            .set(commit.hash, toWrite)
-            .write();
-        delete commitPromises[hash];
-        return toWrite;
-    });
-}
-function updateCommit(hash, data) {
-    db
-        .get('commitMessages')
-        .get(hash)
-        .assign(data)
-        .write();
-    return db
-        .get('commitMessages')
-        .get(hash)
-        .value();
-}
-function getRepoRootPath(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let cached = db.get(`rootPaths.${filePath}`).value();
-        if (cached) {
-            return cached;
-        }
-        let rootPath = findRepoRoot(filePath);
-        db
-            .get('rootPaths')
-            .set(filePath, rootPath)
-            .write();
-        return rootPath;
-    });
-}
-const metadataPromises = {};
-function getRepoMetadata(repoPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let cached = db
-            .get('repoMetadata')
-            .find({
-            rootPath: repoPath,
-        })
-            .value();
-        if (cached) {
-            return cached;
-        }
-        if (!metadataPromises[repoPath]) {
-            metadataPromises[repoPath] = getRepoRemotes(repoPath);
-        }
-        const remotes = yield metadataPromises[repoPath];
-        const metadata = GitHelper.extractRepoMetadataFromRemotes(remotes);
-        const toWrite = Object.assign({ rootPath: repoPath }, metadata, { fetchedAt: new Date() });
-        db
-            .get('repoMetadata')
-            .push(toWrite)
-            .write();
-        delete metadataPromises[repoPath];
-        return toWrite;
-    });
-}
-
-'use babel';
-let pendingRequests = {};
-function getIntegrationDataForFile(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const repoPath = yield getRepoRootPath(filePath);
-        const metadata = yield getRepoMetadata(repoPath);
-        const blame = yield getBlameForFile(filePath);
-        if (!pendingRequests[repoPath]) {
-            pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(metadata, GitHelper.getHashesFromBlame(blame.lines)).then(response => {
-                return processIntegrationData(response);
-            });
-        }
-        const response = yield pendingRequests[repoPath];
-        delete pendingRequests[repoPath];
-        return response;
-    });
-}
-function processIntegrationData(data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const pullRequests = data.pullRequests;
-        const jiraIssues = data.relatedJiraIssues;
-        const githubIssues = data.relatedGitHubIssues;
-        db
-            .get('githubIssues')
-            .merge(lodash.toArray(githubIssues))
-            .uniqBy('number')
-            .write();
-        db
-            .get('jiraIssues')
-            .merge(lodash.toArray(jiraIssues))
-            .uniqBy('key')
-            .write();
-        pullRequestsCommitsPivot(pullRequests);
-        for (const i in pullRequests) {
-            const pullRequest = pullRequests[i];
-            if (db
-                .get('pullRequests')
-                .find({ number: pullRequest.number })
-                .value()) {
-                continue;
-            }
-            let toWrite = pullRequest;
-            toWrite.commitCount = toWrite.commits.length;
-            toWrite.status = StepsizeHelper.getStatusObject(pullRequest);
-            for (const i in pullRequest.commits) {
-                const commit = pullRequest.commits[i];
-                updateCommit(commit.commitHash, {
-                    status: commit.status,
-                });
-            }
-            //delete toWrite.commits;
-            db
-                .get('pullRequests')
-                .push(toWrite)
-                .write();
-        }
-        return db.get('pullRequests').value();
-    });
-}
-function pullRequestsCommitsPivot(pullRequests) {
-    const pivot = lodash.reduce(pullRequests, (acc, pullRequest, key) => {
-        acc[key] = lodash.map(pullRequest.commits, 'commitHash');
-        return acc;
-    }, {});
-    db
-        .get('pullRequestsCommitsPivot')
-        .merge(pivot)
-        .uniq()
-        .write();
-    return db.get('pullRequestsCommitsPivot').value();
-}
-function getPullRequestsForCommit(filePath, commitHash) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (pendingRequests[filePath]) {
-            yield pendingRequests[filePath];
-        }
-        const results = db
-            .get('pullRequestsCommitsPivot')
-            .reduce((acc, hashes, prNumber) => {
-            if (hashes.includes(commitHash)) {
-                acc.push(prNumber);
-            }
-            return acc;
-        }, [])
-            .value();
-        return results.map(number => {
-            return db
-                .get('pullRequests')
-                .find({ number: parseInt(number) })
-                .value();
-        });
-    });
-}
-function getCommitsForPullRequest(filePath, pullRequestNumber) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (pendingRequests[filePath]) {
-            yield pendingRequests[filePath];
-        }
-        return db
-            .get('pullRequestsCommitsPivot')
-            .get(pullRequestNumber)
-            .value();
-    });
-}
-function getIssue(filePath, issueKey) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (pendingRequests[filePath]) {
-            yield pendingRequests[filePath];
-        }
-        issueKey = issueKey.toString();
-        // Assume its a Jira issue if its got a hyphen
-        if (issueKey.includes('-')) {
-            return db
-                .get('jiraIssues')
-                .find({ key: issueKey })
-                .value();
-        }
-        return db
-            .get('githubIssues')
-            .find({ number: parseInt(issueKey) })
-            .value();
-    });
-}
-
-'use babel';
-class SearchInLayer extends index.PureComponent {
-    render() {
-        if (get('searchInLayerEnabled')) {
-            return (index.createElement("div", { className: "section" },
-                index.createElement("div", { className: "section-icon" },
-                    index.createElement("div", { className: "icon icon-search" })),
-                index.createElement("div", { className: "section-content" },
-                    index.createElement("h1", { className: "section-title" },
-                        "Search in\u00A0",
-                        index.createElement("img", { className: "layer-icon", src: "atom://better-git-blame/assets/layer-logo-secondary-64.png", height: "16", alt: "" })),
-                    index.createElement("p", { className: "section-body" },
-                        "View complete history of the code block",
-                        index.createElement("span", { className: "layer-button btn btn-default icon icon-link-external", onClick: this.props.onClick, onMouseEnter: this.props.onMouseEnter, onMouseLeave: this.props.onMouseLeave }, "Open")))));
-        }
-        return (index.createElement("div", { className: "section powered-by" },
-            index.createElement("div", { className: "section-content" },
-                index.createElement("p", { className: "section-body", style: { maxWidth: '100%' } },
-                    "Powered by\u00A0",
-                    index.createElement("a", { href: "https://stepsize.com" },
-                        index.createElement("img", { className: "layer-icon", src: "atom://better-git-blame/assets/stepsize-logo-secondary-64.png", height: "16", alt: "" }))))));
-    }
-}
-
-'use babel';
-class BuildStatus extends index.PureComponent {
-    getStatus() {
-        if (this.props.status) {
-            return this.props.status.state;
-        }
-        return null;
-    }
-    static renderIcon(state) {
-        switch (state) {
-            case 'SUCCESS':
-                return index.createElement("i", { className: "icon icon-check", style: { color: '#2cbe4e' } });
-            case 'FAILURE':
-                return index.createElement("i", { className: "icon icon-x", style: { color: '#cb2431' } });
-            default:
-                return null;
-        }
-    }
-    clickHandler(label) {
-        return () => {
-            track(`Clicked link`, { label });
-        };
-    }
-    render() {
-        if (this.props.status) {
-            return (index.createElement("a", { onClick: this.clickHandler('Build status'), href: this.props.status.contexts[0].targetUrl, className: "build-status", title: this.props.status.contexts[0].description }, BuildStatus.renderIcon(this.getStatus())));
-        }
-        return null;
-    }
-}
-
-'use babel';
-class GutterItem$2 extends index.Component {
-    constructor(...props) {
-        super(...props);
-        this.state = {
-            commit: {},
-            pullRequests: [],
-            jiraIssues: [],
-            githubIssues: [],
-            metadata: {},
-        };
-    }
-    componentWillMount() {
-        this.setState({ commit: this.props.commit });
-        if (this.props.commit.commitHash.substr(0, 6) !== '000000') {
-            this.fetchCommitData();
-            getRepoMetadata(this.props.commit.repoPath)
-                .then((metadata) => {
-                this.setState(Object.assign({}, this.state, { metadata }));
-            });
-        }
-    }
-    componentDidMount() {
-        if (this.props.commit.commitHash.substr(0, 6) !== '000000') {
-            getPullRequestsForCommit(`${this.state.commit.repoPath}`, this.state.commit.commitHash)
-                .then((pullRequests) => {
-                this.setState(Object.assign({}, this.state, { pullRequests: pullRequests }));
-                pullRequests.map(this.getIssuesForPullRequest.bind(this));
-                // Refresh the commit data
-                this.fetchCommitData();
-            });
-        }
-    }
-    fetchCommitData() {
-        if (this.props.commit.commitHash.substr(0, 6) !== '000000') {
-            getCommit(this.props.commit.repoPath, this.props.commit.commitHash)
-                .then((commit) => {
-                this.setState(Object.assign({}, this.state, { commit: Object.assign({}, this.state.commit, commit) }));
-            });
-        }
-    }
-    getIssuesForPullRequest(pullRequest) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const jiraIssues = [];
-            const githubIssues = [];
-            yield pullRequest.relatedGitHubIssues.map((issueNumber) => __awaiter(this, void 0, void 0, function* () {
-                const issue = yield getIssue(this.state.commit.repoPath, issueNumber);
-                githubIssues.push(issue);
-            }));
-            yield pullRequest.relatedJiraIssues.map((issueKey) => __awaiter(this, void 0, void 0, function* () {
-                const issue = yield getIssue(this.state.commit.repoPath, issueKey);
-                jiraIssues.push(issue);
-            }));
-            this.setState(Object.assign({}, this.state, { githubIssues: githubIssues, jiraIssues: jiraIssues }));
-        });
-    }
-    clickLayerSearch() {
-        this.props.emitter.emit('clickedSearch');
-    }
-    mouseEnterLayerSearch() {
-        this.props.emitter.emit('mouseEnterLayerSearch');
-    }
-    mouseLeaveLayerSearch() {
-        this.props.emitter.emit('mouseLeaveLayerSearch');
-    }
-    clickHandler(label) {
-        return () => {
-            track(`Clicked link`, { label });
-        };
-    }
-    tooltip() {
-        const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
-        return (index.createElement("div", { className: "layer-tooltip" },
-            index.createElement("div", { className: "section" },
-                index.createElement("div", { className: "section-icon" },
-                    index.createElement("div", { className: "icon icon-git-commit" })),
-                index.createElement("div", { className: "section-content" },
-                    index.createElement("h1", { className: "section-title" },
-                        index.createElement("a", { onClick: this.clickHandler('Commit title'), href: `${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}` }, this.state.commit.subject)),
-                    index.createElement(BuildStatus, { status: this.state.commit.status }),
-                    index.createElement("p", { className: "section-body" },
-                        index.createElement("code", null,
-                            index.createElement("a", { onClick: this.clickHandler('Commit hash'), href: `${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}` }, this.state.commit.commitHash.substr(0, 6))),
-                        " by ",
-                        this.state.commit.author,
-                        " committed on ",
-                        commitedDate),
-                    index.createElement("span", { className: "section-status" },
-                        index.createElement("span", { title: "Insertions", className: "green" },
-                            "+",
-                            this.state.commit.insertions,
-                            "\u00A0"),
-                        index.createElement("span", { title: "Deletions", className: "red" },
-                            "-",
-                            this.state.commit.deletions,
-                            "\u00A0"),
-                        index.createElement("span", { title: "Files Changed" },
-                            index.createElement("i", { className: "icon icon-diff" }),
-                            this.state.commit.filesChanged)))),
-            this.state.pullRequests.map((pullRequest) => {
-                const verb = pullRequest.state.toLowerCase();
-                return (index.createElement("div", { className: "section" },
-                    index.createElement("div", { className: "section-icon" },
-                        index.createElement("div", { className: "icon icon-git-pull-request" })),
-                    index.createElement("div", { className: "section-content" },
-                        index.createElement("h1", { className: "section-title" },
-                            index.createElement("a", { onClick: this.clickHandler('Pull Request title'), href: pullRequest.url }, pullRequest.title)),
-                        index.createElement(BuildStatus, { status: pullRequest.status }),
-                        index.createElement("p", { className: "section-body" },
-                            index.createElement("code", null,
-                                index.createElement("a", { onClick: this.clickHandler('Pull Request number'), href: pullRequest.url },
-                                    "#",
-                                    pullRequest.number)),
-                            " by ",
-                            pullRequest.author.login,
-                            " ",
-                            verb,
-                            " on ",
-                            moment(pullRequest.createdAt).format('D MMM')),
-                        index.createElement("span", { className: "section-status" },
-                            index.createElement("span", { title: "Total Commits" },
-                                index.createElement("i", { className: "icon icon-git-commit" }),
-                                pullRequest.commitCount)))));
-            }),
-            this.state.githubIssues.map((issue) => {
-                let issueIcon = 'icon icon-issue-opened green';
-                if (issue.state === 'CLOSED') {
-                    issueIcon = 'icon icon-issue-closed red';
-                }
-                return (index.createElement("div", { className: "section" },
-                    index.createElement("div", { className: "section-icon" },
-                        index.createElement("div", { className: "icon icon-issue-opened" })),
-                    index.createElement("div", { className: "section-content" },
-                        index.createElement("h1", { className: "section-title" },
-                            index.createElement("a", { onClick: this.clickHandler('Issue title'), href: issue.url }, issue.title)),
-                        index.createElement("p", { className: "section-body" },
-                            index.createElement("i", { className: `icon ${issueIcon}` }),
-                            index.createElement("code", null,
-                                index.createElement("a", { onClick: this.clickHandler('Issue number'), href: issue.url },
-                                    "#",
-                                    issue.number)),
-                            " by ",
-                            issue.author.login),
-                        index.createElement("span", { className: "section-status" }, issue.state.toLowerCase()))));
-            }),
-            this.state.jiraIssues.map((issue) => {
-                return (index.createElement("div", { className: "section" },
-                    index.createElement("div", { className: "section-icon" },
-                        index.createElement("div", { className: "icon stepsize-icon-jira" })),
-                    index.createElement("div", { className: "section-content" },
-                        index.createElement("h1", { className: "section-title" },
-                            index.createElement("a", { onClick: this.clickHandler('Jira ticket title'), href: issue.url }, issue.summary)),
-                        index.createElement("p", { className: "section-body" },
-                            index.createElement("img", { className: "icon", src: issue.issueType.iconUrl, alt: issue.issueType.name }),
-                            index.createElement("code", null,
-                                index.createElement("a", { onClick: this.clickHandler('Jira ticket key'), href: issue.url }, issue.key)),
-                            " created by ",
-                            issue.creator.displayName,
-                            " & assigned to ",
-                            issue.assignee.displayName || 'Nobody',
-                            index.createElement("span", { className: "section-status", style: {
-                                    color: `${issue.status.statusCategory.colorName}`
-                                } }, issue.status.name.toLowerCase())))));
-            }),
-            index.createElement(SearchInLayer, { onClick: this.clickLayerSearch.bind(this), onMouseEnter: this.mouseEnterLayerSearch.bind(this), onMouseLeave: this.mouseLeaveLayerSearch.bind(this) })));
-    }
-    formattedText() {
-        const commit = this.props.commit;
-        const date = commit.commitedAt;
-        const formattedDate = moment(date).format(get('gutterDateFormat'));
-        let author = commit.author;
-        if (get('truncateGutterNames')) {
-            const splitAuthor = author.split(' ');
-            if (splitAuthor.length > 1) {
-                const lastName = splitAuthor.pop();
-                const initials = splitAuthor.map((part) => {
-                    return part[0].toUpperCase();
-                }).join(' ');
-                author = `${initials}. ${lastName}`;
-            }
-        }
-        return `${formattedDate} ${author}`;
-    }
-    render() {
-        if (this.state.commit.commitHash.substr(0, 6) === '000000') {
-            return (index.createElement("div", null, this.formattedText()));
-        }
-        return (index.createElement(TooltipContainer, { tooltipContent: this.tooltip.bind(this) }, this.formattedText()));
-    }
-}
-
-'use babel';
-class GutterItem {
-    constructor(data) {
-        this.data = data;
-        this.itemElement = document.createElement('div');
-        this.itemElement.className = 'layer-gutter-item';
-        this.itemElement.style['width'] = '100%';
-        this.contentElement = document.createElement('div');
-        this.itemElement.appendChild(this.contentElement);
-        const resizeHandle = new GutterResizeHandle();
-        this.resizeEmitter = resizeHandle.emitter;
-        this.itemElement.appendChild(resizeHandle.element());
-        this.emitter = new atom$1.Emitter();
-        this.boundMouseEnterListener = this.mouseEnterListener.bind(this);
-        this.boundMouseLeaveListener = this.mouseLeaveListener.bind(this);
-        this.itemElement.addEventListener('mouseenter', this.boundMouseEnterListener);
-    }
-    setIndicator(value) {
-        this.inidcatorColor = value;
-        this.itemElement.style['border-right'] = `4px solid ${value}`;
-    }
-    mouseEnterListener(event) {
-        this.emitter.emit('mouseEnter', event);
-        this.itemElement.addEventListener('mouseleave', this.boundMouseLeaveListener);
-    }
-    mouseLeaveListener(event) {
-        this.emitter.emit('mouseLeave', event);
-        this.itemElement.removeEventListener('mouseleave', this.boundMouseLeaveListener);
-    }
-    element() {
-        const item = index.createElement(GutterItem$2, {
-            commit: this.data,
-            emitter: this.emitter,
-        });
-        index.render(item, this.contentElement);
-        return this.itemElement;
-    }
 }
 
 'use strict';
@@ -28083,6 +26480,991 @@ module.exports = NodeColorGradient;
 
 var NodeColorGradient = unwrapExports(dist);
 
+"use strict";
+
+/**
+ * protocols
+ * Returns the protocols of an input url.
+ *
+ * @name protocols
+ * @function
+ * @param {String} input The input url.
+ * @param {Boolean|Number} first If `true`, the first protocol will be returned. If number, it will represent the zero-based index of the protocols array.
+ * @return {Array|String} The array of protocols or the specified protocol.
+ */
+var lib$5 = function protocols(input, first) {
+
+    if (first === true) {
+        first = 0;
+    }
+
+    var index = input.indexOf("://"),
+        splits = input.substring(0, index).split("+").filter(Boolean);
+
+    if (typeof first === "number") {
+        return splits[first];
+    }
+
+    return splits;
+};
+
+// Dependencies
+
+
+/**
+ * isSsh
+ * Checks if an input value is a ssh url or not.
+ *
+ * @name isSsh
+ * @function
+ * @param {String|Array} input The input url or an array of protocols.
+ * @return {Boolean} `true` if the input is a ssh url, `false` otherwise.
+ */
+function isSsh(input) {
+
+    if (Array.isArray(input)) {
+        return input.indexOf("ssh") !== -1 || input.indexOf("rsync") !== -1;
+    }
+
+    if (typeof input !== "string") {
+        return false;
+    }
+
+    var prots = lib$5(input);
+    input = input.substring(input.indexOf("://") + 3);
+    if (isSsh(prots)) {
+        return true;
+    }
+
+    // TODO This probably could be improved :)
+    return input.indexOf("@") < input.indexOf(":");
+}
+
+var lib$7 = isSsh;
+
+"use strict";
+
+// Dependencies
+
+
+/**
+ * parseUrl
+ * Parses the input url.
+ *
+ * @name parseUrl
+ * @function
+ * @param {String} url The input url.
+ * @return {Object} An object containing the following fields:
+ *
+ *  - `protocols` (Array): An array with the url protocols (usually it has one element).
+ *  - `protocol` (String): The first protocol, `"ssh"` (if the url is a ssh url) or `"file"`.
+ *  - `port` (null|Number): The domain port.
+ *  - `resource` (String): The url domain (including subdomains).
+ *  - `user` (String): The authentication user (usually for ssh urls).
+ *  - `pathname` (String): The url pathname.
+ *  - `hash` (String): The url hash.
+ *  - `search` (String): The url querystring value.
+ *  - `href` (String): The input url.
+ */
+function parseUrl(url) {
+    var output = {
+        protocols: lib$5(url),
+        protocol: null,
+        port: null,
+        resource: "",
+        user: "",
+        pathname: "",
+        hash: "",
+        search: "",
+        href: url
+    },
+        protocolIndex = url.indexOf("://"),
+        resourceIndex = -1,
+        splits = null,
+        parts = null;
+
+    if (url.startsWith(".")) {
+        if (url.startsWith("./")) {
+            url = url.substring(2);
+        }
+        output.pathname = url;
+        output.protocol = "file";
+    }
+
+    output.protocol = output.protocol || output.protocols[0] || (lib$7(url) ? "ssh" : url.charAt(1) === "/" ? (url = url.substring(2)) && "" : "file");
+
+    if (protocolIndex !== -1) {
+        url = url.substring(protocolIndex + 3);
+    }
+
+    parts = url.split("/");
+    if (output.protocol !== "file") {
+        output.resource = parts.shift();
+    }
+
+    // user@domain
+    splits = output.resource.split("@");
+    if (splits.length === 2) {
+        output.user = splits[0];
+        output.resource = splits[1];
+    }
+
+    // domain.com:port
+    splits = output.resource.split(":");
+    if (splits.length === 2) {
+        output.resource = splits[0];
+        output.port = parseInt(splits[1]);
+        if (isNaN(output.port)) {
+            output.port = null;
+            parts.unshift(splits[1]);
+        }
+    }
+
+    // Remove empty elements
+    parts = parts.filter(Boolean);
+
+    // Stringify the pathname
+    output.pathname = output.pathname || (output.protocol !== "file" || output.href[0] === "/" ? "/" : "") + parts.join("/");
+
+    // #some-hash
+    splits = output.pathname.split("#");
+    if (splits.length === 2) {
+        output.pathname = splits[0];
+        output.hash = splits[1];
+    }
+
+    // ?foo=bar
+    splits = output.pathname.split("?");
+    if (splits.length === 2) {
+        output.pathname = splits[0];
+        output.search = splits[1];
+    }
+
+    return output;
+}
+
+var lib$3 = parseUrl;
+
+"use strict";
+
+// Dependencies
+
+
+
+/**
+ * gitUp
+ * Parses the input url.
+ *
+ * @name gitUp
+ * @function
+ * @param {String} input The input url.
+ * @return {Object} An object containing the following fields:
+ *
+ *  - `protocols` (Array): An array with the url protocols (usually it has one element).
+ *  - `port` (null|Number): The domain port.
+ *  - `resource` (String): The url domain (including subdomains).
+ *  - `user` (String): The authentication user (usually for ssh urls).
+ *  - `pathname` (String): The url pathname.
+ *  - `hash` (String): The url hash.
+ *  - `search` (String): The url querystring value.
+ *  - `href` (String): The input url.
+ *  - `protocol` (String): The git url protocol.
+ *  - `token` (String): The oauth token (could appear in the https urls).
+ */
+function gitUp(input) {
+    var output = lib$3(input);
+    output.token = "";
+
+    var splits = output.user.split(":");
+    if (splits.length === 2) {
+        if (splits[1] === "x-oauth-basic") {
+            output.token = splits[0];
+        } else if (splits[0] === "x-token-auth") {
+            output.token = splits[1];
+        }
+    }
+
+    if (lib$7(output.protocols) || lib$7(input)) {
+        output.protocol = "ssh";
+    } else if (output.protocols.length) {
+        output.protocol = output.protocols[0];
+    } else {
+        output.protocol = "file";
+    }
+
+    return output;
+}
+
+var lib$1 = gitUp;
+
+"use strict";
+
+
+
+/**
+ * gitUrlParse
+ * Parses a Git url.
+ *
+ * @name gitUrlParse
+ * @function
+ * @param {String} url The Git url to parse.
+ * @return {GitUrl} The `GitUrl` object containing:
+ *
+ *  - `protocols` (Array): An array with the url protocols (usually it has one element).
+ *  - `port` (null|Number): The domain port.
+ *  - `resource` (String): The url domain (including subdomains).
+ *  - `user` (String): The authentication user (usually for ssh urls).
+ *  - `pathname` (String): The url pathname.
+ *  - `hash` (String): The url hash.
+ *  - `search` (String): The url querystring value.
+ *  - `href` (String): The input url.
+ *  - `protocol` (String): The git url protocol.
+ *  - `token` (String): The oauth token (could appear in the https urls).
+ *  - `source` (String): The Git provider (e.g. `"github.com"`).
+ *  - `owner` (String): The repository owner.
+ *  - `name` (String): The repository name.
+ *  - `full_name` (String): The owner and name values in the `owner/name` format.
+ *  - `toString` (Function): A function to stringify the parsed url into another url type.
+ *  - `organization` (String): The organization the owner belongs to. This is CloudForge specific.
+ *
+ */
+function gitUrlParse(url) {
+
+    if (typeof url !== "string") {
+        throw new Error("The url must be a string.");
+    }
+
+    var urlInfo = lib$1(url),
+        sourceParts = urlInfo.resource.split("."),
+        splits = null;
+
+    urlInfo.toString = function (type) {
+        return gitUrlParse.stringify(this, type);
+    };
+
+    urlInfo.source = sourceParts.length > 2 ? sourceParts.slice(-2).join(".") : urlInfo.source = urlInfo.resource;
+
+    urlInfo.name = urlInfo.pathname.substring(1).replace(/\.git$/, "");
+    urlInfo.owner = urlInfo.user;
+    urlInfo.organization = urlInfo.owner;
+
+    switch (urlInfo.source) {
+        case "cloudforge.com":
+            urlInfo.owner = urlInfo.user;
+            urlInfo.organization = sourceParts[0];
+            break;
+        default:
+            splits = urlInfo.name.split("/");
+            if (splits.length === 2) {
+                urlInfo.owner = splits[0];
+                urlInfo.name = splits[1];
+            }
+            break;
+    }
+
+    urlInfo.full_name = urlInfo.owner;
+    if (urlInfo.name) {
+        urlInfo.full_name && (urlInfo.full_name += "/");
+        urlInfo.full_name += urlInfo.name;
+    }
+
+    return urlInfo;
+}
+
+/**
+ * stringify
+ * Stringifies a `GitUrl` object.
+ *
+ * @name stringify
+ * @function
+ * @param {GitUrl} obj The parsed Git url object.
+ * @param {String} type The type of the stringified url (default `obj.protocol`).
+ * @return {String} The stringified url.
+ */
+gitUrlParse.stringify = function (obj, type) {
+    type = type || (obj.protocols && obj.protocols.length ? obj.protocols.join('+') : obj.protocol);
+    var port = obj.port ? ":" + obj.port : '';
+    var user = obj.user || 'git';
+    switch (type) {
+        case "ssh":
+            if (port) return "ssh://" + user + "@" + obj.resource + port + "/" + obj.full_name + ".git";else return user + "@" + obj.resource + ":" + obj.full_name + ".git";
+        case "git+ssh":
+        case "ssh+git":
+        case "ftp":
+        case "ftps":
+            return type + "://" + user + "@" + obj.resource + port + "/" + obj.full_name + ".git";
+        case "http":
+        case "https":
+            var token = "";
+            if (obj.token) {
+                token = buildToken(obj);
+            }
+            return type + "://" + token + obj.resource + port + "/" + obj.full_name + ".git";
+        default:
+            return obj.href;
+    }
+};
+
+/*!
+ * buildToken
+ * Builds OAuth token prefix (helper function)
+ *
+ * @name buildToken
+ * @function
+ * @param {GitUrl} obj The parsed Git url object.
+ * @return {String} token prefix
+ */
+function buildToken(obj) {
+    switch (obj.source) {
+        case "bitbucket.org":
+            return "x-token-auth:" + obj.token + "@";
+        default:
+            return obj.token + "@";
+    }
+}
+
+var lib = gitUrlParse;
+
+'use babel';
+class GitHelper {
+    /**
+     * extractRepoMetadataFromRemotes() gets some details about the repo from the remote URLs.
+     * Specifically, we get the repo's origin (i.e. code hosting service), its name, its owner, and its
+     * root & commit URLs. These details are used later to augment commit-level code search results with
+     * data from code hosting & project management integrations.
+     *
+     * @param   {Array<any>} remotes  Array of remote URLs of the form { url, name, type }
+     * @returns {Object}     Object containing the extract repo metadata
+     */
+    static extractRepoMetadataFromRemotes(remotes) {
+        if (!Array.isArray(remotes) || remotes.length === 0)
+            return {};
+        let parsedUrl;
+        try {
+            parsedUrl = lib(remotes[0].url);
+        }
+        catch (error) {
+            return {};
+        }
+        const repoMetadata = {
+            repoName: parsedUrl.name,
+            repoOwner: parsedUrl.owner,
+            repoSource: parsedUrl.source,
+            repoRootUrl: parsedUrl.toString('https').replace('.git', ''),
+        };
+        if (repoMetadata.repoSource === 'github.com' || repoMetadata.repoSource === 'gitlab.com') {
+            repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commit`;
+        }
+        else if (repoMetadata.repoSource === 'bitbucket.org') {
+            repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commits`;
+        }
+        return repoMetadata;
+    }
+    static getHashesFromBlame(blame) {
+        return lodash.uniq(blame.map(line => {
+            return line.split(' ')[0];
+        }));
+    }
+    static parseBlameLine(blameLine) {
+        /*
+                            Commit Hash     Original Line Number               Date                                            Timezone Offset               Line
+                                  ^     File Path    ^       Author              ^                           Time                     ^          Line Number   ^
+                                  |         ^        |          ^                |                             ^                      |               ^        |
+                                  |         |        |          |                |                             |                      |               |        |
+                             |---------|  |---|   |------|    |--|   |--------------------------|  |--------------------------|  |------------|   |--------||----|  */
+        const blameRegex = /^([a-z0-9]+)\s(\S+)\s+([0-9]+)\s\((.+)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([+-][0-9]{4})\s+([0-9]+)\)(.+|$)/;
+        const matched = blameLine.match(blameRegex);
+        if (!matched) {
+            console.log(blameLine);
+            throw new Error("Couldn't parse blame line");
+        }
+        return {
+            commitHash: matched[1].trim(),
+            filePath: matched[2].trim(),
+            originalLineNumber: matched[3].trim(),
+            lineNumber: matched[8].trim(),
+            author: matched[4].trim(),
+            commitedAt: new Date(`${matched[5].trim()} ${matched[6].trim()} ${matched[7].trim()}`),
+            line: matched[9],
+        };
+    }
+}
+
+'use babel';
+function runGitCommand(repoPath, command, shell$$1 = false) {
+    return new Promise((resolve, reject) => {
+        const args = command.split(' ');
+        const child = childProcess.spawn('git', args, { cwd: repoPath, shell: shell$$1 });
+        child.on('error', error => {
+            console.error(command);
+            return reject(error);
+        });
+        child.on('exit', exitCode => {
+            if (exitCode !== 0 && exitCode !== 128) {
+                console.error(command);
+                return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
+            }
+        });
+        let stdOutPromise = new Promise((resolve, reject) => {
+            let stdOut = '';
+            child.stdout.on('data', data => (stdOut += data));
+            child.stdout.on('end', () => resolve(stdOut));
+            child.stdout.on('error', error => reject(error));
+        });
+        let stdErrPromise = new Promise((resolve, reject) => {
+            let stdErr = '';
+            child.stderr.on('data', data => (stdErr += data));
+            child.stderr.on('end', () => resolve(stdErr));
+            child.stderr.on('error', error => reject(error));
+        });
+        Promise.all([stdOutPromise, stdErrPromise])
+            .then(results => {
+            const stdOut = results[0];
+            const stdErr = results[1];
+            if (stdErr !== '') {
+                return reject(new Error(stdErr));
+            }
+            return resolve(stdOut);
+        })
+            .catch(err => {
+            reject(err);
+        });
+    });
+}
+
+'use babel';
+// Modified from: https://github.com/josa42/atom-blame/blob/master/lib/utils/find-repo.js
+/*
+Copyright (c) 2015 Josa Gesell
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+function findRepoRoot(currentPath) {
+    let lastPath;
+    while (currentPath && lastPath !== currentPath) {
+        lastPath = currentPath;
+        const repoPath = path.join(currentPath, '.git');
+        if (fs.existsSync(repoPath)) {
+            return currentPath;
+        }
+        currentPath = path.dirname(currentPath);
+    }
+    return null;
+}
+
+'use babel';
+function blame(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let repoRoot = findRepoRoot(filePath);
+        if (!repoRoot) {
+            throw new Error('File does not exist inside a git repo');
+        }
+        const relPath = path.relative(repoRoot, filePath);
+        return runGitCommand(repoRoot, `blame --show-number --show-name -l --root ${relPath}`);
+    });
+}
+
+'use babel';
+const cpuCount = os.cpus().length;
+function show(filePath, hashes) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const useParallel = get('parallelGitProcessing');
+        let processCount = 1;
+        if (useParallel) {
+            processCount = cpuCount / 2;
+        }
+        let repoRoot = findRepoRoot(filePath);
+        if (!repoRoot) {
+            throw new Error('File does not exist inside a git repo');
+        }
+        const chunkSize = Math.ceil(hashes.length / processCount);
+        const chunkedHashes = lodash.chunk(hashes, chunkSize);
+        const promises = chunkedHashes.map(hashes => {
+            return runGitCommand(repoRoot, `show --format==@COMMIT@=%n%H%n%ae%n%an%n%B --shortstat ${hashes.join(' ')}`);
+        });
+        return Promise.all(promises).then(results => {
+            const parsed = results.map(result => {
+                const commits = result.split('=@COMMIT@=');
+                commits.shift();
+                let parsedCommits = [];
+                for (const i in commits) {
+                    const lines = commits[i].trim().split('\n');
+                    const stats = lines.pop();
+                    const matchedStats = stats.match(/\D+(\d+)\D+(\d+)?\D+(\d+)?/);
+                    let commit = {
+                        hash: lines.shift(),
+                        email: lines.shift(),
+                        author: lines.shift(),
+                        subject: lines.shift(),
+                        message: lines.join('\n').trim(),
+                        filesChanged: 0,
+                        insertions: 0,
+                        deletions: 0,
+                    };
+                    if (matchedStats) {
+                        commit.filesChanged = matchedStats[1] || 0;
+                        commit.insertions = matchedStats[2] || 0;
+                        commit.deletions = matchedStats[3] || 0;
+                    }
+                    parsedCommits.push(commit);
+                }
+                return parsedCommits;
+            });
+            return [].concat.apply([], parsed);
+        });
+    });
+}
+
+'use babel';
+function getRepoRemotes(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const repoRoot = findRepoRoot(filePath);
+        try {
+            const remotes = yield runGitCommand(repoRoot, 'remote -v');
+            if (remotes === '') {
+                return [];
+            }
+            return remotes
+                .trim()
+                .split('\n')
+                .map(remote => {
+                const matchedRemote = remote.match(/(.+)\t(.+)\s\((.+)\)/);
+                return {
+                    name: matchedRemote[1],
+                    url: matchedRemote[2],
+                    type: matchedRemote[3],
+                };
+            });
+        }
+        catch (e) {
+            throw e;
+        }
+    });
+}
+
+'use babel';
+function getFirstCommitDate(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const repoRoot = findRepoRoot(filePath);
+        try {
+            const firstCommit = yield runGitCommand(repoRoot, 'log --reverse --date-order --pretty=%ad | head -n 1', true);
+            return new Date(firstCommit);
+        }
+        catch (e) {
+            throw e;
+        }
+    });
+}
+
+'use babel';
+class GutterRange {
+    constructor(currentLine, identifier) {
+        if (identifier) {
+            this.identifier = identifier;
+        }
+        this.range = {
+            start: currentLine,
+            end: currentLine,
+        };
+    }
+    incrementRange() {
+        this.range.end = this.range.end + 1;
+    }
+    toAtomRange() {
+        return [[this.range.start, 0], [this.range.end, 900000]];
+    }
+}
+
+var isPromise_1 = isPromise;
+
+function isPromise(obj) {
+  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
+}
+
+'use strict';
+
+
+
+
+var main$1 = function (adapter) {
+  if (typeof adapter !== 'object') {
+    throw new Error('An adapter must be provided, see https://github.com/typicode/lowdb/#usage');
+  }
+
+  // Create a fresh copy of lodash
+  var _ = lodash.runInContext();
+  var db = _.chain({});
+
+  // Add write function to lodash
+  // Calls save before returning result
+  _.prototype.write = _.wrap(_.prototype.value, function (func) {
+    var funcRes = func.apply(this);
+    return db.write(funcRes);
+  });
+
+  function plant(state) {
+    db.__wrapped__ = state;
+    return db;
+  }
+
+  // Lowdb API
+  // Expose _ for mixins
+  db._ = _;
+
+  db.read = function () {
+    var r = adapter.read();
+    return isPromise_1(r) ? r.then(plant) : plant(r);
+  };
+
+  db.write = function (returnValue) {
+    var w = adapter.write(db.getState());
+    return isPromise_1(w) ? w.then(function () {
+      return returnValue;
+    }) : returnValue;
+  };
+
+  db.getState = function () {
+    return db.__wrapped__;
+  };
+
+  db.setState = function (state) {
+    return plant(state);
+  };
+
+  return db.read();
+};
+
+"use strict";
+
+// Pretty stringify
+var _stringify = function stringify(obj) {
+  return JSON.stringify(obj, null, 2);
+};
+
+'use strict';
+
+function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+
+
+var Base = function Base(source) {
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      _ref$defaultValue = _ref.defaultValue,
+      defaultValue = _ref$defaultValue === undefined ? {} : _ref$defaultValue,
+      _ref$serialize = _ref.serialize,
+      serialize = _ref$serialize === undefined ? _stringify : _ref$serialize,
+      _ref$deserialize = _ref.deserialize,
+      deserialize = _ref$deserialize === undefined ? JSON.parse : _ref$deserialize;
+
+  _classCallCheck$1(this, Base);
+
+  this.source = source;
+  this.defaultValue = defaultValue;
+  this.serialize = serialize;
+  this.deserialize = deserialize;
+};
+
+var Base_1 = Base;
+
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+var Memory = function (_Base) {
+  _inherits(Memory, _Base);
+
+  function Memory() {
+    _classCallCheck(this, Memory);
+
+    return _possibleConstructorReturn(this, (Memory.__proto__ || Object.getPrototypeOf(Memory)).apply(this, arguments));
+  }
+
+  _createClass(Memory, [{
+    key: 'read',
+    value: function read() {
+      return this.defaultValue;
+    }
+  }, {
+    key: 'write',
+    value: function write() {}
+  }]);
+
+  return Memory;
+}(Base_1);
+
+'use babel';
+const adapter = new Memory();
+const db = main$1(adapter);
+db
+    .defaults({
+    commitMessages: {},
+    blames: [],
+    fileCommits: [],
+    rootPaths: {},
+    startDates: {},
+    repoMetadata: {},
+    pullRequests: [],
+    pullRequestsCommitsPivot: {},
+    githubIssues: [],
+    jiraIssues: [],
+})
+    .write();
+window.layerCacheDump = function (path$$1 = __dirname) {
+    let savePath = `${path$$1}/layer-${Date.now()}.json`;
+    fs.writeFileSync(savePath, JSON.stringify(db));
+    console.log('Cache dumped to', savePath);
+};
+
+'use babel';
+const blamePromises = {};
+function getBlameForFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let existing = db
+            .get('blames')
+            .find({ path: filePath })
+            .value();
+        if (existing && Date.now() - existing.fetchedAt < 1000) {
+            return existing;
+        }
+        if (!blamePromises[filePath]) {
+            blamePromises[filePath] = blame(filePath);
+        }
+        const blame$$1 = yield blamePromises[filePath];
+        db
+            .get('blames')
+            .remove({ path: filePath })
+            .write();
+        db
+            .get('blames')
+            .push({
+            path: filePath,
+            lines: blame$$1.replace(/\s+$/, '').split('\n'),
+            fetchedAt: new Date(),
+        })
+            .write();
+        delete blamePromises[filePath];
+        return db
+            .get('blames')
+            .find({ path: filePath })
+            .value();
+    });
+}
+function getCommitsForFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let existing = db
+            .get('fileCommits')
+            .find({ path: filePath })
+            .value();
+        if (existing && Date.now() - existing.fetchedAt < 1000) {
+            return existing;
+        }
+        const blame$$1 = yield getBlameForFile(filePath);
+        const repoPath = yield getRepoRootPath(filePath);
+        const commits = blame$$1.lines.reduce((acc, line) => {
+            const parsed = GitHelper.parseBlameLine(line);
+            parsed.repoPath = repoPath;
+            if (acc[parsed.commitHash]) {
+                return acc;
+            }
+            acc[parsed.commitHash] = parsed;
+            return acc;
+        }, {});
+        db
+            .get('fileCommits')
+            .remove({ path: filePath })
+            .write();
+        db
+            .get('fileCommits')
+            .push({
+            path: filePath,
+            commits,
+            fetchedAt: new Date(),
+        })
+            .write();
+        loadCommits(repoPath, lodash.filter(lodash.map(commits, 'commitHash'), hash => hash.substr(0, 6) !== '000000'));
+        return db
+            .get('fileCommits')
+            .find({ path: filePath })
+            .value();
+    });
+}
+function getGutterRangesForFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const blame$$1 = yield getBlameForFile(filePath);
+        let lineRanges = [];
+        for (let i = 0; i < blame$$1.lines.length; i++) {
+            const line = blame$$1.lines[i];
+            const commitHash = line.split(' ')[0];
+            // Build array of ranges
+            if (lineRanges.length == 0) {
+                // No ranges exist
+                lineRanges.push(new GutterRange(i, commitHash));
+            }
+            else {
+                const currentRange = lineRanges[lineRanges.length - 1]; // Get last range
+                if (currentRange.identifier === commitHash) {
+                    currentRange.incrementRange();
+                }
+                else {
+                    // Add new range
+                    lineRanges.push(new GutterRange(i, commitHash));
+                }
+            }
+        }
+        return {
+            path: filePath,
+            ranges: lodash.groupBy(lineRanges, 'identifier'),
+            fetchedAt: new Date(),
+        };
+    });
+}
+const firstDatePromises = {};
+function getFirstCommitDateForRepo(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return getRepoRootPath(filePath).then((repoPath) => __awaiter(this, void 0, void 0, function* () {
+            const cached = db
+                .get('startDates')
+                .get(repoPath)
+                .value();
+            if (cached) {
+                return cached;
+            }
+            if (!firstDatePromises[filePath]) {
+                firstDatePromises[filePath] = getFirstCommitDate(repoPath);
+            }
+            const date = yield firstDatePromises[filePath];
+            db
+                .get('startDates')
+                .set(filePath, date)
+                .write();
+            delete firstDatePromises[filePath];
+            return date;
+        }));
+    });
+}
+let loadPromise;
+function loadCommits(filePath, hashes) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (loadPromise) {
+            yield loadPromise;
+        }
+        loadPromise = show(filePath, hashes);
+        const commits = yield loadPromise;
+        for (const i in commits) {
+            const commit = commits[i];
+            if (commit) {
+                const toWrite = Object.assign({ commitHash: commit.hash }, commit, { fetchedAt: new Date() });
+                db
+                    .get('commitMessages')
+                    .set(commit.hash, toWrite)
+                    .write();
+            }
+        }
+    });
+}
+const commitPromises = {};
+function getCommit(filePath, hash) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (loadPromise) {
+            yield loadPromise;
+        }
+        let existing = db
+            .get('commitMessages')
+            .get(hash)
+            .value();
+        if (existing) {
+            return existing;
+        }
+        if (!commitPromises[hash]) {
+            commitPromises[hash] = show(filePath, [hash]);
+        }
+        const commit = yield commitPromises[hash];
+        const toWrite = Object.assign({ commitHash: hash }, commit[0], { fetchedAt: new Date() });
+        db
+            .get('commitMessages')
+            .set(commit.hash, toWrite)
+            .write();
+        delete commitPromises[hash];
+        return toWrite;
+    });
+}
+function updateCommit(hash, data) {
+    db
+        .get('commitMessages')
+        .get(hash)
+        .assign(data)
+        .write();
+    return db
+        .get('commitMessages')
+        .get(hash)
+        .value();
+}
+function getRepoRootPath(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let cached = db.get(`rootPaths.${filePath}`).value();
+        if (cached) {
+            return cached;
+        }
+        let rootPath = findRepoRoot(filePath);
+        db
+            .get('rootPaths')
+            .set(filePath, rootPath)
+            .write();
+        return rootPath;
+    });
+}
+const metadataPromises = {};
+function getRepoMetadata(repoPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let cached = db
+            .get('repoMetadata')
+            .find({
+            rootPath: repoPath,
+        })
+            .value();
+        if (cached) {
+            return cached;
+        }
+        if (!metadataPromises[repoPath]) {
+            metadataPromises[repoPath] = getRepoRemotes(repoPath);
+        }
+        const remotes = yield metadataPromises[repoPath];
+        const metadata = GitHelper.extractRepoMetadataFromRemotes(remotes);
+        const toWrite = Object.assign({ rootPath: repoPath }, metadata, { fetchedAt: new Date() });
+        db
+            .get('repoMetadata')
+            .push(toWrite)
+            .write();
+        delete metadataPromises[repoPath];
+        return toWrite;
+    });
+}
+
 'use babel';
 let editors = {};
 let datePromises = {};
@@ -28121,111 +27503,861 @@ function setEditor(editor) {
         datePromises[projectDir] = getFirstCommitDateForRepo(editor.getPath());
     });
 }
+const scales = {
+    RoyalPomegranate: [
+        [63, 116, 212],
+        [60, 125, 199],
+        [55, 136, 228],
+        [78, 161, 216],
+        [83, 175, 202],
+        [96, 202, 197],
+        [127, 225, 221],
+        [167, 239, 236],
+        [203, 248, 247],
+        [255, 255, 255],
+        [253, 245, 234],
+        [251, 231, 204],
+        [246, 208, 158],
+        [243, 179, 99],
+        [240, 159, 96],
+        [240, 141, 89],
+        [239, 128, 88],
+        [238, 115, 73],
+        [237, 98, 59],
+        [235, 62, 37],
+    ],
+    ChocolateMint: [
+        [140, 81, 10],
+        [191, 129, 45],
+        [223, 194, 125],
+        [246, 232, 195],
+        [245, 245, 245],
+        [199, 234, 229],
+        [128, 205, 193],
+        [53, 151, 143],
+        [1, 102, 94],
+    ],
+    VioletApple: [
+        [197, 27, 125],
+        [222, 119, 174],
+        [241, 182, 218],
+        [253, 224, 239],
+        [247, 247, 247],
+        [230, 245, 208],
+        [184, 225, 134],
+        [127, 188, 65],
+        [77, 146, 33],
+    ],
+    AffairGoblin: [
+        [118, 42, 131],
+        [153, 112, 171],
+        [194, 165, 207],
+        [231, 212, 232],
+        [247, 247, 247],
+        [217, 240, 211],
+        [166, 219, 160],
+        [90, 174, 97],
+        [27, 120, 55],
+    ],
+    GoldDaisy: [
+        [179, 88, 6],
+        [224, 130, 20],
+        [253, 184, 99],
+        [254, 224, 182],
+        [247, 247, 247],
+        [216, 218, 235],
+        [178, 171, 210],
+        [128, 115, 172],
+        [84, 39, 136],
+    ],
+    PoppyLochmara: [
+        [235, 62, 37],
+        [214, 96, 77],
+        [244, 165, 130],
+        [253, 219, 199],
+        [247, 247, 247],
+        [209, 229, 240],
+        [146, 197, 222],
+        [67, 147, 195],
+        [33, 102, 172],
+    ],
+    PersianSteel: [
+        [215, 48, 39],
+        [244, 109, 67],
+        [253, 174, 97],
+        [254, 224, 144],
+        [255, 255, 191],
+        [224, 243, 248],
+        [171, 217, 233],
+        [116, 173, 209],
+        [69, 117, 180],
+    ],
+};
 function calculateScale(steps) {
     const scale = get('colorScale');
-    switch (scale) {
-        case 'RoyalPomegranate': {
-            return new NodeColorGradient([
-                [63, 116, 212],
-                [60, 125, 199],
-                [55, 136, 228],
-                [78, 161, 216],
-                [83, 175, 202],
-                [96, 202, 197],
-                [127, 225, 221],
-                [167, 239, 236],
-                [203, 248, 247],
-                [255, 255, 255],
-                [253, 245, 234],
-                [251, 231, 204],
-                [246, 208, 158],
-                [243, 179, 99],
-                [240, 159, 96],
-                [240, 141, 89],
-                [239, 128, 88],
-                [238, 115, 73],
-                [237, 98, 59],
-                [235, 62, 37],
-            ]).getGradient(steps);
+    return new NodeColorGradient(scales[scale]).getGradient(steps);
+}
+
+'use babel';
+class AgeTooltip extends index.PureComponent {
+    constructor(...props) {
+        super(...props);
+        this.state = {
+            gradient: ['#000']
+        };
+    }
+    componentWillMount() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.totalDays = (Date.now() - new Date(this.props.firstCommitDate).getTime()) / 1000 / 3600 / 24;
+            this.pointPosition = (this.props.commitDay / this.totalDays) * 100;
+            const gradient = yield colorScale(atom.workspace.getActiveTextEditor());
+            this.setState({
+                gradient: gradient.map((color) => {
+                    return color.hsl().string();
+                })
+            });
+        });
+    }
+    render() {
+        let pointAlign = 'center';
+        let pointTransform = 'translateX(-50%) translateX(1px)';
+        if (this.pointPosition < 20) {
+            pointTransform = 'translateX(-5px)';
+            pointAlign = 'left';
         }
-        case 'ChocolateMint': {
-            return new NodeColorGradient([
-                [140, 81, 10],
-                [191, 129, 45],
-                [223, 194, 125],
-                [246, 232, 195],
-                [245, 245, 245],
-                [199, 234, 229],
-                [128, 205, 193],
-                [53, 151, 143],
-                [1, 102, 94],
-            ]).getGradient(steps);
+        if (this.pointPosition > 70) {
+            pointTransform = 'translateX(-100%) translateX(8px)';
+            pointAlign = 'right';
         }
-        case 'VioletApple': {
-            return new NodeColorGradient([
-                [197, 27, 125],
-                [222, 119, 174],
-                [241, 182, 218],
-                [253, 224, 239],
-                [247, 247, 247],
-                [230, 245, 208],
-                [184, 225, 134],
-                [127, 188, 65],
-                [77, 146, 33],
-            ]).getGradient(steps);
+        const gradient = this.state.gradient.join(',');
+        return (index.createElement("div", { className: "layer-tooltip" },
+            index.createElement("div", { className: "age-graph" },
+                index.createElement("div", { className: "markers" },
+                    index.createElement("div", { className: "start" },
+                        index.createElement("div", { className: "start-inner" },
+                            index.createElement("h3", { title: moment(this.props.firstCommitDate).format(get('gutterDateFormat')) }, "Repo Created"))),
+                    index.createElement("div", { className: "end" },
+                        index.createElement("div", { className: "end-inner" },
+                            index.createElement("h3", null, "Today")))),
+                index.createElement("div", { className: "rail", style: {
+                        background: `linear-gradient(90deg, ${gradient})`
+                    } },
+                    index.createElement("div", { className: "tick", style: {
+                            left: `${this.pointPosition}%`,
+                        } })),
+                index.createElement("div", { className: "markers" },
+                    index.createElement("div", { className: "point", style: {
+                            marginLeft: `${this.pointPosition}%`,
+                            textAlign: pointAlign,
+                            transform: pointTransform,
+                        } },
+                        index.createElement("i", { className: "icon icon-git-commit" }),
+                        index.createElement("p", null, moment(this.props.commit.commitedAt).fromNow()),
+                        index.createElement("code", null, moment(this.props.commit.commitedAt).format(get('gutterDateFormat'))))))));
+    }
+}
+
+'use babel';
+class TooltipPortal extends index.Component {
+    componentDidMount() {
+        this.portal = document.createElement('div');
+        document.body.appendChild(this.portal);
+        this.renderTooltipContent(this.props);
+    }
+    componentWillUnmount() {
+        index.unmountComponentAtNode(this.portal);
+    }
+    getTooltipStyle() {
+        return {
+            webkitFontSmoothing: 'subpixel-antialiased',
+            position: 'absolute',
+            zIndex: 100,
+        };
+    }
+    positionTooltip() {
+        const parentRect = this.props.parent.getBoundingClientRect();
+        const tooltipRect = this.tooltipElement.getBoundingClientRect();
+        const tooltipWidth = tooltipRect.right - tooltipRect.left;
+        const tooltipHeight = tooltipRect.bottom - tooltipRect.top;
+        let leftPos = (parentRect.right - tooltipWidth) - 10;
+        if (leftPos < 0)
+            leftPos += (Math.abs(leftPos) + 10);
+        this.tooltipElement.style['left'] = `${leftPos}px`;
+        let topPos = parentRect.top - tooltipHeight - 5;
+        if (topPos < 0)
+            topPos = parentRect.bottom + 5;
+        this.tooltipElement.style['top'] = `${topPos}px`;
+    }
+    renderTooltipContent(props) {
+        this.tooltipElement = index.render(index.createElement("div", { style: this.getTooltipStyle(), onMouseEnter: this.props.mouseEnter, onMouseLeave: this.props.mouseLeave }, props.children), this.portal);
+        this.positionTooltip();
+    }
+    render() {
+        return null;
+    }
+}
+
+'use babel';
+function email() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let gitEmail;
+        try {
+            gitEmail = (yield runGitCommand('/', `config --global user.email`));
         }
-        case 'AffairGoblin': {
-            return new NodeColorGradient([
-                [118, 42, 131],
-                [153, 112, 171],
-                [194, 165, 207],
-                [231, 212, 232],
-                [247, 247, 247],
-                [217, 240, 211],
-                [166, 219, 160],
-                [90, 174, 97],
-                [27, 120, 55],
-            ]).getGradient(steps);
+        catch (e) {
+            throw e;
         }
-        case 'GoldDaisy': {
-            return new NodeColorGradient([
-                [179, 88, 6],
-                [224, 130, 20],
-                [253, 184, 99],
-                [254, 224, 182],
-                [247, 247, 247],
-                [216, 218, 235],
-                [178, 171, 210],
-                [128, 115, 172],
-                [84, 39, 136],
-            ]).getGradient(steps);
+        return gitEmail.trim();
+    });
+}
+
+'use babel';
+let userHash;
+const writeKey = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
+const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
+function segmentRequest(path$$1, body) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let payload = body;
+        payload.timestamp = new Date().toISOString();
+        payload.context = {
+            app: {
+                name: 'Atom Better Git Blame',
+                version: version,
+            },
+            os: {
+                name: os.type(),
+                version: os.release(),
+            },
+        };
+        return new Promise((resolve, reject) => {
+            let responseData = '';
+            const req = https.request({
+                hostname: 'api.segment.io',
+                path: `/v1${path$$1}`,
+                method: 'POST',
+                headers: {
+                    Authorization: authHeader,
+                    'Content-Type': 'application/json',
+                },
+            }, function (response) {
+                let code = response.statusCode;
+                response.on('data', function (chunk) {
+                    responseData += chunk;
+                });
+                response.on('end', function () {
+                    if (code < 400) {
+                        resolve(JSON.parse(responseData));
+                    }
+                    else {
+                        reject(responseData);
+                    }
+                });
+            });
+            req.on('error', function (error) {
+                reject(error.message);
+            });
+            req.write(JSON.stringify(payload));
+            req.end();
+        });
+    });
+}
+function getUserHash() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let savedHash = localStorage.getItem('better-git-blame-analytics-hash');
+        if (savedHash) {
+            return savedHash;
         }
-        case 'PoppyLochmara': {
-            return new NodeColorGradient([
-                [178, 24, 43],
-                [214, 96, 77],
-                [244, 165, 130],
-                [253, 219, 199],
-                [247, 247, 247],
-                [209, 229, 240],
-                [146, 197, 222],
-                [67, 147, 195],
-                [33, 102, 172],
-            ]).getGradient(steps);
+        let userEmail;
+        try {
+            userEmail = yield email();
         }
-        case 'PersianSteel': {
-            return new NodeColorGradient([
-                [215, 48, 39],
-                [244, 109, 67],
-                [253, 174, 97],
-                [254, 224, 144],
-                [255, 255, 191],
-                [224, 243, 248],
-                [171, 217, 233],
-                [116, 173, 209],
-                [69, 117, 180],
-            ]).getGradient(steps);
+        catch (e) {
+            console.error(e);
+            userEmail = crypto.randomBytes(28);
         }
+        if (!userEmail)
+            throw new Error('Failed to fetch email or create fallback');
+        const hash = crypto.createHash('sha256');
+        hash.update(userEmail);
+        const hashedEmail = hash.digest('hex');
+        localStorage.setItem('better-git-blame-analytics-hash', hashedEmail);
+        return hashedEmail;
+    });
+}
+function init() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (get('sendUsageStatistics')) {
+            userHash = yield getUserHash();
+            const randomString = crypto.randomBytes(8).toString('hex');
+            const configKeys = Object.keys(getConfig());
+            let pluginConfig = {};
+            for (let i in configKeys) {
+                const key = configKeys[i];
+                pluginConfig[`BGB Config ${key}`] = get(key);
+                onDidChange(key, value => {
+                    track('Changed config', {
+                        Config: key,
+                        'Old Value': value.oldValue,
+                        'New Value': value.newValue,
+                    });
+                });
+            }
+            yield segmentRequest('/identify', {
+                userId: userHash,
+                traits: Object.assign({ 'User Hash': userHash, name: `Plugin User ${randomString}` }, pluginConfig),
+            });
+        }
+    });
+}
+function track(name$$1, data = {}) {
+    if (get('sendUsageStatistics') && userHash) {
+        segmentRequest('/track', {
+            event: `BGB ${name$$1}`,
+            userId: userHash,
+            properties: data,
+        });
+    }
+}
+
+'use babel';
+class TooltipContainer extends index.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            show: false,
+        };
+    }
+    showTooltip() {
+        track('Tooltip shown');
+        this.setState({ show: true });
+    }
+    hideTooltip() {
+        this.setState({ show: false });
+    }
+    mouseEnterHandler() {
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+            this.showTooltip();
+        }, 500);
+    }
+    mouseLeaveHandler() {
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
+            this.hideTooltip();
+        }, 500);
+    }
+    ;
+    renderTooltip() {
+        if (this.state.show) {
+            return (index.createElement(TooltipPortal, { parent: this.containerElement, mouseEnter: this.mouseEnterHandler.bind(this), mouseLeave: this.mouseLeaveHandler.bind(this) }, this.props.tooltipContent()));
+        }
+        return null;
+    }
+    render() {
+        return (index.createElement("div", { style: this.props.style, className: this.props.className, onMouseEnter: this.mouseEnterHandler.bind(this), onMouseLeave: this.mouseLeaveHandler.bind(this), ref: (el) => this.containerElement = el },
+            this.renderTooltip(),
+            this.props.children));
+    }
+}
+
+'use babel';
+class BuildStatus extends index.PureComponent {
+    getStatus() {
+        if (this.props.status) {
+            return this.props.status.state;
+        }
+        return null;
+    }
+    static renderIcon(state) {
+        switch (state) {
+            case 'SUCCESS':
+                return index.createElement("i", { className: "icon icon-check", style: { color: '#2cbe4e' } });
+            case 'FAILURE':
+                return index.createElement("i", { className: "icon icon-x", style: { color: '#cb2431' } });
+            default:
+                return null;
+        }
+    }
+    clickHandler(label) {
+        return () => {
+            track(`Clicked link`, { label });
+        };
+    }
+    render() {
+        if (this.props.status) {
+            return (index.createElement("a", { onClick: this.clickHandler('Build status'), href: this.props.status.contexts[0].targetUrl, className: "build-status", title: this.props.status.contexts[0].description }, BuildStatus.renderIcon(this.getStatus())));
+        }
+        return null;
+    }
+}
+
+'use babel';
+class SearchInLayer extends index.PureComponent {
+    render() {
+        if (get('searchInLayerEnabled')) {
+            return (index.createElement("div", { className: "section" },
+                index.createElement("div", { className: "section-icon" },
+                    index.createElement("div", { className: "icon icon-search" })),
+                index.createElement("div", { className: "section-content" },
+                    index.createElement("h1", { className: "section-title" },
+                        "Search in\u00A0",
+                        index.createElement("img", { className: "layer-icon", src: "atom://better-git-blame/assets/layer-logo-secondary-64.png", height: "16", alt: "" })),
+                    index.createElement("p", { className: "section-body" },
+                        "View complete history of the code block",
+                        index.createElement("span", { className: "layer-button btn btn-default icon icon-link-external", onClick: this.props.onClick, onMouseEnter: this.props.onMouseEnter, onMouseLeave: this.props.onMouseLeave }, "Open")))));
+        }
+        return (index.createElement("div", { className: "section powered-by" },
+            index.createElement("div", { className: "section-content" },
+                index.createElement("p", { className: "section-body", style: { maxWidth: '100%' } },
+                    "Powered by\u00A0",
+                    index.createElement("a", { href: "https://stepsize.com" },
+                        index.createElement("img", { className: "layer-icon", src: "atom://better-git-blame/assets/stepsize-logo-secondary-64.png", height: "16", alt: "" }))))));
+    }
+}
+
+'use babel';
+class BlameTooltip extends index.PureComponent {
+    clickLayerSearch() {
+        this.props.emitter.emit('clickedSearch');
+    }
+    mouseEnterLayerSearch() {
+        this.props.emitter.emit('mouseEnterLayerSearch');
+    }
+    mouseLeaveLayerSearch() {
+        this.props.emitter.emit('mouseLeaveLayerSearch');
+    }
+    clickHandler(label) {
+        return () => {
+            track(`Clicked link`, { label });
+        };
+    }
+    render() {
+        const commitedDate = moment(this.props.commit.commitedAt).format('D MMM');
+        return (index.createElement("div", { className: "layer-tooltip" },
+            index.createElement("div", { className: "section" },
+                index.createElement("div", { className: "section-icon" },
+                    index.createElement("div", { className: "icon icon-git-commit" })),
+                index.createElement("div", { className: "section-content" },
+                    index.createElement("h1", { className: "section-title" },
+                        index.createElement("a", { onClick: this.clickHandler('Commit title'), href: `${this.props.metadata.repoCommitUrl}/${this.props.commit.commitHash}` }, this.props.commit.subject)),
+                    index.createElement(BuildStatus, { status: this.props.commit.status }),
+                    index.createElement("p", { className: "section-body" },
+                        index.createElement("code", null,
+                            index.createElement("a", { onClick: this.clickHandler('Commit hash'), href: `${this.props.metadata.repoCommitUrl}/${this.props.commit.commitHash}` }, this.props.commit.commitHash.substr(0, 6))),
+                        " by ",
+                        this.props.commit.author,
+                        " committed on ",
+                        commitedDate),
+                    index.createElement("span", { className: "section-status" },
+                        index.createElement("span", { title: "Insertions", className: "green" },
+                            "+",
+                            this.props.commit.insertions,
+                            "\u00A0"),
+                        index.createElement("span", { title: "Deletions", className: "red" },
+                            "-",
+                            this.props.commit.deletions,
+                            "\u00A0"),
+                        index.createElement("span", { title: "Files Changed" },
+                            index.createElement("i", { className: "icon icon-diff" }),
+                            this.props.commit.filesChanged)))),
+            this.props.pullRequests.map((pullRequest) => {
+                const verb = pullRequest.state.toLowerCase();
+                return (index.createElement("div", { className: "section" },
+                    index.createElement("div", { className: "section-icon" },
+                        index.createElement("div", { className: "icon icon-git-pull-request" })),
+                    index.createElement("div", { className: "section-content" },
+                        index.createElement("h1", { className: "section-title" },
+                            index.createElement("a", { onClick: this.clickHandler('Pull Request title'), href: pullRequest.url }, pullRequest.title)),
+                        index.createElement(BuildStatus, { status: pullRequest.status }),
+                        index.createElement("p", { className: "section-body" },
+                            index.createElement("code", null,
+                                index.createElement("a", { onClick: this.clickHandler('Pull Request number'), href: pullRequest.url },
+                                    "#",
+                                    pullRequest.number)),
+                            " by ",
+                            pullRequest.author.login,
+                            " ",
+                            verb,
+                            " on ",
+                            moment(pullRequest.createdAt).format('D MMM')),
+                        index.createElement("span", { className: "section-status" },
+                            index.createElement("span", { title: "Total Commits" },
+                                index.createElement("i", { className: "icon icon-git-commit" }),
+                                pullRequest.commitCount)))));
+            }),
+            this.props.githubIssues.map((issue) => {
+                let issueIcon = 'icon icon-issue-opened green';
+                if (issue.state === 'CLOSED') {
+                    issueIcon = 'icon icon-issue-closed red';
+                }
+                return (index.createElement("div", { className: "section" },
+                    index.createElement("div", { className: "section-icon" },
+                        index.createElement("div", { className: "icon icon-issue-opened" })),
+                    index.createElement("div", { className: "section-content" },
+                        index.createElement("h1", { className: "section-title" },
+                            index.createElement("a", { onClick: this.clickHandler('Issue title'), href: issue.url }, issue.title)),
+                        index.createElement("p", { className: "section-body" },
+                            index.createElement("i", { className: `icon ${issueIcon}` }),
+                            index.createElement("code", null,
+                                index.createElement("a", { onClick: this.clickHandler('Issue number'), href: issue.url },
+                                    "#",
+                                    issue.number)),
+                            " by ",
+                            issue.author.login),
+                        index.createElement("span", { className: "section-status" }, issue.state.toLowerCase()))));
+            }),
+            this.props.jiraIssues.map((issue) => {
+                return (index.createElement("div", { className: "section" },
+                    index.createElement("div", { className: "section-icon" },
+                        index.createElement("div", { className: "icon stepsize-icon-jira" })),
+                    index.createElement("div", { className: "section-content" },
+                        index.createElement("h1", { className: "section-title" },
+                            index.createElement("a", { onClick: this.clickHandler('Jira ticket title'), href: issue.url }, issue.summary)),
+                        index.createElement("p", { className: "section-body" },
+                            index.createElement("img", { className: "icon", src: issue.issueType.iconUrl, alt: issue.issueType.name }),
+                            index.createElement("code", null,
+                                index.createElement("a", { onClick: this.clickHandler('Jira ticket key'), href: issue.url }, issue.key)),
+                            " created by ",
+                            issue.creator.displayName,
+                            " & assigned to ",
+                            issue.assignee.displayName || 'Nobody',
+                            index.createElement("span", { className: "section-status", style: {
+                                    color: `${issue.status.statusCategory.colorName}`
+                                } }, issue.status.name.toLowerCase())))));
+            }),
+            index.createElement(SearchInLayer, { onClick: this.clickLayerSearch.bind(this), onMouseEnter: this.mouseEnterLayerSearch.bind(this), onMouseLeave: this.mouseLeaveLayerSearch.bind(this) })));
+    }
+}
+
+'use babel';
+const initialNotifData = {
+    gutters: 0,
+    tooltips: 0,
+    wasIntegrationDataRetrieved: false,
+    wasNotificationShown: false,
+};
+function getIntegrationNotificationData() {
+    const storedNotifData = localStorage.getItem('better-git-blame-integration-notification-data');
+    return storedNotifData ? JSON.parse(storedNotifData) : initialNotifData;
+}
+function saveIntegrationNotificationData(notifData) {
+    localStorage.setItem('better-git-blame-integration-notification-data', JSON.stringify(notifData));
+}
+function handleGutterShown() {
+    trackGutterShown();
+    showIntegrationNotificationIfAppropriate();
+}
+function trackGutterShown() {
+    const notifData = getIntegrationNotificationData();
+    notifData.gutters += 1;
+    saveIntegrationNotificationData(notifData);
+}
+function showIntegrationNotificationIfAppropriate() {
+    const notifData = getIntegrationNotificationData();
+    if (notifData.wasNotificationShown || notifData.wasIntegrationDataRetrieved)
+        return;
+    if (notifData.gutters >= 5 && notifData.tooltips >= 5) {
+        track('Integration notification shown');
+        showIntegrationNotification();
+        notifData.wasNotificationShown = true;
+        saveIntegrationNotificationData(notifData);
+    }
+}
+function showIntegrationNotification() {
+    atom.notifications.addInfo('Boss mode blame', {
+        description: 'Want to see pull requests and issues in `better-git-blame` popovers?\n\n<img src="https://i.imgur.com/vUTvxHv.png" width="400" height="172" />\n\nJust setup one of our integrations to level up 🔥',
+        dismissable: true,
+        buttons: [
+            {
+                text: 'GitHub integration',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'github' });
+                    shell.openExternal('https://github.com/apps/layer');
+                },
+            },
+            {
+                text: 'Jira integration',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'jira' });
+                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
+                },
+            },
+            {
+                text: 'Tell me more',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'more' });
+                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
+                },
+            },
+        ],
+    });
+}
+
+function checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues) {
+    const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
+    const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
+    const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
+    if (prCount > 0 || giCount > 0 || jiCount > 0) {
+        const notifData = getIntegrationNotificationData();
+        notifData.wasIntegrationDataRetrieved = true;
+        saveIntegrationNotificationData(notifData);
+    }
+}
+
+'use babel';
+let pendingRequests = {};
+function getIntegrationDataForFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const repoPath = yield getRepoRootPath(filePath);
+        const metadata = yield getRepoMetadata(repoPath);
+        const blame = yield getBlameForFile(filePath);
+        if (!pendingRequests[repoPath]) {
+            pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(metadata, GitHelper.getHashesFromBlame(blame.lines)).then(response => {
+                return processIntegrationData(response);
+            });
+        }
+        const response = yield pendingRequests[repoPath];
+        delete pendingRequests[repoPath];
+        return response;
+    });
+}
+function processIntegrationData(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pullRequests = data.pullRequests;
+        const jiraIssues = data.relatedJiraIssues;
+        const githubIssues = data.relatedGitHubIssues;
+        db
+            .get('githubIssues')
+            .merge(lodash.toArray(githubIssues))
+            .uniqBy('number')
+            .write();
+        db
+            .get('jiraIssues')
+            .merge(lodash.toArray(jiraIssues))
+            .uniqBy('key')
+            .write();
+        pullRequestsCommitsPivot(pullRequests);
+        for (const i in pullRequests) {
+            const pullRequest = pullRequests[i];
+            if (db
+                .get('pullRequests')
+                .find({ number: pullRequest.number })
+                .value()) {
+                continue;
+            }
+            let toWrite = pullRequest;
+            toWrite.commitCount = toWrite.commits.length;
+            toWrite.status = StepsizeHelper.getStatusObject(pullRequest);
+            for (const i in pullRequest.commits) {
+                const commit = pullRequest.commits[i];
+                updateCommit(commit.commitHash, {
+                    status: commit.status,
+                });
+            }
+            //delete toWrite.commits;
+            db
+                .get('pullRequests')
+                .push(toWrite)
+                .write();
+        }
+        checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues);
+        return db.get('pullRequests').value();
+    });
+}
+function pullRequestsCommitsPivot(pullRequests) {
+    const pivot = lodash.reduce(pullRequests, (acc, pullRequest, key) => {
+        acc[key] = lodash.map(pullRequest.commits, 'commitHash');
+        return acc;
+    }, {});
+    db
+        .get('pullRequestsCommitsPivot')
+        .merge(pivot)
+        .uniq()
+        .write();
+    return db.get('pullRequestsCommitsPivot').value();
+}
+function getPullRequestsForCommit(filePath, commitHash) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (pendingRequests[filePath]) {
+            yield pendingRequests[filePath];
+        }
+        const results = db
+            .get('pullRequestsCommitsPivot')
+            .reduce((acc, hashes, prNumber) => {
+            if (hashes.includes(commitHash)) {
+                acc.push(prNumber);
+            }
+            return acc;
+        }, [])
+            .value();
+        return results.map(number => {
+            return db
+                .get('pullRequests')
+                .find({ number: parseInt(number) })
+                .value();
+        });
+    });
+}
+function getCommitsForPullRequest(filePath, pullRequestNumber) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (pendingRequests[filePath]) {
+            yield pendingRequests[filePath];
+        }
+        return db
+            .get('pullRequestsCommitsPivot')
+            .get(pullRequestNumber)
+            .value();
+    });
+}
+function getIssue(filePath, issueKey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (pendingRequests[filePath]) {
+            yield pendingRequests[filePath];
+        }
+        issueKey = issueKey.toString();
+        // Assume its a Jira issue if its got a hyphen
+        if (issueKey.includes('-')) {
+            return db
+                .get('jiraIssues')
+                .find({ key: issueKey })
+                .value();
+        }
+        return db
+            .get('githubIssues')
+            .find({ number: parseInt(issueKey) })
+            .value();
+    });
+}
+
+'use babel';
+class GutterItem$2 extends index.Component {
+    constructor(...props) {
+        super(...props);
+        this.state = {
+            commit: {},
+            pullRequests: [],
+            jiraIssues: [],
+            githubIssues: [],
+            metadata: {},
+        };
+    }
+    componentWillMount() {
+        this.setState({ commit: this.props.commit });
+        if (this.props.commit.commitHash.substr(0, 6) !== '000000') {
+            this.fetchCommitData();
+            getRepoMetadata(this.props.commit.repoPath)
+                .then((metadata) => {
+                this.setState(Object.assign({}, this.state, { metadata }));
+            });
+        }
+    }
+    componentDidMount() {
+        if (this.props.commit.commitHash.substr(0, 6) !== '000000') {
+            getPullRequestsForCommit(`${this.state.commit.repoPath}`, this.state.commit.commitHash)
+                .then((pullRequests) => {
+                this.setState(Object.assign({}, this.state, { pullRequests: pullRequests }));
+                pullRequests.map(this.getIssuesForPullRequest.bind(this));
+                // Refresh the commit data
+                this.fetchCommitData();
+            });
+        }
+    }
+    fetchCommitData() {
+        if (this.props.commit.commitHash.substr(0, 6) !== '000000') {
+            getCommit(this.props.commit.repoPath, this.props.commit.commitHash)
+                .then((commit) => {
+                this.setState(Object.assign({}, this.state, { commit: Object.assign({}, this.state.commit, commit) }));
+            });
+        }
+    }
+    getIssuesForPullRequest(pullRequest) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const jiraIssues = [];
+            const githubIssues = [];
+            yield pullRequest.relatedGitHubIssues.map((issueNumber) => __awaiter(this, void 0, void 0, function* () {
+                const issue = yield getIssue(this.state.commit.repoPath, issueNumber);
+                githubIssues.push(issue);
+            }));
+            yield pullRequest.relatedJiraIssues.map((issueKey) => __awaiter(this, void 0, void 0, function* () {
+                const issue = yield getIssue(this.state.commit.repoPath, issueKey);
+                jiraIssues.push(issue);
+            }));
+            this.setState(Object.assign({}, this.state, { githubIssues: githubIssues, jiraIssues: jiraIssues }));
+        });
+    }
+    tooltip() {
+        return (index.createElement(BlameTooltip, { emitter: this.props.emitter, commit: this.state.commit, pullRequests: this.state.pullRequests, githubIssues: this.state.githubIssues, jiraIssues: this.state.jiraIssues, metadata: this.state.metadata }));
+    }
+    formattedText() {
+        const commit = this.props.commit;
+        const date = commit.commitedAt;
+        const formattedDate = moment(date).format(get('gutterDateFormat'));
+        let author = commit.author;
+        if (get('truncateGutterNames')) {
+            const splitAuthor = author.split(' ');
+            if (splitAuthor.length > 1) {
+                const lastName = splitAuthor.pop();
+                const initials = splitAuthor.map((part) => {
+                    return part[0].toUpperCase();
+                }).join(' ');
+                author = `${initials}. ${lastName}`;
+            }
+        }
+        return `${formattedDate} ${author}`;
+    }
+    ageTooltip() {
+        return index.createElement(AgeTooltip, { commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, commit: this.props.commit });
+    }
+    render() {
+        if (this.state.commit.commitHash.substr(0, 6) === '000000') {
+            return (index.createElement("div", { className: "gutter-text" }, this.formattedText()));
+        }
+        return (index.createElement("div", null,
+            index.createElement(TooltipContainer, { className: "gutter-text", tooltipContent: this.tooltip.bind(this) }, this.formattedText()),
+            index.createElement(TooltipContainer, { style: { background: this.props.inidcatorColor }, className: "gutter-age", tooltipContent: this.ageTooltip.bind(this) })));
+    }
+}
+
+'use babel';
+class GutterItem {
+    constructor(data) {
+        this.data = data;
+        this.itemElement = document.createElement('div');
+        this.itemElement.className = 'layer-gutter-item';
+        this.itemElement.style['width'] = '100%';
+        this.contentElement = document.createElement('div');
+        this.itemElement.appendChild(this.contentElement);
+        const resizeHandle = new GutterResizeHandle();
+        this.resizeEmitter = resizeHandle.emitter;
+        this.itemElement.appendChild(resizeHandle.element());
+        this.emitter = new atom$1.Emitter();
+        this.boundMouseEnterListener = this.mouseEnterListener.bind(this);
+        this.boundMouseLeaveListener = this.mouseLeaveListener.bind(this);
+        this.itemElement.addEventListener('mouseenter', this.boundMouseEnterListener);
+    }
+    setIndicator(value) {
+        this.inidcatorColor = value;
+    }
+    mouseEnterListener(event) {
+        this.emitter.emit('mouseEnter', event);
+        this.itemElement.addEventListener('mouseleave', this.boundMouseLeaveListener);
+    }
+    mouseLeaveListener(event) {
+        this.emitter.emit('mouseLeave', event);
+        this.itemElement.removeEventListener('mouseleave', this.boundMouseLeaveListener);
+    }
+    element() {
+        const item = index.createElement(GutterItem$2, {
+            commit: this.data.commit,
+            firstCommitDate: this.data.firstCommitDate,
+            commitDay: this.data.commitDay,
+            emitter: this.emitter,
+            inidcatorColor: this.inidcatorColor,
+        });
+        index.render(item, this.contentElement);
+        return this.itemElement;
     }
 }
 
@@ -28257,18 +28389,14 @@ class CodeSelector {
             const startIndent = codeFold.indentation;
             let foldEnd = parseInt(codeFold.start);
             let skipLine = false;
-            while (this.editor.indentationForBufferRow(++foldEnd) > startIndent ||
-                skipLine) {
+            while (this.editor.indentationForBufferRow(++foldEnd) > startIndent || skipLine) {
                 const nextLineText = this.editor.lineTextForBufferRow(foldEnd + 1);
                 if (nextLineText) {
                     skipLine = nextLineText.match(/^\s+$/) || nextLineText.length === 0;
                 }
             }
             codeFold.end = foldEnd;
-            codeFold.marker = this.editor.markBufferRange([
-                [codeFold.start, 0],
-                [foldEnd, 9001],
-            ]);
+            codeFold.marker = this.editor.markBufferRange([[codeFold.start, 0], [foldEnd, 9001]]);
         }
     }
     getFoldForRange(range) {
@@ -28339,7 +28467,11 @@ class GutterView {
                 const markers = this.markers[identifier];
                 for (const i in markers) {
                     const marker = markers[i];
-                    const item = new GutterItem(commit);
+                    const item = new GutterItem({
+                        commit,
+                        commitDay: commitDay,
+                        firstCommitDate: this.firstCommitDate,
+                    });
                     this.handleResizes(item);
                     item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
                     if (scale[commitDay]) {
@@ -28555,12 +28687,14 @@ function toggleGutterView() {
             else {
                 track('Gutter shown');
                 gutter.show();
+                handleGutterShown();
             }
         }
         else {
             track('Gutter shown');
             gutters.set(editor, new GutterView(editor, outgoing));
             setEditor(editor);
+            handleGutterShown();
         }
     }
 }

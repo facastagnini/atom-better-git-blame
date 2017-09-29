@@ -1,20 +1,24 @@
-import { IEmitter } from 'emissary';
+import AgeTooltip from './AgeTooltip';
 
 'use babel';
 
 import React from 'preact-compat';
 import moment from 'moment';
 import TooltipContainer from './TooltipContainer';
+import BuildStatus from './BuildStatus';
+import BlameTooltip from './BlameTooltip';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
-import SearchInLayer from './SearchInLayer';
 import * as ConfigManager from '../ConfigManager';
-import BuildStatus from './BuildStatus';
 import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 interface IGutterItemProps {
   commit: any;
-  emitter: IEmitter;
+  emitter: any;
+  inidcatorColor: string;
+  firstCommitDate: Date;
+  commitDay: number;
 }
 
 interface IGutterItemState {
@@ -103,136 +107,17 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     });
   }
 
-  clickLayerSearch(){
-    this.props.emitter.emit('clickedSearch');
-  }
-
-  mouseEnterLayerSearch(){
-    this.props.emitter.emit('mouseEnterLayerSearch');
-  }
-
-  mouseLeaveLayerSearch(){
-    this.props.emitter.emit('mouseLeaveLayerSearch');
-  }
-
-  clickHandler(label){
-    return () => {
-      Analytics.track(`Clicked link`, {label});
-    };
-  }
-
-  tooltip() {
-    const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
+  tooltip(){
     return (
-      <div className="layer-tooltip">
-        <div className="section">
-          <div className="section-icon">
-            <div className="icon icon-git-commit" />
-          </div>
-          <div className="section-content">
-            <h1 className="section-title">
-              <a onClick={this.clickHandler('Commit title')} href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
-                {this.state.commit.subject}
-              </a>
-            </h1>
-            <BuildStatus status={this.state.commit.status}/>
-            <p className="section-body">
-              <code>
-                <a onClick={this.clickHandler('Commit hash')} href={`${this.state.metadata.repoCommitUrl}/${this.state.commit.commitHash}`}>
-                  {this.state.commit.commitHash.substr(0,6)}
-                </a>
-              </code> by {this.state.commit.author} committed on {commitedDate}
-            </p>
-            <span className="section-status">
-                <span title="Insertions" className="green">+{this.state.commit.insertions}&nbsp;</span>
-                <span title="Deletions" className="red">-{this.state.commit.deletions}&nbsp;</span>
-                <span title="Files Changed"><i className="icon icon-diff" />{this.state.commit.filesChanged}</span>
-              </span>
-          </div>
-        </div>
-        {this.state.pullRequests.map((pullRequest) => {
-          const verb = pullRequest.state.toLowerCase();
-          return (
-            <div className="section">
-              <div className="section-icon">
-                <div className="icon icon-git-pull-request" />
-              </div>
-              <div className="section-content">
-                <h1 className="section-title">
-                  <a onClick={this.clickHandler('Pull Request title')} href={pullRequest.url}>
-                    {pullRequest.title}
-                  </a>
-                </h1>
-                <BuildStatus status={pullRequest.status}/>
-                <p className="section-body">
-                  <code>
-                    <a onClick={this.clickHandler('Pull Request number')} href={pullRequest.url}>
-                      #{pullRequest.number}
-                    </a>
-                  </code> by {pullRequest.author.login} {verb} on {moment(pullRequest.createdAt).format('D MMM')}
-                </p>
-                <span className="section-status">
-                    <span title="Total Commits"><i className="icon icon-git-commit" />{pullRequest.commitCount}</span>
-                  </span>
-              </div>
-            </div>
-          )
-        })}
-        {this.state.githubIssues.map((issue) => {
-          let issueIcon = 'icon icon-issue-opened green';
-          if(issue.state === 'CLOSED'){
-            issueIcon = 'icon icon-issue-closed red'
-          }
-          return (
-            <div className="section">
-              <div className="section-icon">
-                <div className="icon icon-issue-opened" />
-              </div>
-              <div className="section-content">
-                <h1 className="section-title">
-                  <a onClick={this.clickHandler('Issue title')} href={issue.url}>{issue.title}</a>
-                </h1>
-                <p className="section-body">
-                  <i className={`icon ${issueIcon}`} />
-                  <code>
-                    <a onClick={this.clickHandler('Issue number')} href={issue.url}>#{issue.number}</a>
-                  </code> by {issue.author.login}
-                </p>
-                <span className="section-status">{issue.state.toLowerCase()}</span>
-              </div>
-            </div>
-          )
-        })}
-        {this.state.jiraIssues.map((issue) => {
-          return (
-            <div className="section">
-              <div className="section-icon">
-                <div className="icon stepsize-icon-jira" />
-              </div>
-              <div className="section-content">
-                <h1 className="section-title">
-                  <a onClick={this.clickHandler('Jira ticket title')} href={issue.url}>{issue.summary}</a>
-                </h1>
-                <p className="section-body">
-                  <img className="icon" src={issue.issueType.iconUrl} alt={issue.issueType.name}/>
-                  <code>
-                    <a onClick={this.clickHandler('Jira ticket key')} href={issue.url}>{issue.key}</a>
-                  </code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
-                  <span className="section-status" style={{
-                    color: `${issue.status.statusCategory.colorName}`
-                  }}>{issue.status.name.toLowerCase()}</span>
-                </p>
-              </div>
-            </div>
-          )
-        })}
-        <SearchInLayer
-          onClick={this.clickLayerSearch.bind(this)}
-          onMouseEnter={this.mouseEnterLayerSearch.bind(this)}
-          onMouseLeave={this.mouseLeaveLayerSearch.bind(this)}
-        />
-      </div>
-    );
+      <BlameTooltip
+        emitter={this.props.emitter}
+        commit={this.state.commit}
+        pullRequests={this.state.pullRequests}
+        githubIssues={this.state.githubIssues}
+        jiraIssues={this.state.jiraIssues}
+        metadata={this.state.metadata}
+      />
+    )
   }
 
   formattedText() {
@@ -253,20 +138,36 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     return `${formattedDate} ${author}`
   }
 
+  ageTooltip(){
+    return <AgeTooltip
+      commitDay={this.props.commitDay}
+      firstCommitDate={this.props.firstCommitDate}
+      commit={this.props.commit}
+    />
+  }
+
   render() {
     if(this.state.commit.commitHash.substr(0,6) === '000000'){
       return (
-        <div>
+        <div className="gutter-text">
           {this.formattedText()}
         </div>
       );
     }
     return (
-      <TooltipContainer
-        tooltipContent={this.tooltip.bind(this)}
-      >
-        {this.formattedText()}
-      </TooltipContainer>
+      <div>
+        <TooltipContainer
+          className="gutter-text"
+          tooltipContent={this.tooltip.bind(this)}
+        >
+          {this.formattedText()}
+        </TooltipContainer>
+        <TooltipContainer
+          style={{background: this.props.inidcatorColor}}
+          className="gutter-age"
+          tooltipContent={this.ageTooltip.bind(this)}
+        />
+      </div>
     );
   }
 

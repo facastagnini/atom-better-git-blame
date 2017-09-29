@@ -27,7 +27,6 @@ class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
   }
 
   getTooltipStyle() : DetailedHTMLProps<any, any> {
-    let rect = this.props.parent.getBoundingClientRect();
     return {
       webkitFontSmoothing: 'subpixel-antialiased',
       position: 'absolute',
@@ -41,8 +40,8 @@ class TooltipPortal extends React.Component<ITooltipPortalProps, any> {
     const tooltipWidth = tooltipRect.right - tooltipRect.left;
     const tooltipHeight = tooltipRect.bottom - tooltipRect.top;
 
-    let leftPos = parentRect.right - tooltipWidth;
-    if ( leftPos < 0 ) leftPos += (Math.abs(leftPos) + 5);
+    let leftPos = (parentRect.right - tooltipWidth) - 10;
+    if ( leftPos < 0 ) leftPos += (Math.abs(leftPos) + 10);
     this.tooltipElement.style['left'] = `${leftPos}px`;
 
     let topPos = parentRect.top - tooltipHeight - 5;

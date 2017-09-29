@@ -125,6 +125,101 @@
       vertical-align: middle;
     }
   }
+  .age-graph{
+    margin: 0 auto;
+    padding: 10px 20px;
+    width:100%;
+    position: relative;
+    .rail {
+      height:10px;
+      width: 100%;
+      background: blue;
+      margin: 0 auto;
+      border-radius: 20px;
+      border: 1px solid @base-border-color;
+      position: relative;
+      background: linear-gradient(
+        90deg,
+        rgb(63, 116, 212),
+        rgb(60, 125, 199),
+        rgb(55, 136, 228),
+        rgb(78, 161, 216),
+        rgb(83, 175, 202),
+        rgb(96, 202, 197),
+        rgb(127, 225, 221),
+        rgb(167, 239, 236),
+        rgb(203, 248, 247),
+        rgb(255, 255, 255),
+        rgb(253, 245, 234),
+        rgb(251, 231, 204),
+        rgb(246, 208, 158),
+        rgb(243, 179, 99),
+        rgb(240, 159, 96),
+        rgb(240, 141, 89),
+        rgb(239, 128, 88),
+        rgb(238, 115, 73),
+        rgb(237, 98, 59),
+        rgb(235, 62, 37)
+      );
+      .tick {
+        display: block;
+        position: absolute;
+        bottom: -7px;
+        background: @text-color;
+        border-radius: 0 0 10px 10px;
+        border: 0px solid;
+        height: 6px;
+        width: 2px;
+      }
+    }
+    .markers{
+      margin: 5px 0;
+      display: flex;
+      flex-direction: row;
+      font-family: sans-serif;
+      width: 100%;
+      h3, p {
+        margin:0;
+        padding:0;
+        margin-bottom: 4px;
+      }
+      p {
+        margin-bottom: 0;
+      }
+      code {
+        @include atom-text-editor;
+        color: fade(@text-color, 40%);
+        padding: 0;
+        background: none;
+      }
+      .start {
+        flex: 1;
+        text-align: left;
+        .start-inner{
+          float: left;
+          display:inline-block;
+        }
+      }
+      .end {
+        flex: 1;
+        text-align: right;
+        .end-inner{
+          float: right;
+          display: inline-block;
+        }
+      }
+      .point {
+        flex: 0;
+        text-align: center;
+        white-space: nowrap;
+        margin-left: 65%;
+        position: relative;
+        .icon::before{
+          margin: 0;
+        }
+      }
+    }
+  }
 }
 
 atom-text-editor {
@@ -144,7 +239,7 @@ atom-text-editor {
   }
   .layer-resize-handle {
     position: absolute;
-    width: 4px;
+    width: 1px;
     background: transparent;
     right: 0;
     top: 0;
@@ -159,14 +254,25 @@ atom-text-editor {
     }
     .layer-gutter-item {
       overflow-x: hidden;
-      //border-bottom: 1px solid fade(@base-border-color, 20%);
-      padding: 0 5px 0 5px;
       box-sizing: border-box;
       white-space: nowrap;
       text-overflow: ellipsis;
       width: 100%;
       text-align: left;
       transition: 0.3s background;
+      position: relative;
+      .gutter-text{
+        width: 100%;
+        padding: 0 5px 0 5px;
+      }
+      .gutter-age{
+        width: 5px;
+        background: red;
+        position: absolute;
+        right:0;
+        top:0;
+        bottom:0;
+      }
     }
   }
   .layer-gutter:nth-child(even) {

@@ -2,11 +2,7 @@
 
 import * as childProcess from 'child_process';
 
-function runGitCommand(
-  repoPath: string,
-  command: string,
-  shell: boolean = false
-) {
+function runGitCommand(repoPath: string, command: string, shell: boolean = false) {
   return new Promise((resolve, reject) => {
     const args = command.split(' ');
     const child = childProcess.spawn('git', args, { cwd: repoPath, shell });
@@ -19,9 +15,7 @@ function runGitCommand(
     child.on('exit', exitCode => {
       if (exitCode !== 0 && exitCode !== 128) {
         console.error(command);
-        return reject(
-          new Error(`Git exited with unexpected code: ${exitCode}`)
-        );
+        return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
       }
     });
 

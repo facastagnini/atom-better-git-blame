@@ -64,14 +64,16 @@ class GutterView {
     for (const identifier in this.markers) {
       const commit = this.commits[identifier];
       const date = commit.commitedAt;
-      const commitDay = Math.floor(
-        (date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24
-      );
+      const commitDay = Math.floor((date - this.firstCommitDate.getTime()) / 1000 / 3600 / 24);
       colorScale(this.editor).then(scale => {
         const markers = this.markers[identifier];
         for (const i in markers) {
           const marker = markers[i];
-          const item = new GutterItem(commit);
+          const item = new GutterItem({
+            commit,
+            commitDay: commitDay,
+            firstCommitDate: this.firstCommitDate,
+          });
           this.handleResizes(item);
           item.setIndicator('#3b3b3b'); // Set default indicator colour to display if calculations take a while
           if (scale[commitDay]) {
@@ -114,12 +116,7 @@ class GutterView {
     return () => {
       Analytics.track('Search in Layer clicked');
       const range = new Range([codeFold.start, 0], [codeFold.end + 1, 0]);
-      const event = this.outgoing.buildEvent(
-        this.editor,
-        [range],
-        'selection',
-        true
-      );
+      const event = this.outgoing.buildEvent(this.editor, [range], 'selection', true);
       this.outgoing.send(event, () => {
         childProcess.exec('open -a Layer');
       });

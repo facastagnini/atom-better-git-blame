@@ -5,6 +5,7 @@ import * as GitData from './GitData';
 import db from './database';
 import _ from 'lodash';
 import GitHelper from '../git/GitHelper';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 let pendingRequests = {};
 
@@ -65,6 +66,7 @@ async function processIntegrationData(data) {
       .push(toWrite)
       .write();
   }
+  IntegrationNotification.checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues);
   return db.get('pullRequests').value();
 }
 
@@ -85,10 +87,7 @@ function pullRequestsCommitsPivot(pullRequests) {
   return db.get('pullRequestsCommitsPivot').value();
 }
 
-export async function getPullRequestsForCommit(
-  filePath: string,
-  commitHash: string
-) {
+export async function getPullRequestsForCommit(filePath: string, commitHash: string) {
   if (pendingRequests[filePath]) {
     await pendingRequests[filePath];
   }
