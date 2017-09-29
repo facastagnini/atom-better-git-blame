@@ -56,21 +56,21 @@ function showIntegrationNotification() {
       {
         text: 'GitHub integration',
         onDidClick: () => {
-          Analytics.track('Integration notification GitHub clicked');
+          Analytics.track('Integration notification button clicked', { type: 'github' });
           shell.openExternal('https://github.com/apps/layer');
         },
       },
       {
         text: 'Jira integration',
         onDidClick: () => {
-          Analytics.track('Integration notification Jira clicked');
+          Analytics.track('Integration notification button clicked', { type: 'jira' });
           shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
         },
       },
       {
         text: 'Tell me more',
         onDidClick: () => {
-          Analytics.track('Integration notification more clicked');
+          Analytics.track('Integration notification button clicked', { type: 'more' });
           shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
         },
       },
