@@ -41,7 +41,9 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, object> {
           <div className="markers">
             <div className="start">
               <div className="start-inner">
-                <h3>Repo Created</h3>
+                <h3 title={moment(this.props.firstCommitDate).format(ConfigManager.get('gutterDateFormat'))}>
+                  Repo Created
+                </h3>
               </div>
             </div>
             <div className="end">
