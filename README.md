@@ -97,13 +97,11 @@ Absolutely, this plugin talks to the app so you can search over selected code.
 Nope, you can use this plugin standalone and can turn off the UDP connection used with the Layer app (you can do this from the plugin's settings).
 
 <a name="permissions"></a>
-**Is my code sent to any servers?**
+**Is my code sent anywhere?**
 
 *GitHub integration*
 
-The GitHub integration currently asks for read access to code but doesn't need or make use of it. We set it up like this to facilitate the development of future functionality we're working on, but now we're considering splitting up the GitHub integration into two distinct apps - one with read access to metadata for the plugin, and one with read access to the code for the upcoming features/products.
-
-If this is a deal breaker for you, we understand. If possible, please let us know ([@StepsizeHQ](https://twitter.com/stepsizehq) or hello@stepsize.com) so we're aware of the demand to get this done.
+Your code is not sent anywhere, but we need read access to code so we can map commits to pull requests (this is just how permissions work for GitHub apps unfortunately).
 
 *UDP messaging to Layer*
 
