@@ -3,6 +3,7 @@
 import React from 'preact-compat';
 import moment from 'moment';
 import * as ConfigManager from '../ConfigManager';
+import { scales } from '../interface/ColourScale';
 
 interface IAgeTooltipProps {
   firstCommitDate: Date
@@ -31,6 +32,9 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, object> {
       pointTransform = 'translateX(-100%) translateX(6px)';
       pointAlign = 'right';
     }
+    const gradient = scales[ConfigManager.get('colorScale')].map((el) => {
+      return `rgb(${el.join(',')})`
+    }).join(',');
     return (
       <div className="layer-tooltip">
         <div className="age-graph">
@@ -46,7 +50,9 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, object> {
               </div>
             </div>
           </div>
-          <div className="rail">
+          <div className="rail" style={{
+            background: `linear-gradient(90deg, ${gradient})`
+          }}>
             <div className="tick" style={{
               left: `${this.pointPosition}%`,
             }} />
