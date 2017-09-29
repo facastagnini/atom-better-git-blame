@@ -3,27 +3,48 @@
 import shell from 'shell';
 import * as Analytics from '../stepsize/Analytics';
 
+interface IIntegrationNotificationData {
+  gutters: number;
+  tooltips: number;
+  wasIntegrationDataRetrieved: boolean;
+  wasNotificationShown: boolean;
+}
+
+const initialNotifData = {
+  gutters: 0,
+  tooltips: 0,
+  wasIntegrationDataRetrieved: false,
+  wasNotificationShown: false,
+};
+
+function getIntegrationNotificationData(): IIntegrationNotificationData {
+  const storedNotifData = localStorage.getItem('better-git-blame-integration-notification-data');
+  return storedNotifData ? JSON.parse(storedNotifData) : initialNotifData;
+}
+
+function saveIntegrationNotificationData(notifData: IIntegrationNotificationData) {
+  localStorage.setItem('better-git-blame-integration-notification-data', JSON.stringify(notifData));
+}
+
 export function handleGutterShown() {
   trackGutterShown();
   showIntegrationNotificationIfAppropriate();
 }
 
 function trackGutterShown() {
-  const gutterShownCount = localStorage.getItem('better-git-blame-gutter-shown-count') || '0';
-  localStorage.setItem('better-git-blame-gutter-shown-count', `${parseInt(gutterShownCount, 10) + 1}`);
+  const notifData = getIntegrationNotificationData();
+  notifData.gutters += 1;
+  saveIntegrationNotificationData(notifData);
 }
 
 function showIntegrationNotificationIfAppropriate() {
-  const wasNotificationShown = localStorage.getItem('better-git-blame-integration-notification-shown');
-  if (wasNotificationShown === 'true') return;
-  const gutterShownCount = parseInt(localStorage.getItem('better-git-blame-gutter-shown-count') || '0', 10);
-  const tooltipShownCount = parseInt(localStorage.getItem('better-git-blame-tooltip-shown-count') || '0', 10);
-  const pullRequestCount = parseInt(localStorage.getItem('better-git-blame-pull-request-count') || '0', 10);
-  const issueCount = parseInt(localStorage.getItem('better-git-blame-issue-count') || '0', 10);
-  if (gutterShownCount >= 5 && tooltipShownCount >= 5 && pullRequestCount === 0 && issueCount === 0) {
+  const notifData = getIntegrationNotificationData();
+  if (notifData.wasNotificationShown || notifData.wasIntegrationDataRetrieved) return;
+  if (notifData.gutters >= 5 && notifData.tooltips >= 5) {
     Analytics.track('Integration notification shown');
     showIntegrationNotification();
-    localStorage.setItem('better-git-blame-integration-notification-shown', 'true');
+    notifData.wasNotificationShown = true;
+    saveIntegrationNotificationData(notifData);
   }
 }
 
@@ -57,11 +78,19 @@ function showIntegrationNotification() {
   });
 }
 
-export function trackTooltipShown(pullRequestCount: number, issueCount: number) {
-  const tooltipShownCount = localStorage.getItem('better-git-blame-tooltip-shown-count') || '0';
-  localStorage.setItem('better-git-blame-tooltip-shown-count', `${parseInt(tooltipShownCount, 10) + 1}`);
-  const prCount = localStorage.getItem('better-git-blame-pull-request-count') || '0';
-  localStorage.setItem('better-git-blame-pull-request-count', `${parseInt(prCount, 10) + pullRequestCount}`);
-  const iCount = localStorage.getItem('better-git-blame-issue-count') || '0';
-  localStorage.setItem('better-git-blame-issue-count', `${parseInt(iCount, 10) + issueCount}`);
+export function trackTooltipShown() {
+  const notifData = getIntegrationNotificationData();
+  notifData.tooltips += 1;
+  saveIntegrationNotificationData(notifData);
+}
+
+export function checkIntegrationDataRetrieved(pullRequests: any, githubIssues: any, jiraIssues: any) {
+  const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
+  const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
+  const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
+  if (prCount > 0 || giCount > 0 || jiCount > 0) {
+    const notifData = getIntegrationNotificationData();
+    notifData.wasIntegrationDataRetrieved = true;
+    saveIntegrationNotificationData(notifData);
+  }
 }

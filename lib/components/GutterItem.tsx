@@ -124,8 +124,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
 
   tooltip() {
     const commitedDate = moment(this.state.commit.commitedAt).format('D MMM');
-    const { pullRequests, githubIssues, jiraIssues } = this.state;
-    IntegrationNotification.trackTooltipShown(pullRequests.length, githubIssues.length + jiraIssues.length);
+    IntegrationNotification.trackTooltipShown();
     return (
       <div className="layer-tooltip">
         <div className="section">
@@ -153,7 +152,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
               </span>
           </div>
         </div>
-        {pullRequests.map((pullRequest) => {
+        {this.state.pullRequests.map((pullRequest) => {
           const verb = pullRequest.state.toLowerCase();
           return (
             <div className="section">
@@ -181,7 +180,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             </div>
           )
         })}
-        {githubIssues.map((issue) => {
+        {this.state.githubIssues.map((issue) => {
           let issueIcon = 'icon icon-issue-opened green';
           if(issue.state === 'CLOSED'){
             issueIcon = 'icon icon-issue-closed red'
@@ -206,7 +205,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
             </div>
           )
         })}
-        {jiraIssues.map((issue) => {
+        {this.state.jiraIssues.map((issue) => {
           return (
             <div className="section">
               <div className="section-icon">
