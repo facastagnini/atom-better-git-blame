@@ -127,8 +127,8 @@
   }
   .age-graph{
     margin: 0 auto;
-    padding-left: 8px;
-    width:80%;
+    padding: 10px 20px;
+    width:100%;
     position: relative;
     .rail {
       height:10px;
@@ -136,6 +136,8 @@
       background: blue;
       margin: 0 auto;
       border-radius: 20px;
+      border: 1px solid @base-border-color;
+      position: relative;
       background: linear-gradient(
         90deg,
         rgb(63, 116, 212),
@@ -158,38 +160,50 @@
         rgb(238, 115, 73),
         rgb(237, 98, 59),
         rgb(235, 62, 37)
-      )
+      );
+      .tick {
+        display: block;
+        position: absolute;
+        bottom: -6px;
+        background: @text-color;
+        border-radius: 0 0 10px 10px;
+        border: 0px solid;
+        height: 6px;
+        width: 2px;
+      }
     }
     .markers{
-      margin: 10px 0;
+      margin: 5px 0;
       display: flex;
       flex-direction: row;
       font-family: sans-serif;
-      color: white;
       width: 100%;
-      h3{
+      h3, p {
         margin:0;
         padding:0;
         margin-bottom: 4px;
       }
+      p {
+        margin-bottom: 0;
+      }
       code {
-        background: none;
+        @include atom-text-editor;
+        color: fade(@text-color, 40%);
         padding: 0;
+        background: none;
       }
       .start {
         flex: 1;
-        text-align: center;
+        text-align: left;
         .start-inner{
-          transform: translateX(-38%);
           float: left;
           display:inline-block;
         }
       }
       .end {
         flex: 1;
-        text-align: center;
+        text-align: right;
         .end-inner{
-          transform: translateX(50%);
           float: right;
           display: inline-block;
         }
@@ -199,25 +213,10 @@
         text-align: center;
         white-space: nowrap;
         margin-left: 65%;
-        margin-top: 5px;
-        transform: translateX(-50%);
+        position: relative;
         .icon::before{
           margin: 0;
         }
-      }
-      .point::before{
-        opacity: 0.3;
-        display: block;
-        content: '';
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        transform: translateX(-100%);
-        background: #fff;
-        border-radius: 10px;
-        border: 0px solid;
-        height: 10px;
-        width: 2px;
       }
     }
   }
