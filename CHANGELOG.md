@@ -1,3 +1,7 @@
+## 0.2.0: Age Tooltip & Integration Notification
+* Added new tooltip when hovering over the age gutter to visualise that time span.
+* Added a notification to prompt users to install integrations to see additional relevant data.
+
 ## 0.1.6: Layer & Analytics
 * Fixed issues with analytics not recording timestamps
 * Fixed bugs that would cause Layer to perform multiple searches when using the Search in Layer functionality

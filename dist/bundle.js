@@ -17289,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.1.5";
+var version = "0.2.0";
 
 'use babel';
 class StepsizeOutgoing {
@@ -28073,21 +28073,21 @@ function showIntegrationNotification() {
             {
                 text: 'GitHub integration',
                 onDidClick: () => {
-                    track('Integration notification GitHub clicked');
+                    track('Integration notification button clicked', { type: 'github' });
                     shell.openExternal('https://github.com/apps/layer');
                 },
             },
             {
                 text: 'Jira integration',
                 onDidClick: () => {
-                    track('Integration notification Jira clicked');
+                    track('Integration notification button clicked', { type: 'jira' });
                     shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
                 },
             },
             {
                 text: 'Tell me more',
                 onDidClick: () => {
-                    track('Integration notification more clicked');
+                    track('Integration notification button clicked', { type: 'more' });
                     shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
                 },
             },
