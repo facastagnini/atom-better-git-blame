@@ -1,3 +1,6 @@
+## 0.2.1: Hotfixes
+* Fixed a few issues with the tooltip analytics introduced in 0.2.0 resulting in duplicate records and the integration notification not being displayed.
+
 ## 0.2.0: Age Tooltip & Integration Notification
 * Added new tooltip when hovering over the age gutter to visualise that time span.
 * Added a notification to prompt users to install integrations to see additional relevant data.

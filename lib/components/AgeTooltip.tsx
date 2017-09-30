@@ -4,6 +4,8 @@ import React from 'preact-compat';
 import moment from 'moment';
 import * as ConfigManager from '../ConfigManager';
 import * as ColorScale from '../interface/ColourScale';
+import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 interface IAgeTooltipProps {
   firstCommitDate: Date
@@ -26,6 +28,8 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState>
     this.state = {
       gradient: ['#000']
     }
+    Analytics.track('Tooltip shown', { type: 'age' });
+    IntegrationNotification.trackTooltipShown();
   }
 
   async componentWillMount() {

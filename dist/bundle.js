@@ -17289,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.2.0";
+var version = "0.2.1";
 
 'use babel';
 class StepsizeOutgoing {
@@ -24301,6 +24301,88 @@ return hooks;
 });
 
 'use babel';
+class TooltipPortal extends index.Component {
+    componentDidMount() {
+        this.portal = document.createElement('div');
+        document.body.appendChild(this.portal);
+        this.renderTooltipContent(this.props);
+    }
+    componentWillUnmount() {
+        index.unmountComponentAtNode(this.portal);
+    }
+    getTooltipStyle() {
+        return {
+            webkitFontSmoothing: 'subpixel-antialiased',
+            position: 'absolute',
+            zIndex: 100,
+        };
+    }
+    positionTooltip() {
+        const parentRect = this.props.parent.getBoundingClientRect();
+        const tooltipRect = this.tooltipElement.getBoundingClientRect();
+        const tooltipWidth = tooltipRect.right - tooltipRect.left;
+        const tooltipHeight = tooltipRect.bottom - tooltipRect.top;
+        let leftPos = (parentRect.right - tooltipWidth) - 10;
+        if (leftPos < 0)
+            leftPos += (Math.abs(leftPos) + 10);
+        this.tooltipElement.style['left'] = `${leftPos}px`;
+        let topPos = parentRect.top - tooltipHeight - 5;
+        if (topPos < 0)
+            topPos = parentRect.bottom + 5;
+        this.tooltipElement.style['top'] = `${topPos}px`;
+    }
+    renderTooltipContent(props) {
+        this.tooltipElement = index.render(index.createElement("div", { style: this.getTooltipStyle(), onMouseEnter: this.props.mouseEnter, onMouseLeave: this.props.mouseLeave }, props.children), this.portal);
+        this.positionTooltip();
+    }
+    render() {
+        return null;
+    }
+}
+
+'use babel';
+class TooltipContainer extends index.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            show: false,
+        };
+    }
+    showTooltip() {
+        this.setState({ show: true });
+    }
+    hideTooltip() {
+        this.setState({ show: false });
+    }
+    mouseEnterHandler() {
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+            this.showTooltip();
+        }, 500);
+    }
+    mouseLeaveHandler() {
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
+            this.hideTooltip();
+        }, 500);
+    }
+    ;
+    renderTooltip() {
+        if (this.state.show) {
+            return (index.createElement(TooltipPortal, { parent: this.containerElement, mouseEnter: this.mouseEnterHandler.bind(this), mouseLeave: this.mouseLeaveHandler.bind(this) }, this.props.tooltipContent()));
+        }
+        return null;
+    }
+    render() {
+        return (index.createElement("div", { style: this.props.style, className: this.props.className, onMouseEnter: this.mouseEnterHandler.bind(this), onMouseLeave: this.mouseLeaveHandler.bind(this), ref: (el) => this.containerElement = el },
+            this.renderTooltip(),
+            this.props.children));
+    }
+}
+
+'use babel';
 const packageName = name;
 const config$1 = {
     defaultWidth: {
@@ -27599,105 +27681,6 @@ function calculateScale(steps) {
 }
 
 'use babel';
-class AgeTooltip extends index.PureComponent {
-    constructor(...props) {
-        super(...props);
-        this.state = {
-            gradient: ['#000']
-        };
-    }
-    componentWillMount() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.totalDays = (Date.now() - new Date(this.props.firstCommitDate).getTime()) / 1000 / 3600 / 24;
-            this.pointPosition = (this.props.commitDay / this.totalDays) * 100;
-            const gradient = yield colorScale(atom.workspace.getActiveTextEditor());
-            this.setState({
-                gradient: gradient.map((color) => {
-                    return color.hsl().string();
-                })
-            });
-        });
-    }
-    render() {
-        let pointAlign = 'center';
-        let pointTransform = 'translateX(-50%) translateX(1px)';
-        if (this.pointPosition < 20) {
-            pointTransform = 'translateX(-5px)';
-            pointAlign = 'left';
-        }
-        if (this.pointPosition > 70) {
-            pointTransform = 'translateX(-100%) translateX(8px)';
-            pointAlign = 'right';
-        }
-        const gradient = this.state.gradient.join(',');
-        return (index.createElement("div", { className: "layer-tooltip" },
-            index.createElement("div", { className: "age-graph" },
-                index.createElement("div", { className: "markers" },
-                    index.createElement("div", { className: "start" },
-                        index.createElement("div", { className: "start-inner" },
-                            index.createElement("h3", { title: moment(this.props.firstCommitDate).format(get('gutterDateFormat')) }, "Repo Created"))),
-                    index.createElement("div", { className: "end" },
-                        index.createElement("div", { className: "end-inner" },
-                            index.createElement("h3", null, "Today")))),
-                index.createElement("div", { className: "rail", style: {
-                        background: `linear-gradient(90deg, ${gradient})`
-                    } },
-                    index.createElement("div", { className: "tick", style: {
-                            left: `${this.pointPosition}%`,
-                        } })),
-                index.createElement("div", { className: "markers" },
-                    index.createElement("div", { className: "point", style: {
-                            marginLeft: `${this.pointPosition}%`,
-                            textAlign: pointAlign,
-                            transform: pointTransform,
-                        } },
-                        index.createElement("i", { className: "icon icon-git-commit" }),
-                        index.createElement("p", null, moment(this.props.commit.commitedAt).fromNow()),
-                        index.createElement("code", null, moment(this.props.commit.commitedAt).format(get('gutterDateFormat'))))))));
-    }
-}
-
-'use babel';
-class TooltipPortal extends index.Component {
-    componentDidMount() {
-        this.portal = document.createElement('div');
-        document.body.appendChild(this.portal);
-        this.renderTooltipContent(this.props);
-    }
-    componentWillUnmount() {
-        index.unmountComponentAtNode(this.portal);
-    }
-    getTooltipStyle() {
-        return {
-            webkitFontSmoothing: 'subpixel-antialiased',
-            position: 'absolute',
-            zIndex: 100,
-        };
-    }
-    positionTooltip() {
-        const parentRect = this.props.parent.getBoundingClientRect();
-        const tooltipRect = this.tooltipElement.getBoundingClientRect();
-        const tooltipWidth = tooltipRect.right - tooltipRect.left;
-        const tooltipHeight = tooltipRect.bottom - tooltipRect.top;
-        let leftPos = (parentRect.right - tooltipWidth) - 10;
-        if (leftPos < 0)
-            leftPos += (Math.abs(leftPos) + 10);
-        this.tooltipElement.style['left'] = `${leftPos}px`;
-        let topPos = parentRect.top - tooltipHeight - 5;
-        if (topPos < 0)
-            topPos = parentRect.bottom + 5;
-        this.tooltipElement.style['top'] = `${topPos}px`;
-    }
-    renderTooltipContent(props) {
-        this.tooltipElement = index.render(index.createElement("div", { style: this.getTooltipStyle(), onMouseEnter: this.props.mouseEnter, onMouseLeave: this.props.mouseLeave }, props.children), this.portal);
-        this.positionTooltip();
-    }
-    render() {
-        return null;
-    }
-}
-
-'use babel';
 function email() {
     return __awaiter(this, void 0, void 0, function* () {
         let gitEmail;
@@ -27820,45 +27803,142 @@ function track(name$$1, data = {}) {
 }
 
 'use babel';
-class TooltipContainer extends index.Component {
-    constructor(props) {
-        super(props);
+const initialNotifData = {
+    gutters: 0,
+    tooltips: 0,
+    wasIntegrationDataRetrieved: false,
+    wasNotificationShown: false,
+};
+function getIntegrationNotificationData() {
+    const storedNotifData = localStorage.getItem('better-git-blame-integration-notification-data');
+    return storedNotifData ? JSON.parse(storedNotifData) : initialNotifData;
+}
+function saveIntegrationNotificationData(notifData) {
+    localStorage.setItem('better-git-blame-integration-notification-data', JSON.stringify(notifData));
+}
+function handleGutterShown() {
+    trackGutterShown();
+    showIntegrationNotificationIfAppropriate();
+}
+function trackGutterShown() {
+    const notifData = getIntegrationNotificationData();
+    notifData.gutters += 1;
+    saveIntegrationNotificationData(notifData);
+}
+function showIntegrationNotificationIfAppropriate() {
+    const notifData = getIntegrationNotificationData();
+    if (notifData.wasNotificationShown || notifData.wasIntegrationDataRetrieved)
+        return;
+    if (notifData.gutters >= 5 && notifData.tooltips >= 5) {
+        track('Integration notification shown');
+        showIntegrationNotification();
+        notifData.wasNotificationShown = true;
+        saveIntegrationNotificationData(notifData);
+    }
+}
+function showIntegrationNotification() {
+    atom.notifications.addInfo('Boss mode blame', {
+        description: 'Want to see pull requests and issues in `better-git-blame` popovers?\n\n<img src="https://i.imgur.com/vUTvxHv.png" width="400" height="172" />\n\nJust setup one of our integrations to level up 🔥',
+        dismissable: true,
+        buttons: [
+            {
+                text: 'GitHub integration',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'github' });
+                    shell.openExternal('https://github.com/apps/layer');
+                },
+            },
+            {
+                text: 'Jira integration',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'jira' });
+                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
+                },
+            },
+            {
+                text: 'Tell me more',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'more' });
+                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
+                },
+            },
+        ],
+    });
+}
+function trackTooltipShown() {
+    const notifData = getIntegrationNotificationData();
+    notifData.tooltips += 1;
+    saveIntegrationNotificationData(notifData);
+}
+function checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues) {
+    const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
+    const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
+    const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
+    if (prCount > 0 || giCount > 0 || jiCount > 0) {
+        const notifData = getIntegrationNotificationData();
+        notifData.wasIntegrationDataRetrieved = true;
+        saveIntegrationNotificationData(notifData);
+    }
+}
+
+'use babel';
+class AgeTooltip extends index.PureComponent {
+    constructor(...props) {
+        super(...props);
         this.state = {
-            show: false,
+            gradient: ['#000']
         };
+        track('Tooltip shown', { type: 'age' });
+        trackTooltipShown();
     }
-    showTooltip() {
-        track('Tooltip shown');
-        this.setState({ show: true });
-    }
-    hideTooltip() {
-        this.setState({ show: false });
-    }
-    mouseEnterHandler() {
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => {
-            this.showTooltip();
-        }, 500);
-    }
-    mouseLeaveHandler() {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-        }
-        this.timeout = setTimeout(() => {
-            this.hideTooltip();
-        }, 500);
-    }
-    ;
-    renderTooltip() {
-        if (this.state.show) {
-            return (index.createElement(TooltipPortal, { parent: this.containerElement, mouseEnter: this.mouseEnterHandler.bind(this), mouseLeave: this.mouseLeaveHandler.bind(this) }, this.props.tooltipContent()));
-        }
-        return null;
+    componentWillMount() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.totalDays = (Date.now() - new Date(this.props.firstCommitDate).getTime()) / 1000 / 3600 / 24;
+            this.pointPosition = (this.props.commitDay / this.totalDays) * 100;
+            const gradient = yield colorScale(atom.workspace.getActiveTextEditor());
+            this.setState({
+                gradient: gradient.map((color) => {
+                    return color.hsl().string();
+                })
+            });
+        });
     }
     render() {
-        return (index.createElement("div", { style: this.props.style, className: this.props.className, onMouseEnter: this.mouseEnterHandler.bind(this), onMouseLeave: this.mouseLeaveHandler.bind(this), ref: (el) => this.containerElement = el },
-            this.renderTooltip(),
-            this.props.children));
+        let pointAlign = 'center';
+        let pointTransform = 'translateX(-50%) translateX(1px)';
+        if (this.pointPosition < 20) {
+            pointTransform = 'translateX(-5px)';
+            pointAlign = 'left';
+        }
+        if (this.pointPosition > 70) {
+            pointTransform = 'translateX(-100%) translateX(8px)';
+            pointAlign = 'right';
+        }
+        const gradient = this.state.gradient.join(',');
+        return (index.createElement("div", { className: "layer-tooltip" },
+            index.createElement("div", { className: "age-graph" },
+                index.createElement("div", { className: "markers" },
+                    index.createElement("div", { className: "start" },
+                        index.createElement("div", { className: "start-inner" },
+                            index.createElement("h3", { title: moment(this.props.firstCommitDate).format(get('gutterDateFormat')) }, "Repo Created"))),
+                    index.createElement("div", { className: "end" },
+                        index.createElement("div", { className: "end-inner" },
+                            index.createElement("h3", null, "Today")))),
+                index.createElement("div", { className: "rail", style: {
+                        background: `linear-gradient(90deg, ${gradient})`
+                    } },
+                    index.createElement("div", { className: "tick", style: {
+                            left: `${this.pointPosition}%`,
+                        } })),
+                index.createElement("div", { className: "markers" },
+                    index.createElement("div", { className: "point", style: {
+                            marginLeft: `${this.pointPosition}%`,
+                            textAlign: pointAlign,
+                            transform: pointTransform,
+                        } },
+                        index.createElement("i", { className: "icon icon-git-commit" }),
+                        index.createElement("p", null, moment(this.props.commit.commitedAt).fromNow()),
+                        index.createElement("code", null, moment(this.props.commit.commitedAt).format(get('gutterDateFormat'))))))));
     }
 }
 
@@ -27919,6 +27999,11 @@ class SearchInLayer extends index.PureComponent {
 
 'use babel';
 class BlameTooltip extends index.PureComponent {
+    constructor(...props) {
+        super(...props);
+        track('Tooltip shown', { type: 'blame' });
+        trackTooltipShown();
+    }
     clickLayerSearch() {
         this.props.emitter.emit('clickedSearch');
     }
@@ -28028,81 +28113,6 @@ class BlameTooltip extends index.PureComponent {
                                 } }, issue.status.name.toLowerCase())))));
             }),
             index.createElement(SearchInLayer, { onClick: this.clickLayerSearch.bind(this), onMouseEnter: this.mouseEnterLayerSearch.bind(this), onMouseLeave: this.mouseLeaveLayerSearch.bind(this) })));
-    }
-}
-
-'use babel';
-const initialNotifData = {
-    gutters: 0,
-    tooltips: 0,
-    wasIntegrationDataRetrieved: false,
-    wasNotificationShown: false,
-};
-function getIntegrationNotificationData() {
-    const storedNotifData = localStorage.getItem('better-git-blame-integration-notification-data');
-    return storedNotifData ? JSON.parse(storedNotifData) : initialNotifData;
-}
-function saveIntegrationNotificationData(notifData) {
-    localStorage.setItem('better-git-blame-integration-notification-data', JSON.stringify(notifData));
-}
-function handleGutterShown() {
-    trackGutterShown();
-    showIntegrationNotificationIfAppropriate();
-}
-function trackGutterShown() {
-    const notifData = getIntegrationNotificationData();
-    notifData.gutters += 1;
-    saveIntegrationNotificationData(notifData);
-}
-function showIntegrationNotificationIfAppropriate() {
-    const notifData = getIntegrationNotificationData();
-    if (notifData.wasNotificationShown || notifData.wasIntegrationDataRetrieved)
-        return;
-    if (notifData.gutters >= 5 && notifData.tooltips >= 5) {
-        track('Integration notification shown');
-        showIntegrationNotification();
-        notifData.wasNotificationShown = true;
-        saveIntegrationNotificationData(notifData);
-    }
-}
-function showIntegrationNotification() {
-    atom.notifications.addInfo('Boss mode blame', {
-        description: 'Want to see pull requests and issues in `better-git-blame` popovers?\n\n<img src="https://i.imgur.com/vUTvxHv.png" width="400" height="172" />\n\nJust setup one of our integrations to level up 🔥',
-        dismissable: true,
-        buttons: [
-            {
-                text: 'GitHub integration',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'github' });
-                    shell.openExternal('https://github.com/apps/layer');
-                },
-            },
-            {
-                text: 'Jira integration',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'jira' });
-                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
-                },
-            },
-            {
-                text: 'Tell me more',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'more' });
-                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
-                },
-            },
-        ],
-    });
-}
-
-function checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues) {
-    const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
-    const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
-    const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
-    if (prCount > 0 || giCount > 0 || jiCount > 0) {
-        const notifData = getIntegrationNotificationData();
-        notifData.wasIntegrationDataRetrieved = true;
-        saveIntegrationNotificationData(notifData);
     }
 }
 
