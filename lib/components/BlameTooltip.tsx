@@ -5,6 +5,7 @@ import moment from 'moment';
 import BuildStatus from './BuildStatus';
 import SearchInLayer from './SearchInLayer';
 import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 interface IBlameTooltipProps {
   emitter: any
@@ -16,6 +17,12 @@ interface IBlameTooltipProps {
 }
 
 class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
+
+  constructor(...props: any[]) {
+    super(...props);
+    Analytics.track('Tooltip shown', { type: 'blame' });
+    IntegrationNotification.trackTooltipShown();
+  }
 
   clickLayerSearch(){
     this.props.emitter.emit('clickedSearch');

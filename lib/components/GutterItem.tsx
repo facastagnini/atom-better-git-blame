@@ -1,11 +1,10 @@
-import AgeTooltip from './AgeTooltip';
-
 'use babel';
 
 import React from 'preact-compat';
 import moment from 'moment';
 import TooltipContainer from './TooltipContainer';
 import BuildStatus from './BuildStatus';
+import AgeTooltip from './AgeTooltip';
 import BlameTooltip from './BlameTooltip';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
