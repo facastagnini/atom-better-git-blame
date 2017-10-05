@@ -1,23 +1,33 @@
 'use babel';
 
 import * as childProcess from 'child_process';
+import os from 'os';
 
 function runGitCommand(repoPath: string, command: string, shell: boolean = false) {
   return new Promise((resolve, reject) => {
     const args = command.split(' ');
-    const child = childProcess.spawn('git', args, { cwd: repoPath, shell });
+    let child;
+    if(os.platform() === 'win32'){
+      args.unshift('git');
+      child = childProcess.spawn('powershell.exe', args, { cwd: repoPath, shell: false });
+    } else {
+      child = childProcess.spawn('git', args, { cwd: repoPath, shell });
+    }
 
     child.on('error', error => {
       console.error(command);
       return reject(error);
     });
 
-    child.on('exit', exitCode => {
-      if (exitCode !== 0 && exitCode !== 128) {
-        console.error(command);
-        return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
-      }
-    });
+    // This does weird things on Windows so disabled for now
+    if(os.platform() !== 'win32'){
+      child.on('exit', exitCode => {
+        if (exitCode !== 0 && exitCode !== 128) {
+          console.error(repoPath, exitCode, command);
+          return reject(new Error(`Git exited with unexpected code: ${exitCode}`));
+        }
+      });
+    }
 
     let stdOutPromise = new Promise((resolve, reject) => {
       let stdOut = '';
