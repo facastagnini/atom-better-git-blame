@@ -54,7 +54,7 @@ Install the [Layer GitHub app](https://github.com/apps/layer) to view pull reque
 
 #### Setup the Jira integration
 
-Install our Jira integration to view Jira issues in the blame popover.
+Install our Jira integration to view Jira issues in the blame popover. (This currently requires the GitHub integration to work.)
 
 Go the `Add-ons` page of your Jira instance (see screenshot below) and search for `Layer connector for Jira`.
 
