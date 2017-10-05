@@ -9,8 +9,9 @@ import { version } from '../../package.json';
 
 let userHash: string;
 
-const writeKey = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
-const authHeader = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
+const writeKey: string = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
+const authHeader : string = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
+let analyticsFailing : boolean = false;
 
 async function segmentRequest(path, body): Promise<any> {
   let payload = body;
@@ -69,7 +70,11 @@ async function getUserHash(): Promise<string> {
     userEmail = await email();
   } catch (e) {
     console.error(e);
+  }
+  try {
     userEmail = crypto.randomBytes(28);
+  } catch (e) {
+    console.error(e);
   }
   if (!userEmail) throw new Error('Failed to fetch email or create fallback');
   const hash = crypto.createHash('sha256');
@@ -82,37 +87,41 @@ async function getUserHash(): Promise<string> {
 export async function init(): Promise<void> {
   if (ConfigManager.get('sendUsageStatistics')) {
     userHash = await getUserHash();
-    const randomString = crypto.randomBytes(8).toString('hex');
-    const configKeys = Object.keys(ConfigManager.getConfig());
-    let pluginConfig = {};
-    for (let i in configKeys) {
-      const key = configKeys[i];
-      pluginConfig[`BGB Config ${key}`] = ConfigManager.get(key);
-      ConfigManager.onDidChange(key, value => {
-        track('Changed config', {
-          Config: key,
-          'Old Value': value.oldValue,
-          'New Value': value.newValue,
+    if(userHash){
+      const randomString = crypto.randomBytes(8).toString('hex');
+      const configKeys = Object.keys(ConfigManager.getConfig());
+      let pluginConfig = {};
+      for (let i in configKeys) {
+        const key = configKeys[i];
+        pluginConfig[`BGB Config ${key}`] = ConfigManager.get(key);
+        ConfigManager.onDidChange(key, value => {
+          track('Changed config', {
+            Config: key,
+            'Old Value': value.oldValue,
+            'New Value': value.newValue,
+          });
         });
+      }
+      await segmentRequest('/identify', {
+        userId: userHash,
+        traits: {
+          'User Hash': userHash,
+          name: `Plugin User ${randomString}`,
+          ...pluginConfig,
+        },
       });
     }
-    await segmentRequest('/identify', {
-      userId: userHash,
-      traits: {
-        'User Hash': userHash,
-        name: `Plugin User ${randomString}`,
-        ...pluginConfig,
-      },
-    });
   }
 }
 
 export function track(name, data = {}): void {
-  if (ConfigManager.get('sendUsageStatistics') && userHash) {
+  if (ConfigManager.get('sendUsageStatistics') && userHash && !analyticsFailing) {
     segmentRequest('/track', {
       event: `BGB ${name}`,
       userId: userHash,
       properties: data,
+    }).catch((e) => {
+      analyticsFailing = true;
     });
   }
 }
