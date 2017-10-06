@@ -1,3 +1,7 @@
+## 0.2.2: Win32 & Bug Fixes
+* Fixed issue preventing the gutter from rendering on Windows platforms
+* Fixed issue causing Bad Request errors in console when presenting the popover (#16)
+
 ## 0.2.1: Hotfixes
 * Fixed a few issues with the tooltip analytics introduced in 0.2.0 resulting in duplicate records and the integration notification not being displayed.
 

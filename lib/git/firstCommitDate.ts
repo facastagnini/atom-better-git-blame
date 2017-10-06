@@ -7,16 +7,12 @@ import os from 'os';
 async function getFirstCommitDate(filePath) {
   const repoRoot = findRepoRoot(filePath);
 
-  let command = 'log --reverse --date-order --pretty=%ad | head -n 1'
-  if(os.platform() === 'win32'){
-    command = 'log --reverse --date-order --pretty=%ad | Select -First 1'
+  let command = 'log --reverse --date-order --pretty=%ad | head -n 1';
+  if (os.platform() === 'win32') {
+    command = 'log --reverse --date-order --pretty=%ad | Select -First 1';
   }
   try {
-    const firstCommit = await runGitCommand(
-      repoRoot,
-      command,
-      true
-    );
+    const firstCommit = await runGitCommand(repoRoot, command, true);
     return new Date(firstCommit);
   } catch (e) {
     throw e;

@@ -7,7 +7,7 @@ function runGitCommand(repoPath: string, command: string, shell: boolean = false
   return new Promise((resolve, reject) => {
     const args = command.split(' ');
     let child;
-    if(os.platform() === 'win32'){
+    if (os.platform() === 'win32') {
       args.unshift('git');
       child = childProcess.spawn('powershell.exe', args, { cwd: repoPath, shell: false });
     } else {
@@ -20,7 +20,7 @@ function runGitCommand(repoPath: string, command: string, shell: boolean = false
     });
 
     // This does weird things on Windows so disabled for now
-    if(os.platform() !== 'win32'){
+    if (os.platform() !== 'win32') {
       child.on('exit', exitCode => {
         if (exitCode !== 0 && exitCode !== 128) {
           console.error(repoPath, exitCode, command);
