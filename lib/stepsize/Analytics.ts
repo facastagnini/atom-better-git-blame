@@ -71,7 +71,7 @@ async function getUserHash(): Promise<string> {
   } catch (e) {
     console.info(e);
   }
-  if(!userEmail){
+  if (!userEmail) {
     try {
       userEmail = crypto.randomBytes(28);
     } catch (e) {
