@@ -1,7 +1,6 @@
 'use babel';
 
 import runGitCommand from './runCommand';
-import findRepoRoot from './findRepoRoot';
 
 async function email() {
   let gitEmail: string;
@@ -10,7 +9,10 @@ async function email() {
   } catch (e) {
     throw e;
   }
-  return gitEmail.trim();
+  if (gitEmail.length > 0) {
+    return gitEmail.trim();
+  }
+  throw new Error('Git config did not return an email');
 }
 
 export default email;
