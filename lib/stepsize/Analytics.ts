@@ -10,8 +10,8 @@ import { version } from '../../package.json';
 let userHash: string;
 
 const writeKey: string = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
-const authHeader : string = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
-let analyticsFailing : boolean = false;
+const authHeader: string = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
+let analyticsFailing: boolean = false;
 
 async function segmentRequest(path, body): Promise<any> {
   let payload = body;
@@ -69,12 +69,14 @@ async function getUserHash(): Promise<string> {
   try {
     userEmail = await email();
   } catch (e) {
-    console.error(e);
+    console.info(e);
   }
-  try {
-    userEmail = crypto.randomBytes(28);
-  } catch (e) {
-    console.error(e);
+  if(!userEmail){
+    try {
+      userEmail = crypto.randomBytes(28);
+    } catch (e) {
+      console.error(e);
+    }
   }
   if (!userEmail) throw new Error('Failed to fetch email or create fallback');
   const hash = crypto.createHash('sha256');
@@ -87,7 +89,7 @@ async function getUserHash(): Promise<string> {
 export async function init(): Promise<void> {
   if (ConfigManager.get('sendUsageStatistics')) {
     userHash = await getUserHash();
-    if(userHash){
+    if (userHash) {
       const randomString = crypto.randomBytes(8).toString('hex');
       const configKeys = Object.keys(ConfigManager.getConfig());
       let pluginConfig = {};
@@ -120,7 +122,7 @@ export function track(name, data = {}): void {
       event: `BGB ${name}`,
       userId: userHash,
       properties: data,
-    }).catch((e) => {
+    }).catch(e => {
       analyticsFailing = true;
     });
   }
