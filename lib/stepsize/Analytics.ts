@@ -26,18 +26,19 @@ async function segmentRequest(path, body): Promise<any> {
       version: os.release(),
     },
   };
+  const requestData = {
+    hostname: 'api.segment.io',
+    path: `/v1${path}`,
+    method: 'POST',
+    headers: {
+      Authorization: authHeader,
+      'Content-Type': 'application/json',
+    },
+  };
   return new Promise((resolve, reject) => {
     let responseData = '';
     const req = https.request(
-      {
-        hostname: 'api.segment.io',
-        path: `/v1${path}`,
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-          'Content-Type': 'application/json',
-        },
-      },
+      requestData,
       function(response) {
         let code = response.statusCode;
         response.on('data', function(chunk) {
@@ -47,13 +48,13 @@ async function segmentRequest(path, body): Promise<any> {
           if (code < 400) {
             resolve(JSON.parse(responseData));
           } else {
-            reject(responseData);
+            reject({ payload, requestData, responseData: JSON.parse(responseData) });
           }
         });
       }
     );
     req.on('error', function(error) {
-      reject(error.message);
+      reject({ payload, requestData, errorMessage: error.message });
     });
     req.write(JSON.stringify(payload));
     req.end();
@@ -104,14 +105,19 @@ export async function init(): Promise<void> {
           });
         });
       }
-      await segmentRequest('/identify', {
-        userId: userHash,
-        traits: {
-          'User Hash': userHash,
-          name: `Plugin User ${randomString}`,
-          ...pluginConfig,
-        },
-      });
+      try {
+        await segmentRequest('/identify', {
+          userId: userHash,
+          traits: {
+            'User Hash': userHash,
+            name: `Plugin User ${randomString}`,
+            ...pluginConfig,
+          },
+        });
+      } catch (e) {
+        console.info(e);
+        analyticsFailing = true;
+      };
     }
   }
 }
@@ -122,7 +128,8 @@ export function track(name, data = {}): void {
       event: `BGB ${name}`,
       userId: userHash,
       properties: data,
-    }).catch(e => {
+    }).catch((e) => {
+      console.info(e);
       analyticsFailing = true;
     });
   }

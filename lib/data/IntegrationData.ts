@@ -19,7 +19,7 @@ export async function getIntegrationDataForFile(filePath: string) {
       GitHelper.getHashesFromBlame(blame.lines)
     ).then(response => {
       return processIntegrationData(response);
-    });
+    }).catch(e => console.info(e));
   }
   const response = await pendingRequests[repoPath];
   delete pendingRequests[repoPath];
