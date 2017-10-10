@@ -39,7 +39,7 @@ class StepsizeHelper {
           path: '/augment-code-search-results',
           method: 'POST',
           headers: {
-            'User-Agent': 'Layer-Client',
+            'User-Agent': 'Better-Git-Blame-Atom',
             'Content-Type': 'application/json',
           },
         },
