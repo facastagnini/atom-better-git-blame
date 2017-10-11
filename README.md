@@ -52,7 +52,7 @@ That's all you need to get going, but if you want to see info about pull request
 
 #### Setup the GitHub integration
 
-Install the [Layer GitHub app](https://github.com/apps/layer) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).
+Install the [Layer GitHub app](http://bit.ly/2hzJJkj) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).
 
 #### Setup the Jira integration
 
@@ -129,18 +129,18 @@ All the software in this repository is released under the MIT License. See [LICE
 
 Layer is a desktop app we're working on, currently in private beta. It surfaces all the relevant commits, pull requests, and issues for any piece of code you select in your editor. This allows you to quickly dig up the history of any piece of code and understand its origin and purpose.
 
-You can find a bit more about it at [stepsize.com](https://stepsize.com).
+You can find a bit more about it at [stepsize.com](http://bit.ly/1tvB1HC).
 
 ## What is Stepsize?
 
-[Stepsize](https://stepsize.com) is a small startup based in London. We build dev tools to help engineers in medium to large teams be well-informed and productive.
+[Stepsize](http://bit.ly/1tvB1HC) is a small startup based in London. We build dev tools to help engineers in medium to large teams be well-informed and productive.
 
 We do this by integrating with all the tools you use, structuring the information found inside them, and making it easily accessible and searchable.
 
-Check us out [here](https://stepsize.com) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
+Check us out [here](http://bit.ly/1tvB1HC) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
 
 ## Security and privacy
 
-If you set up the GitHub and/or Jira integrations, you might be interested in our [security statement](https://stepsize.com/security) & [privacy policy](https://stepsize.com/privacy).
+If you set up the GitHub and/or Jira integrations, you might be interested in our [security statement](http://bit.ly/2gvkQGO) & [privacy policy](http://bit.ly/2gvkSyq).
 
 You can safely ignore them if you don't use the integrations.
