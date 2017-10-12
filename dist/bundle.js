@@ -17210,7 +17210,7 @@ class StepsizeHelper {
                     path: '/augment-code-search-results',
                     method: 'POST',
                     headers: {
-                        'User-Agent': 'Layer-Client',
+                        'User-Agent': 'Better-Git-Blame-Atom',
                         'Content-Type': 'application/json',
                     },
                 }, function (response) {
@@ -17228,7 +17228,7 @@ class StepsizeHelper {
                     });
                 });
                 req.on('error', function (error) {
-                    reject(error.message);
+                    reject({ function: 'fetchIntegrationData', message: error.message });
                 });
                 req.write(JSON.stringify(payload));
                 req.end();
@@ -17289,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.2.2";
+var version = "0.2.3";
 
 'use babel';
 class StepsizeOutgoing {
@@ -27730,17 +27730,18 @@ function segmentRequest(path$$1, body) {
                 version: os.release(),
             },
         };
+        const requestData = {
+            hostname: 'api.segment.io',
+            path: `/v1${path$$1}`,
+            method: 'POST',
+            headers: {
+                Authorization: authHeader,
+                'Content-Type': 'application/json',
+            },
+        };
         return new Promise((resolve, reject) => {
             let responseData = '';
-            const req = https.request({
-                hostname: 'api.segment.io',
-                path: `/v1${path$$1}`,
-                method: 'POST',
-                headers: {
-                    Authorization: authHeader,
-                    'Content-Type': 'application/json',
-                },
-            }, function (response) {
+            const req = https.request(requestData, function (response) {
                 let code = response.statusCode;
                 response.on('data', function (chunk) {
                     responseData += chunk;
@@ -27750,12 +27751,12 @@ function segmentRequest(path$$1, body) {
                         resolve(JSON.parse(responseData));
                     }
                     else {
-                        reject(responseData);
+                        reject({ payload, requestData, responseData: JSON.parse(responseData) });
                     }
                 });
             });
             req.on('error', function (error) {
-                reject(error.message);
+                reject({ payload, requestData, errorMessage: error.message });
             });
             req.write(JSON.stringify(payload));
             req.end();
@@ -27811,10 +27812,17 @@ function init() {
                         });
                     });
                 }
-                yield segmentRequest('/identify', {
-                    userId: userHash,
-                    traits: Object.assign({ 'User Hash': userHash, name: `Plugin User ${randomString}` }, pluginConfig),
-                });
+                try {
+                    yield segmentRequest('/identify', {
+                        userId: userHash,
+                        traits: Object.assign({ 'User Hash': userHash, name: `Plugin User ${randomString}` }, pluginConfig),
+                    });
+                }
+                catch (e) {
+                    console.info(e);
+                    analyticsFailing = true;
+                }
+                
             }
         }
     });
@@ -27825,7 +27833,8 @@ function track(name$$1, data = {}) {
             event: `BGB ${name$$1}`,
             userId: userHash,
             properties: data,
-        }).catch(e => {
+        }).catch((e) => {
+            console.info(e);
             analyticsFailing = true;
         });
     }
@@ -28155,7 +28164,7 @@ function getIntegrationDataForFile(filePath) {
         if (!pendingRequests[repoPath]) {
             pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(metadata, GitHelper.getHashesFromBlame(blame.lines)).then(response => {
                 return processIntegrationData(response);
-            });
+            }).catch(e => console.info(e));
         }
         const response = yield pendingRequests[repoPath];
         delete pendingRequests[repoPath];

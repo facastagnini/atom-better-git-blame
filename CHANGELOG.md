@@ -1,3 +1,7 @@
+## 0.2.3: Improve logging & request options
+* Improved the logging to help debug issue #16
+* Updated the user-agent in the request to the augmentation server
+
 ## 0.2.2: Win32 & Bug Fixes
 * Fixed issue preventing the gutter from rendering on Windows platforms
 * Fixed issue causing Bad Request errors in console when presenting the popover (#16)
