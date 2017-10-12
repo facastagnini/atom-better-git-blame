@@ -39,7 +39,7 @@ class StepsizeHelper {
           path: '/augment-code-search-results',
           method: 'POST',
           headers: {
-            'User-Agent': 'Layer-Client',
+            'User-Agent': 'Better-Git-Blame-Atom',
             'Content-Type': 'application/json',
           },
         },
@@ -58,7 +58,7 @@ class StepsizeHelper {
         }
       );
       req.on('error', function(error) {
-        reject(error.message);
+        reject({ function: 'fetchIntegrationData', message: error.message });
       });
       req.write(JSON.stringify(payload));
       req.end();
