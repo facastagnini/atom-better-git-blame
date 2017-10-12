@@ -58,7 +58,7 @@ class StepsizeHelper {
         }
       );
       req.on('error', function(error) {
-        reject(error.message);
+        reject({ function: 'fetchIntegrationData', message: error.message });
       });
       req.write(JSON.stringify(payload));
       req.end();
