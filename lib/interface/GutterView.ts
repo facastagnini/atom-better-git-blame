@@ -16,6 +16,7 @@ import CodeSelector from '../stepsize/CodeSelector';
 import StepsizeOutgoing from '../stepsize/StepsizeOutgoing';
 import * as ConfigManager from '../ConfigManager';
 import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 class GutterView {
   private editor: IEditor;
@@ -47,7 +48,20 @@ class GutterView {
         console.error(e);
       });
     this.codeSelector = new CodeSelector(this.editor);
-    return this.gutter;
+    Analytics.track('Gutter shown');
+    IntegrationNotification.handleGutterShown();
+    return this;
+  }
+
+  public toggle() {
+    if (this.gutter.isVisible()) {
+      this.gutter.hide();
+      Analytics.track('Gutter hidden');
+    } else {
+      this.gutter.show();
+      Analytics.track('Gutter shown');
+      IntegrationNotification.handleGutterShown();
+    }
   }
 
   private buildMarkersForRanges() {
