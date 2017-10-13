@@ -4,7 +4,7 @@
 
 **A better way to view git blame info in Atom.**
 
-(Doubles up as the Atom integration for the [Layer app](https://stepsize.com).)
+(Doubles up as the Atom integration for the [Layer app](http://bit.ly/1tvB1HC).)
 
 - [What makes it better?](#what-makes-it-better)
 - [How do I use it?](#how-do-i-use-it)
