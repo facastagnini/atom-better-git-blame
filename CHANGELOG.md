@@ -1,3 +1,6 @@
+## 0.2.4: Analytics tweak
+* Anonymously track repos for which the plugin is used to measure team usage (see #21).
+
 ## 0.2.3: Improve logging & request options
 * Improved the logging to help debug issue #16
 * Updated the user-agent in the request to the augmentation server

@@ -1,7 +1,6 @@
 'use babel';
 
 import IEditor = AtomCore.IEditor;
-import IGutterView = AtomCore.IGutterView;
 import SelectionWatcher from './stepsize/SelectionWatcher';
 import StepsizeOutgoing from './stepsize/StepsizeOutgoing';
 import StepsizeHelper from './stepsize/StepsizeHelper';
@@ -11,11 +10,10 @@ import os from 'os';
 import * as ConfigManager from './ConfigManager';
 import * as ColorScale from './interface/ColourScale';
 import * as Analytics from './stepsize/Analytics';
-import * as IntegrationNotification from './interface/IntegrationNotification';
 
 let disposables = new CompositeDisposable();
 let outgoing: StepsizeOutgoing;
-let gutters: Map<IEditor, IGutterView> = new Map();
+let gutters: Map<IEditor, GutterView> = new Map();
 
 export const config = ConfigManager.getConfig();
 
@@ -57,19 +55,10 @@ function toggleGutterView() {
   if (editor) {
     const gutter = gutters.get(editor);
     if (gutter) {
-      if (gutter.isVisible()) {
-        Analytics.track('Gutter hidden');
-        gutter.hide();
-      } else {
-        Analytics.track('Gutter shown');
-        gutter.show();
-        IntegrationNotification.handleGutterShown();
-      }
+      gutter.toggle();
     } else {
-      Analytics.track('Gutter shown');
       gutters.set(editor, new GutterView(editor, outgoing));
       ColorScale.setEditor(editor);
-      IntegrationNotification.handleGutterShown();
     }
   }
 }

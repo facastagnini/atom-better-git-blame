@@ -17289,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.2.3";
+var version = "0.2.4";
 
 'use babel';
 class StepsizeOutgoing {
@@ -27839,6 +27839,18 @@ function track(name$$1, data = {}) {
         });
     }
 }
+function anonymiseRepoMetadata(metadata) {
+    const anonymiseField = (field) => {
+        const hash = crypto.createHash('sha256');
+        hash.update(field);
+        return hash.digest('hex');
+    };
+    return {
+        repoNameHash: anonymiseField(metadata.repoName),
+        repoOwnerHash: anonymiseField(metadata.repoOwner),
+        repoSourceHash: anonymiseField(metadata.repoSource),
+    };
+}
 
 'use babel';
 const initialNotifData = {
@@ -28489,15 +28501,29 @@ class GutterView {
         this.gutter = this.editor.addGutter({ name: 'layer' });
         this.setGutterWidth(get('defaultWidth'));
         this.boundResizeListener = this.resizeListener.bind(this);
-        this.fetchGutterData()
-            .then(() => {
-            this.drawGutter();
-        })
-            .catch(e => {
-            console.error(e);
-        });
         this.codeSelector = new CodeSelector(this.editor);
-        return this.gutter;
+        getRepoRootPath(this.editor.getPath())
+            .then(repoRootPath => getRepoMetadata(repoRootPath))
+            .then(metadata => this.anonymousRepoMetadata = anonymiseRepoMetadata(metadata))
+            .then(() => this.fetchGutterData())
+            .then(() => this.drawGutter())
+            .then(() => {
+            track('Gutter shown', this.anonymousRepoMetadata);
+            handleGutterShown();
+        })
+            .catch(err => console.error(err));
+        return this;
+    }
+    toggle() {
+        if (this.gutter.isVisible()) {
+            this.gutter.hide();
+            track('Gutter hidden', this.anonymousRepoMetadata);
+        }
+        else {
+            this.gutter.show();
+            track('Gutter shown', this.anonymousRepoMetadata);
+            handleGutterShown();
+        }
     }
     buildMarkersForRanges() {
         for (const identifier in this.ranges) {
@@ -28728,21 +28754,11 @@ function toggleGutterView() {
     if (editor) {
         const gutter = gutters.get(editor);
         if (gutter) {
-            if (gutter.isVisible()) {
-                track('Gutter hidden');
-                gutter.hide();
-            }
-            else {
-                track('Gutter shown');
-                gutter.show();
-                handleGutterShown();
-            }
+            gutter.toggle();
         }
         else {
-            track('Gutter shown');
             gutters.set(editor, new GutterView(editor, outgoing));
             setEditor(editor);
-            handleGutterShown();
         }
     }
 }

@@ -134,3 +134,21 @@ export function track(name, data = {}): void {
     });
   }
 }
+
+export interface IAnonymousRepoMetadata {
+  repoNameHash: string;
+  repoOwnerHash: string;
+  repoSourceHash: string;
+}
+export function anonymiseRepoMetadata(metadata: { [prop: string]: string }): IAnonymousRepoMetadata {
+  const anonymiseField = (field: string): string => {
+    const hash = crypto.createHash('sha256');
+    hash.update(field);
+    return hash.digest('hex');
+  };
+  return {
+    repoNameHash: anonymiseField(metadata.repoName),
+    repoOwnerHash: anonymiseField(metadata.repoOwner),
+    repoSourceHash: anonymiseField(metadata.repoSource),
+  };
+}
