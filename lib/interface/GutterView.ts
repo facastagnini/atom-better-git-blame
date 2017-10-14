@@ -16,6 +16,7 @@ import CodeSelector from '../stepsize/CodeSelector';
 import StepsizeOutgoing from '../stepsize/StepsizeOutgoing';
 import * as ConfigManager from '../ConfigManager';
 import * as Analytics from '../stepsize/Analytics';
+import * as IntegrationNotification from '../interface/IntegrationNotification';
 
 class GutterView {
   private editor: IEditor;
@@ -26,6 +27,7 @@ class GutterView {
   private boundResizeListener: EventListener;
   private previousResize: number = 0;
   private firstCommitDate: Date;
+  private anonymousRepoMetadata: Analytics.IAnonymousRepoMetadata;
   private markers: { [prop: string]: Array<IDisplayBufferMarker> } = {};
   private highlightDecorations: Array<Decoration> = [];
   private codeSelector: CodeSelector;
@@ -39,15 +41,29 @@ class GutterView {
     this.gutter = this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(ConfigManager.get('defaultWidth'));
     this.boundResizeListener = this.resizeListener.bind(this);
-    this.fetchGutterData()
-      .then(() => {
-        this.drawGutter();
-      })
-      .catch(e => {
-        console.error(e);
-      });
     this.codeSelector = new CodeSelector(this.editor);
-    return this.gutter;
+    GitData.getRepoRootPath(this.editor.getPath())
+      .then(repoRootPath => GitData.getRepoMetadata(repoRootPath))
+      .then(metadata => this.anonymousRepoMetadata = Analytics.anonymiseRepoMetadata(metadata))
+      .then(() => this.fetchGutterData())
+      .then(() => this.drawGutter())
+      .then(() => {
+        Analytics.track('Gutter shown', this.anonymousRepoMetadata);
+        IntegrationNotification.handleGutterShown();
+      })
+      .catch(err => console.error(err));
+    return this;
+  }
+
+  public toggle() {
+    if (this.gutter.isVisible()) {
+      this.gutter.hide();
+      Analytics.track('Gutter hidden', this.anonymousRepoMetadata);
+    } else {
+      this.gutter.show();
+      Analytics.track('Gutter shown', this.anonymousRepoMetadata);
+      IntegrationNotification.handleGutterShown();
+    }
   }
 
   private buildMarkersForRanges() {
