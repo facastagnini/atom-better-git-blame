@@ -16,6 +16,7 @@
     "skipLibCheck": true,
     "inlineSourceMap": true,
     "inlineSources": true,
+    "noImplicitAny": false,
     "strict": true,
     "target": "ES6"
   }

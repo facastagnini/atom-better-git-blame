@@ -27,6 +27,7 @@ class GutterView {
   private boundResizeListener: EventListener;
   private previousResize: number = 0;
   private firstCommitDate: Date;
+  private anonymousRepoMetadata: Analytics.IAnonymousRepoMetadata;
   private markers: { [prop: string]: Array<IDisplayBufferMarker> } = {};
   private highlightDecorations: Array<Decoration> = [];
   private codeSelector: CodeSelector;
@@ -40,26 +41,27 @@ class GutterView {
     this.gutter = this.editor.addGutter({ name: 'layer' });
     this.setGutterWidth(ConfigManager.get('defaultWidth'));
     this.boundResizeListener = this.resizeListener.bind(this);
-    this.fetchGutterData()
-      .then(() => {
-        this.drawGutter();
-      })
-      .catch(e => {
-        console.error(e);
-      });
     this.codeSelector = new CodeSelector(this.editor);
-    Analytics.track('Gutter shown');
-    IntegrationNotification.handleGutterShown();
+    GitData.getRepoRootPath(this.editor.getPath())
+      .then(repoRootPath => GitData.getRepoMetadata(repoRootPath))
+      .then(metadata => this.anonymousRepoMetadata = Analytics.anonymiseRepoMetadata(metadata))
+      .then(() => this.fetchGutterData())
+      .then(() => this.drawGutter())
+      .then(() => {
+        Analytics.track('Gutter shown', this.anonymousRepoMetadata);
+        IntegrationNotification.handleGutterShown();
+      })
+      .catch(err => console.error(err));
     return this;
   }
 
   public toggle() {
     if (this.gutter.isVisible()) {
       this.gutter.hide();
-      Analytics.track('Gutter hidden');
+      Analytics.track('Gutter hidden', this.anonymousRepoMetadata);
     } else {
       this.gutter.show();
-      Analytics.track('Gutter shown');
+      Analytics.track('Gutter shown', this.anonymousRepoMetadata);
       IntegrationNotification.handleGutterShown();
     }
   }
