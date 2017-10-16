@@ -4,7 +4,6 @@ import React from 'preact-compat';
 import moment from 'moment';
 import TooltipContainer from './TooltipContainer';
 import BuildStatus from './BuildStatus';
-import AgeTooltip from './AgeTooltip';
 import BlameTooltip from './BlameTooltip';
 import * as GitData from '../data/GitData';
 import * as IntegrationData from '../data/IntegrationData';
@@ -107,10 +106,15 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
   }
 
   tooltip(){
+    console.log('commit from props', this.props.commit);
+    console.log('commit from state', this.state.commit);
+    console.log('differ', this.props.commit === this.state.commit);
     return (
       <BlameTooltip
         emitter={this.props.emitter}
         commit={this.state.commit}
+        commitDay={this.props.commitDay}
+        firstCommitDate={this.props.firstCommitDate}
         pullRequests={this.state.pullRequests}
         githubIssues={this.state.githubIssues}
         jiraIssues={this.state.jiraIssues}
@@ -137,14 +141,6 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     return `${formattedDate} ${author}`
   }
 
-  ageTooltip(){
-    return <AgeTooltip
-      commitDay={this.props.commitDay}
-      firstCommitDate={this.props.firstCommitDate}
-      commit={this.props.commit}
-    />
-  }
-
   render() {
     if(this.state.commit.commitHash.substr(0,6) === '000000'){
       return (
@@ -164,7 +160,6 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
         <TooltipContainer
           style={{background: this.props.inidcatorColor}}
           className="gutter-age"
-          tooltipContent={this.ageTooltip.bind(this)}
         />
       </div>
     );
