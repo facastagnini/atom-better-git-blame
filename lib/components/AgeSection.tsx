@@ -7,17 +7,17 @@ import * as ColorScale from '../interface/ColourScale';
 import * as Analytics from '../stepsize/Analytics';
 import * as IntegrationNotification from '../interface/IntegrationNotification';
 
-interface IAgeTooltipProps {
+interface IAgeSectionProps {
   firstCommitDate: Date
   commitDay: number
   commit: any
 }
 
-interface IAgeTooltipState {
+interface IAgeSectionState {
   gradient: Array<string>;
 }
 
-class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState> {
+class AgeSection extends React.PureComponent<IAgeSectionProps, IAgeSectionState> {
 
   totalDays: number;
   pointPosition: number;
@@ -56,41 +56,39 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState>
     }
     const gradient = this.state.gradient.join(',');
     return (
-      <div className="layer-tooltip">
-        <div className="age-graph">
-          <div className="markers">
-            <div className="start">
-              <div className="start-inner">
-                <h3 title={moment(this.props.firstCommitDate).format(ConfigManager.get('gutterDateFormat'))}>
-                  Repo Created
-                </h3>
-              </div>
-            </div>
-            <div className="end">
-              <div className="end-inner">
-                <h3>Today</h3>
-              </div>
+      <div className="age-graph">
+        <div className="markers tight">
+          <div className="start">
+            <div className="start-inner">
+              <h1 title={moment(this.props.firstCommitDate).format(ConfigManager.get('gutterDateFormat'))}>
+                Repo Created
+              </h1>
             </div>
           </div>
-          <div className="rail" style={{
-            background: `linear-gradient(90deg, ${gradient})`
+          <div className="end">
+            <div className="end-inner">
+              <h1>Today</h1>
+            </div>
+          </div>
+        </div>
+        <div className="rail" style={{
+          background: `linear-gradient(90deg, ${gradient})`
+        }}>
+          <div className="tick" style={{
+            left: `${this.pointPosition}%`,
+          }} />
+        </div>
+        <div className="markers">
+          <div className="point" style={{
+            marginLeft: `${this.pointPosition}%`,
+            textAlign: pointAlign,
+            transform: pointTransform,
           }}>
-            <div className="tick" style={{
-              left: `${this.pointPosition}%`,
-            }} />
-          </div>
-          <div className="markers">
-            <div className="point" style={{
-              marginLeft: `${this.pointPosition}%`,
-              textAlign: pointAlign,
-              transform: pointTransform,
-            }}>
-              <i className="icon icon-git-commit" />
-              <p>{moment(this.props.commit.commitedAt).fromNow()}</p>
-              <code>
-                {moment(this.props.commit.commitedAt).format(ConfigManager.get('gutterDateFormat'))}
-              </code>
-            </div>
+            <i className="icon icon-git-commit" />
+            <p>{moment(this.props.commit.commitedAt).fromNow()}</p>
+            <code>
+              {moment(this.props.commit.commitedAt).format(ConfigManager.get('gutterDateFormat'))}
+            </code>
           </div>
         </div>
       </div>
@@ -98,4 +96,4 @@ class AgeTooltip extends React.PureComponent<IAgeTooltipProps, IAgeTooltipState>
   }
 }
 
-export default AgeTooltip
+export default AgeSection

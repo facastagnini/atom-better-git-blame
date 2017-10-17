@@ -27932,7 +27932,7 @@ function checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues) {
 }
 
 'use babel';
-class AgeTooltip extends index.PureComponent {
+class AgeSection extends index.PureComponent {
     constructor(...props) {
         super(...props);
         this.state = {
@@ -27965,30 +27965,29 @@ class AgeTooltip extends index.PureComponent {
             pointAlign = 'right';
         }
         const gradient = this.state.gradient.join(',');
-        return (index.createElement("div", { className: "layer-tooltip" },
-            index.createElement("div", { className: "age-graph" },
-                index.createElement("div", { className: "markers" },
-                    index.createElement("div", { className: "start" },
-                        index.createElement("div", { className: "start-inner" },
-                            index.createElement("h3", { title: moment(this.props.firstCommitDate).format(get('gutterDateFormat')) }, "Repo Created"))),
-                    index.createElement("div", { className: "end" },
-                        index.createElement("div", { className: "end-inner" },
-                            index.createElement("h3", null, "Today")))),
-                index.createElement("div", { className: "rail", style: {
-                        background: `linear-gradient(90deg, ${gradient})`
+        return (index.createElement("div", { className: "age-graph" },
+            index.createElement("div", { className: "markers tight" },
+                index.createElement("div", { className: "start" },
+                    index.createElement("div", { className: "start-inner" },
+                        index.createElement("h1", { title: moment(this.props.firstCommitDate).format(get('gutterDateFormat')) }, "Repo Created"))),
+                index.createElement("div", { className: "end" },
+                    index.createElement("div", { className: "end-inner" },
+                        index.createElement("h1", null, "Today")))),
+            index.createElement("div", { className: "rail", style: {
+                    background: `linear-gradient(90deg, ${gradient})`
+                } },
+                index.createElement("div", { className: "tick", style: {
+                        left: `${this.pointPosition}%`,
+                    } })),
+            index.createElement("div", { className: "markers" },
+                index.createElement("div", { className: "point", style: {
+                        marginLeft: `${this.pointPosition}%`,
+                        textAlign: pointAlign,
+                        transform: pointTransform,
                     } },
-                    index.createElement("div", { className: "tick", style: {
-                            left: `${this.pointPosition}%`,
-                        } })),
-                index.createElement("div", { className: "markers" },
-                    index.createElement("div", { className: "point", style: {
-                            marginLeft: `${this.pointPosition}%`,
-                            textAlign: pointAlign,
-                            transform: pointTransform,
-                        } },
-                        index.createElement("i", { className: "icon icon-git-commit" }),
-                        index.createElement("p", null, moment(this.props.commit.commitedAt).fromNow()),
-                        index.createElement("code", null, moment(this.props.commit.commitedAt).format(get('gutterDateFormat'))))))));
+                    index.createElement("i", { className: "icon icon-git-commit" }),
+                    index.createElement("p", null, moment(this.props.commit.commitedAt).fromNow()),
+                    index.createElement("code", null, moment(this.props.commit.commitedAt).format(get('gutterDateFormat')))))));
     }
 }
 
@@ -28162,6 +28161,11 @@ class BlameTooltip extends index.PureComponent {
                                     color: `${issue.status.statusCategory.colorName}`
                                 } }, issue.status.name.toLowerCase())))));
             }),
+            index.createElement("div", { className: "section" },
+                index.createElement("div", { className: "section-icon" },
+                    index.createElement("div", { className: "icon icon-clock" })),
+                index.createElement("div", { className: "section-content" },
+                    index.createElement(AgeSection, { commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, commit: this.props.commit }))),
             index.createElement(SearchInLayer, { onClick: this.clickLayerSearch.bind(this), onMouseEnter: this.mouseEnterLayerSearch.bind(this), onMouseLeave: this.mouseLeaveLayerSearch.bind(this) })));
     }
 }
@@ -28348,7 +28352,10 @@ class GutterItem$2 extends index.Component {
         });
     }
     tooltip() {
-        return (index.createElement(BlameTooltip, { emitter: this.props.emitter, commit: this.state.commit, pullRequests: this.state.pullRequests, githubIssues: this.state.githubIssues, jiraIssues: this.state.jiraIssues, metadata: this.state.metadata }));
+        console.log('commit from props', this.props.commit);
+        console.log('commit from state', this.state.commit);
+        console.log('differ', this.props.commit === this.state.commit);
+        return (index.createElement(BlameTooltip, { emitter: this.props.emitter, commit: this.state.commit, commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, pullRequests: this.state.pullRequests, githubIssues: this.state.githubIssues, jiraIssues: this.state.jiraIssues, metadata: this.state.metadata }));
     }
     formattedText() {
         const commit = this.props.commit;
@@ -28367,16 +28374,13 @@ class GutterItem$2 extends index.Component {
         }
         return `${formattedDate} ${author}`;
     }
-    ageTooltip() {
-        return index.createElement(AgeTooltip, { commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, commit: this.props.commit });
-    }
     render() {
         if (this.state.commit.commitHash.substr(0, 6) === '000000') {
             return (index.createElement("div", { className: "gutter-text" }, this.formattedText()));
         }
         return (index.createElement("div", null,
             index.createElement(TooltipContainer, { className: "gutter-text", tooltipContent: this.tooltip.bind(this) }, this.formattedText()),
-            index.createElement(TooltipContainer, { style: { background: this.props.inidcatorColor }, className: "gutter-age", tooltipContent: this.ageTooltip.bind(this) })));
+            index.createElement(TooltipContainer, { style: { background: this.props.inidcatorColor }, className: "gutter-age" })));
     }
 }
 

@@ -128,7 +128,7 @@
   }
   .age-graph{
     margin: 0 auto;
-    padding: 10px 20px;
+    padding: 0 2px;
     width:100%;
     position: relative;
     .rail {
@@ -173,12 +173,23 @@
         width: 2px;
       }
     }
+    .tight {
+      margin-top: 1px !important;
+    }
     .markers{
       margin: 5px 0;
       display: flex;
       flex-direction: row;
       font-family: sans-serif;
       width: 100%;
+      h1 {
+        line-height:1.2;
+        margin:0;
+        padding:0;
+        margin-bottom: 5px;
+        font-size: 1.2em;
+        color: @text-color;
+      }
       h3, p {
         margin:0;
         padding:0;
