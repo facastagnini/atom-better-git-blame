@@ -23,11 +23,11 @@ TL;DR: it does more than just display `git blame` annotations in the gutter – 
 
 **A rich popover displays summary info about the commit, its corresponding pull request, any related issues, and visualises the commit's age.**
 
-![Better Git Blame popover](https://i.imgur.com/VrDCU8u.png)
+![Better Git Blame popover](https://i.imgur.com/Un1v31P.png)
 
 **Line highlighting makes it clear which other lines were introduced by the blame commit and its corresponding pull request.**
 
-![Line highlighting](https://i.imgur.com/WsJTl7s.png)
+![Line highlighting](https://i.imgur.com/PV8YfdR.png)
 
 Oh and it's also fast and nicely designed.
 
