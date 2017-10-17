@@ -1,3 +1,6 @@
+## 0.3.0: Combined popover
+* Combined the blame popover and the age tooltip into one
+
 ## 0.2.4: Analytics tweak
 * Anonymously track repos for which the plugin is used to measure team usage (see #21).
 

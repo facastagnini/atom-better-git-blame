@@ -17289,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.2.4";
+var version = "0.3.0";
 
 'use babel';
 class StepsizeOutgoing {
@@ -28024,6 +28024,10 @@ class BuildStatus extends index.PureComponent {
 
 'use babel';
 class SearchInLayer extends index.PureComponent {
+    stepsizeOnClickHandler() {
+        track('Powered by Stepsize clicked');
+        shell.openExternal(`https://stepsize.com/?utm_source=atom-bgb&ref=${userHash}`);
+    }
     render() {
         if (get('searchInLayerEnabled')) {
             return (index.createElement("div", { className: "section" },
@@ -28041,7 +28045,7 @@ class SearchInLayer extends index.PureComponent {
             index.createElement("div", { className: "section-content" },
                 index.createElement("p", { className: "section-body", style: { maxWidth: '100%' } },
                     "Powered by\u00A0",
-                    index.createElement("a", { href: "https://stepsize.com" },
+                    index.createElement("a", { onClick: this.stepsizeOnClickHandler },
                         index.createElement("img", { className: "layer-icon", src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABACAMAAACgCSLPAAAC+lBMVEUAAAD///////////////////////////9hOrX////////////////////////////////////////////RHo5hOrX////////////////////////////////////RHo7///+fIKj////////////////////////////////////////GIpL////////////////RHo7///////////////////////////+bKaS4JZb///////+eIKlhOrWgH6hiOrT///////////////+WIK3////////////////////SHo7///////+eIKn///////////////////////////////9kObSwIJ9+Lq/////RHo7///+gH6j///9hOrX////////////////////PHo////////////9rOLL////SHo7///9gOrX////RHo5hOrV2Na7////CH5WNK6mhI6WjJaLAI5TNHpDRHo7///+gH6j///////+hIqZxNrD////RHo7///9fOrZjOLVeO7bSHo6xJplhOrVhOrXRHo7LH5FhOrWjKZ6sI5+aKKRhOrXUHo3////THo2TKKhhOrWwH6BhOrVgOrWAMqvZHouAMK26IZjRHo5rN7NhOrW2JJjAIpSfIKjRHo64H5xnN7S4JJdePLbRHo6HMaihJaNgOrXVHY2fIKifIKhhOrXBH5bRHo6rKJthOrVcPbaVIK16NKyxGaWGMajRHo6SLqSvIKD///+CMamfIKjRHo7////RHo5hOrWfIKhWP7erG6aDMqqQLqWYIKx/M6uJMKeXLaLXHYuGMaiTLqReO7ZtN7GhHqmaK6J0NLB8M6ynHKeNL6alKZ7VHY1xNrB2Na6eIKmMMKatIKGoKJ1oOLKcH6ueK6CsJ5ukHqeULaOvJ5rTHo6ALa95NK2YJKmiKp9bPbayJpm2JZjZHIvbHYpcO7eHKq27IpdaPLePJa2dK6GgKqB8L7CpH6OhLJ3CH5a0F6RUPrnmGYfDb/oYAAAAwHRSTlMAk9mqmKKQif4TrJ/2SfnlROfdgn9jVTEnJRkQBAL93rWqpZvPwr2GfG1TF/7718rFpJeRaV1NLA0G/u7s2bl1WlA3CAb+4dK5sKGblY16d3NaQTMu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", height: "16", alt: "" }))))));
     }
 }
@@ -28352,9 +28356,6 @@ class GutterItem$2 extends index.Component {
         });
     }
     tooltip() {
-        console.log('commit from props', this.props.commit);
-        console.log('commit from state', this.state.commit);
-        console.log('differ', this.props.commit === this.state.commit);
         return (index.createElement(BlameTooltip, { emitter: this.props.emitter, commit: this.state.commit, commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, pullRequests: this.state.pullRequests, githubIssues: this.state.githubIssues, jiraIssues: this.state.jiraIssues, metadata: this.state.metadata }));
     }
     formattedText() {
