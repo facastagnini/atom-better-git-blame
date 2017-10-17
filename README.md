@@ -1,11 +1,10 @@
 [![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![bitHound Overall Score](https://www.bithound.io/github/Stepsize/atom-better-git-blame/badges/score.svg)](https://www.bithound.io/github/Stepsize/atom-better-git-blame) [![bitHound Dependencies](https://img.shields.io/bithound/dependencies/github/Stepsize/atom-better-git-blame.svg)](https://www.bithound.io/github/Stepsize/atom-better-git-blame/master/dependencies/npm) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
 
-![bgb-logo-tertiary](https://user-images.githubusercontent.com/1657409/31289534-f68e0e5e-aac0-11e7-9d51-a1078408b380.png)
-# Better Git Blame Atom package
+# Better Git Blame Atom package <img src="https://user-images.githubusercontent.com/13640069/31381614-f76a2990-adac-11e7-99d1-c3e53c4f5802.png" alt="better git blame logo" height="48px" align="right" />
 
 **A better way to view git blame info in Atom.**
 
-(Doubles up as the Atom integration for the [Layer app](https://stepsize.com).)
+(Doubles up as the Atom integration for the [Layer app](http://bit.ly/1tvB1HC).)
 
 - [What makes it better?](#what-makes-it-better)
 - [How do I use it?](#how-do-i-use-it)
@@ -49,7 +48,7 @@ That's all you need to get going, but if you want to see info about pull request
 
 #### Setup the GitHub integration
 
-Install the [Layer GitHub app](https://github.com/apps/layer) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).
+Install the [Layer GitHub app](http://bit.ly/2hzJJkj) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).
 
 #### Setup the Jira integration
 
@@ -126,18 +125,18 @@ All the software in this repository is released under the MIT License. See [LICE
 
 Layer is a desktop app we're working on, currently in private beta. It surfaces all the relevant commits, pull requests, and issues for any piece of code you select in your editor. This allows you to quickly dig up the history of any piece of code and understand its origin and purpose.
 
-You can find a bit more about it at [stepsize.com](https://stepsize.com).
+You can find a bit more about it at [stepsize.com](http://bit.ly/1tvB1HC).
 
 ## What is Stepsize?
 
-[Stepsize](https://stepsize.com) is a small startup based in London. We build dev tools to help engineers in medium to large teams be well-informed and productive.
+[Stepsize](http://bit.ly/1tvB1HC) is a small startup based in London. We build dev tools to help engineers in medium to large teams be well-informed and productive.
 
 We do this by integrating with all the tools you use, structuring the information found inside them, and making it easily accessible and searchable.
 
-Check us out [here](https://stepsize.com) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
+Check us out [here](http://bit.ly/1tvB1HC) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
 
 ## Security and privacy
 
-If you set up the GitHub and/or Jira integrations, you might be interested in our [security statement](https://stepsize.com/security) & [privacy policy](https://stepsize.com/privacy).
+If you set up the GitHub and/or Jira integrations, you might be interested in our [security statement](http://bit.ly/2gvkQGO) & [privacy policy](http://bit.ly/2gvkSyq).
 
 You can safely ignore them if you don't use the integrations.
