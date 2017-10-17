@@ -106,9 +106,6 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
   }
 
   tooltip(){
-    console.log('commit from props', this.props.commit);
-    console.log('commit from state', this.state.commit);
-    console.log('differ', this.props.commit === this.state.commit);
     return (
       <BlameTooltip
         emitter={this.props.emitter}
