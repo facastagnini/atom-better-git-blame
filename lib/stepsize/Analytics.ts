@@ -7,7 +7,7 @@ import * as https from 'https';
 import * as ConfigManager from '../ConfigManager';
 import { version } from '../../package.json';
 
-let userHash: string;
+export let userHash: string;
 
 const writeKey: string = '3hotv1JuhWEvL5H0SSUpJzVHgcRlurnB';
 const authHeader: string = `Basic ${new Buffer(`${writeKey}:`).toString('base64')}`;
