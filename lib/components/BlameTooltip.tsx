@@ -5,6 +5,7 @@ import moment from 'moment';
 import AgeSection from './AgeSection';
 import BuildStatus from './BuildStatus';
 import SearchInLayer from './SearchInLayer';
+import * as ConfigManager from '../ConfigManager';
 import * as Analytics from '../stepsize/Analytics';
 import * as IntegrationNotification from '../interface/IntegrationNotification';
 
@@ -150,18 +151,22 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
             </div>
           )
         })}
-        <div className="section">
-          <div className="section-icon">
-            <div className="icon icon-clock" />
-          </div>
-          <div className="section-content">
-            <AgeSection
-              commitDay={this.props.commitDay}
-              firstCommitDate={this.props.firstCommitDate}
-              commit={this.props.commit}
-            />
-          </div>
-        </div>
+        {
+          !ConfigManager.get('displayAgeSection') ?
+            null :
+            <div className="section">
+              <div className="section-icon">
+                <div className="icon icon-clock" />
+              </div>
+              <div className="section-content">
+                <AgeSection
+                  commitDay={this.props.commitDay}
+                  firstCommitDate={this.props.firstCommitDate}
+                  commit={this.props.commit}
+                />
+              </div>
+            </div>
+        }
         <SearchInLayer
           onClick={this.clickLayerSearch.bind(this)}
           onMouseEnter={this.mouseEnterLayerSearch.bind(this)}

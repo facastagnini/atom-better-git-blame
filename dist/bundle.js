@@ -17289,7 +17289,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.3.0";
+var version = "0.3.1";
 
 'use babel';
 class StepsizeOutgoing {
@@ -24414,47 +24414,54 @@ const config$1 = {
         ],
         order: 3,
     },
+    displayAgeSection: {
+        title: 'Display code age in popover',
+        description: 'When viewing the blame popover, display the section visualising the age of the code',
+        type: 'boolean',
+        default: true,
+        order: 4,
+    },
     truncateGutterNames: {
         title: 'Truncate author names in gutter',
         description: 'Attempt to truncate commit author names to display first initial and surname only',
         type: 'boolean',
         default: true,
-        order: 4,
+        order: 5,
     },
     highlightPullRequestOnHover: {
         title: 'Highlight pull request on hover',
         description: 'When viewing the blame popover, highlight lines introduced by commits from the same pull request',
         type: 'boolean',
         default: true,
-        order: 5,
+        order: 6,
     },
     displayHighlightLabels: {
         title: 'Display highlight labels',
         description: 'When viewing the blame popover, show commit hashes and pull requests numbers in the top right of highlighted sections',
         type: 'boolean',
         default: true,
-        order: 6,
+        order: 7,
     },
     sendUsageStatistics: {
         title: 'Send anonymous usage statistics',
         description: 'Send anonymous usage data to Stepsize so we can improve the plugin',
         type: 'boolean',
         default: true,
-        order: 7,
+        order: 8,
     },
     parallelGitProcessing: {
         title: 'Use parallel processing for Git commands',
         description: 'Can improve performance on multi-core machines, if the gutter is slow try disabling this',
         type: 'boolean',
         default: true,
-        order: 8,
+        order: 9,
     },
     searchInLayerEnabled: {
         title: 'Enable Search in Layer (macOS only)',
         description: 'Send code selection events via UDP to the Layer desktop app to use its search functionality',
         type: 'boolean',
         default: true,
-        order: 9,
+        order: 10,
     },
 };
 function getConfig() {
@@ -28165,11 +28172,13 @@ class BlameTooltip extends index.PureComponent {
                                     color: `${issue.status.statusCategory.colorName}`
                                 } }, issue.status.name.toLowerCase())))));
             }),
-            index.createElement("div", { className: "section" },
-                index.createElement("div", { className: "section-icon" },
-                    index.createElement("div", { className: "icon icon-clock" })),
-                index.createElement("div", { className: "section-content" },
-                    index.createElement(AgeSection, { commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, commit: this.props.commit }))),
+            !get('displayAgeSection') ?
+                null :
+                index.createElement("div", { className: "section" },
+                    index.createElement("div", { className: "section-icon" },
+                        index.createElement("div", { className: "icon icon-clock" })),
+                    index.createElement("div", { className: "section-content" },
+                        index.createElement(AgeSection, { commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, commit: this.props.commit }))),
             index.createElement(SearchInLayer, { onClick: this.clickLayerSearch.bind(this), onMouseEnter: this.mouseEnterLayerSearch.bind(this), onMouseLeave: this.mouseLeaveLayerSearch.bind(this) })));
     }
 }

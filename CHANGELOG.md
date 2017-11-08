@@ -1,3 +1,6 @@
+## 0.3.1: Toggle age section
+* The age section of the blame popover can now be hidden
+
 ## 0.3.0: Combined popover
 * Combined the blame popover and the age tooltip into one
 
