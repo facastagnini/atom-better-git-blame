@@ -1,3 +1,6 @@
+## 0.3.2: Fix Atom <=> Layer communication
+* Check for presence of Layer on plugin boot to make it easy to get up and running with the app. This has no effect if you don't have Layer.
+
 ## 0.3.1: Toggle age section
 * The age section of the blame popover can now be hidden
 

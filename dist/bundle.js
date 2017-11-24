@@ -7,9 +7,9 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var atom$1 = require('atom');
 var dgram = require('dgram');
 var fs = _interopDefault(require('fs'));
+var os = _interopDefault(require('os'));
 var https = require('https');
 var childProcess = require('child_process');
-var os = _interopDefault(require('os'));
 var path = _interopDefault(require('path'));
 var crypto = _interopDefault(require('crypto'));
 var shell = _interopDefault(require('shell'));
@@ -17237,7 +17237,10 @@ class StepsizeHelper {
     }
     static checkLayerInstallation() {
         return new Promise((resolve, reject) => {
-            childProcess.exec("ls | grep 'Layer.app'", { cwd: '/Applications' }, err => {
+            if (os.platform() !== 'darwin')
+                reject();
+            const appSupport = `${process.env.HOME}/Library/Application Support`;
+            childProcess.exec("ls | grep 'Layer'", { cwd: appSupport }, err => {
                 if (err) {
                     return reject(new Error('Could not detect Layer installation'));
                 }
@@ -17289,7 +17292,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.3.1";
+var version = "0.3.2";
 
 'use babel';
 class StepsizeOutgoing {
@@ -28736,7 +28739,7 @@ function activate(state) {
     disposables.add(atom.commands.add('atom-workspace', {
         'better-git-blame:toggle': () => toggleGutterView(),
     }));
-    if (os.platform() === 'darwin' && get('searchInLayerEnabled')) {
+    if (os.platform() === 'darwin') {
         enableLayerSearch();
     }
     else {
@@ -28756,6 +28759,7 @@ function layerEditorObserver(editor) {
 function enableLayerSearch() {
     StepsizeHelper.checkLayerInstallation()
         .then(() => {
+        set('searchInLayerEnabled', true);
         outgoing = new StepsizeOutgoing();
         atom.workspace.observeTextEditors(layerEditorObserver);
     })
