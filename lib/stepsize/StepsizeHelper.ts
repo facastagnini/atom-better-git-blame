@@ -1,5 +1,6 @@
 'use babel';
 
+import os from 'os';
 import uuid from 'uuid-v4';
 import * as https from 'https';
 import * as childProcess from 'child_process';
@@ -67,7 +68,9 @@ class StepsizeHelper {
 
   public static checkLayerInstallation(): Promise<void> {
     return new Promise((resolve, reject) => {
-      childProcess.exec("ls | grep 'Layer.app'", { cwd: '/Applications' }, err => {
+      if (os.platform() !== 'darwin') reject();
+      const appSupport = `${process.env.HOME}/Library/Application Support`;
+      childProcess.exec("ls | grep 'Layer'", { cwd: appSupport }, err => {
         if (err) {
           return reject(new Error('Could not detect Layer installation'));
         }
