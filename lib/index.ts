@@ -23,7 +23,7 @@ export function activate(state) {
       'better-git-blame:toggle': () => toggleGutterView(),
     })
   );
-  if (os.platform() === 'darwin' && ConfigManager.get('searchInLayerEnabled')) {
+  if (os.platform() === 'darwin') {
     enableLayerSearch();
   } else {
     ConfigManager.set('searchInLayerEnabled', false);
@@ -42,6 +42,7 @@ async function layerEditorObserver(editor: IEditor) {
 function enableLayerSearch() {
   StepsizeHelper.checkLayerInstallation()
     .then(() => {
+      ConfigManager.set('searchInLayerEnabled', true);
       outgoing = new StepsizeOutgoing();
       atom.workspace.observeTextEditors(layerEditorObserver);
     })
