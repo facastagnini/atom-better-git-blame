@@ -27,58 +27,43 @@ export async function getIntegrationDataForFile(filePath: string) {
 }
 
 async function processIntegrationData(data) {
-  const pullRequests = data.pullRequests;
-  const jiraIssues = data.relatedJiraIssues;
-  const githubIssues = data.relatedGitHubIssues;
+  const issues = data.issues;
   db
-    .get('githubIssues')
-    .merge(_.toArray(githubIssues))
-    .uniqBy('number')
-    .write();
-  db
-    .get('jiraIssues')
-    .merge(_.toArray(jiraIssues))
+    .get('issues')
+    .merge(issues)
     .uniqBy('key')
     .write();
+  const pullRequests = data.pullRequests;
   pullRequestsCommitsPivot(pullRequests);
-  for (const i in pullRequests) {
-    const pullRequest = pullRequests[i];
-    if (
-      db
-        .get('pullRequests')
-        .find({ number: pullRequest.number })
-        .value()
-    ) {
+  for (const pullRequestIdx of Object.keys(pullRequests)) {
+    const pullRequest = pullRequests[pullRequestIdx];
+    const existingPullRequest = db
+      .get('pullRequests')
+      .find({ number: pullRequest.number })
+      .value();
+    if (existingPullRequest) {
       continue;
     }
-    let toWrite = pullRequest;
+    const toWrite = { ...pullRequest };
     toWrite.commitCount = toWrite.commits.length;
-    toWrite.status = StepsizeHelper.getStatusObject(pullRequest);
-    for (const i in pullRequest.commits) {
-      const commit = pullRequest.commits[i];
-      GitData.updateCommit(commit.commitHash, {
-        status: commit.status,
-      });
-    }
-    //delete toWrite.commits;
+    toWrite.relatedIssueKeys = data.pullRequestToIssues[pullRequestIdx].map(idx => issues[idx].key);
     db
       .get('pullRequests')
       .push(toWrite)
       .write();
   }
-  IntegrationNotification.checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues);
+  for (const commit of data.commits) {
+    GitData.updateCommit(commit.commitHash, { buildStatus: commit.buildStatus });
+  }
+  IntegrationNotification.checkIntegrationDataRetrieved(pullRequests, issues);
   return db.get('pullRequests').value();
 }
 
 function pullRequestsCommitsPivot(pullRequests) {
-  const pivot = _.reduce(
-    pullRequests,
-    (acc: Array<{ number: number; hashes: string[] }>, pullRequest, key) => {
-      acc[key] = _.map(pullRequest.commits, 'commitHash');
-      return acc;
-    },
-    {}
-  );
+  const pivot = !pullRequests ? {} : pullRequests.reduce((acc, pullRequest) => {
+    acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
+    return acc;
+  }, {});
   db
     .get('pullRequestsCommitsPivot')
     .merge(pivot)
@@ -125,19 +110,8 @@ export async function getIssue(filePath: string, issueKey: string | number) {
   if (pendingRequests[filePath]) {
     await pendingRequests[filePath];
   }
-
-  issueKey = issueKey.toString();
-
-  // Assume its a Jira issue if its got a hyphen
-  if (issueKey.includes('-')) {
-    return db
-      .get('jiraIssues')
-      .find({ key: issueKey })
-      .value();
-  }
-
   return db
-    .get('githubIssues')
-    .find({ number: parseInt(issueKey) })
+    .get('issues')
+    .find({ key: issueKey })
     .value();
 }
