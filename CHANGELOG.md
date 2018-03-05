@@ -1,3 +1,8 @@
+## 0.4.0: GitLab support
+* Added support for the GitLab integration!
+* Set it up [here](https://stepsize.com/gitlab/setup) to view Merge Request and Issue info for your GitLab repos.
+* Note: release includes breaking changes to our web API so you need to upgrade to 0.4.0 to keep using the GitHub & Jira integrations.
+
 ## 0.3.2: Fix Atom <=> Layer communication
 * Check for presence of Layer on plugin boot to make it easy to get up and running with the app. This has no effect if you don't have Layer.
 
