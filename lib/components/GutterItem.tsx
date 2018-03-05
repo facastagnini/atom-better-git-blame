@@ -22,8 +22,7 @@ interface IGutterItemProps {
 interface IGutterItemState {
   commit: any;
   pullRequests: any;
-  jiraIssues: any;
-  githubIssues: any;
+  issues: Array<any>;
 }
 
 class GutterItem extends React.Component<IGutterItemProps, any> {
@@ -33,8 +32,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     this.state = {
       commit: {},
       pullRequests: [],
-      jiraIssues: [],
-      githubIssues: [],
+      issues: [],
       metadata: {},
     }
   }
@@ -87,22 +85,15 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     }
   }
 
-  async getIssuesForPullRequest(pullRequest){
-    const jiraIssues = [];
-    const githubIssues = [];
-    await pullRequest.relatedGitHubIssues.map(async (issueNumber) => {
-      const issue = await IntegrationData.getIssue(this.state.commit.repoPath, issueNumber);
-      githubIssues.push(issue);
-    });
-    await pullRequest.relatedJiraIssues.map(async (issueKey) => {
-      const issue = await IntegrationData.getIssue(this.state.commit.repoPath, issueKey);
-      jiraIssues.push(issue);
-    });
-    this.setState({
-      ...this.state,
-      githubIssues: githubIssues,
-      jiraIssues: jiraIssues,
-    });
+  async getIssuesForPullRequest(pullRequest) {
+    if (pullRequest) {
+      const issues = await Promise.all(pullRequest.relatedIssueKeys.map(
+        issueKey => IntegrationData.getIssue(this.state.commit.repoPath, issueKey)
+      ));
+      this.setState({ ...this.state, issues });
+    } else {
+      this.setState({ ...this.state, issues: [] })
+    }
   }
 
   tooltip(){
@@ -113,8 +104,7 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
         commitDay={this.props.commitDay}
         firstCommitDate={this.props.firstCommitDate}
         pullRequests={this.state.pullRequests}
-        githubIssues={this.state.githubIssues}
-        jiraIssues={this.state.jiraIssues}
+        issues={this.state.issues}
         metadata={this.state.metadata}
       />
     )
