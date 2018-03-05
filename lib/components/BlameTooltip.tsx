@@ -124,7 +124,7 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
                     <i className={`icon ${issueIcon}`} />
                     <code>
                       <a onClick={this.clickHandler('Issue number')} href={issue.url}>#{issue.key}</a>
-                    </code> created by {issue.author.username || issue.author.name}{assignee ? `& assigned to ${assignee}` : ''}
+                    </code> created by {issue.author.username || issue.author.name}{assignee ? ` & assigned to ${assignee}` : ''}
                   </p>
                   <span className="section-status">{issue.state === 'Opened' ? 'open' : issue.state}</span>
                 </div>
@@ -144,7 +144,7 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
                     <img className="icon" src={issue.type.iconUrl} alt={issue.type.name}/>
                     <code>
                       <a onClick={this.clickHandler('Jira ticket key')} href={issue.url}>{issue.key}</a>
-                    </code> created by {issue.author.username}{assignee ? `& assigned to ${assignee}` : ''}
+                    </code> created by {issue.author.username}{assignee ? ` & assigned to ${assignee}` : ''}
                     <span className="section-status" style={{
                       color: `${issue.state.colour}`
                     }}>{issue.state.name}</span>
