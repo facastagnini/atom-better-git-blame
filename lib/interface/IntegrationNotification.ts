@@ -62,6 +62,13 @@ function showIntegrationNotification() {
         },
       },
       {
+        text: 'GitLab integration',
+        onDidClick: () => {
+          Analytics.track('Integration notification button clicked', { type: 'gitlab' });
+          shell.openExternal('https://stepsize.com/gitlab/setup');
+        },
+      },
+      {
         text: 'Jira integration',
         onDidClick: () => {
           Analytics.track('Integration notification button clicked', { type: 'jira' });
@@ -89,15 +96,10 @@ export function trackTooltipShown() {
   saveIntegrationNotificationData(notifData);
 }
 
-export function checkIntegrationDataRetrieved(
-  pullRequests: any,
-  githubIssues: any,
-  jiraIssues: any
-) {
-  const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
-  const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
-  const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
-  if (prCount > 0 || giCount > 0 || jiCount > 0) {
+export function checkIntegrationDataRetrieved(pullRequests: Array<any>, issues: Array<any>) {
+  const prCount = Array.isArray(pullRequests) ? Object.keys(pullRequests).length : 0;
+  const issueCount = Array.isArray(issues) ? Object.keys(issues).length : 0;
+  if (prCount > 0 || issueCount > 0) {
     const notifData = getIntegrationNotificationData();
     notifData.wasIntegrationDataRetrieved = true;
     saveIntegrationNotificationData(notifData);

@@ -15,8 +15,7 @@ interface IBlameTooltipProps {
   commitDay: number
   firstCommitDate: Date
   pullRequests: any
-  githubIssues: any
-  jiraIssues: any
+  issues: Array<any>
   metadata: any
 }
 
@@ -60,7 +59,7 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
                 {this.props.commit.subject}
               </a>
             </h1>
-            <BuildStatus status={this.props.commit.status}/>
+            <BuildStatus buildStatus={this.props.commit.buildStatus}/>
             <p className="section-body">
               <code>
                 <a onClick={this.clickHandler('Commit hash')} href={`${this.props.metadata.repoCommitUrl}/${this.props.commit.commitHash}`}>
@@ -76,7 +75,9 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
           </div>
         </div>
         {this.props.pullRequests.map((pullRequest) => {
-          const verb = pullRequest.state.toLowerCase();
+          const actor = pullRequest.author.username || pullRequest.author.name;
+          const verb = pullRequest.state === 'Open' ? 'opened' : pullRequest.state.toLowerCase();
+          const verbedAt = verb === 'merged' ? pullRequest.mergedAt : pullRequest.createdAt;
           return (
             <div className="section">
               <div className="section-icon">
@@ -88,13 +89,13 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
                     {pullRequest.title}
                   </a>
                 </h1>
-                <BuildStatus status={pullRequest.status}/>
+                <BuildStatus buildStatus={pullRequest.buildStatus}/>
                 <p className="section-body">
                   <code>
                     <a onClick={this.clickHandler('Pull Request number')} href={pullRequest.url}>
-                      #{pullRequest.number}
+                      {pullRequest.source === 'GitLab' ? '!' : '#'}{pullRequest.number}
                     </a>
-                  </code> by {pullRequest.author.login} {verb} on {moment(pullRequest.createdAt).format('D MMM')}
+                  </code> by {actor} {verb} on {moment(verbedAt).format('D MMM')}
                 </p>
                 <span className="section-status">
                     <span title="Total Commits"><i className="icon icon-git-commit" />{pullRequest.commitCount}</span>
@@ -103,53 +104,55 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
             </div>
           )
         })}
-        {this.props.githubIssues.map((issue) => {
-          let issueIcon = 'icon icon-issue-opened green';
-          if(issue.state === 'CLOSED'){
-            issueIcon = 'icon icon-issue-closed red'
+        {this.props.issues.map((issue) => {
+          const assignee = issue.assignees && issue.assignees[0] ? issue.assignees[0].username : null;
+          if (issue.source === 'GitHub' || issue.source === 'GitLab') {
+            let issueIcon = 'icon icon-issue-opened green';
+            if (issue.state === 'Closed') {
+              issueIcon = 'icon icon-issue-closed red'
+            }
+            return (
+              <div className="section">
+                <div className="section-icon">
+                  <div className="icon icon-issue-opened" />
+                </div>
+                <div className="section-content">
+                  <h1 className="section-title">
+                    <a onClick={this.clickHandler('Issue title')} href={issue.url}>{issue.title}</a>
+                  </h1>
+                  <p className="section-body">
+                    <i className={`icon ${issueIcon}`} />
+                    <code>
+                      <a onClick={this.clickHandler('Issue number')} href={issue.url}>#{issue.key}</a>
+                    </code> created by {issue.author.username || issue.author.name}{assignee ? ` & assigned to ${assignee}` : ''}
+                  </p>
+                  <span className="section-status">{issue.state === 'Opened' ? 'open' : issue.state}</span>
+                </div>
+              </div>
+            )
+          } else if (issue.source === 'Jira') {
+            return (
+              <div className="section">
+                <div className="section-icon">
+                  <div className="icon stepsize-icon-jira" />
+                </div>
+                <div className="section-content">
+                  <h1 className="section-title">
+                    <a onClick={this.clickHandler('Jira ticket title')} href={issue.url}>{issue.title}</a>
+                  </h1>
+                  <p className="section-body">
+                    <img className="icon" src={issue.type.iconUrl} alt={issue.type.name}/>
+                    <code>
+                      <a onClick={this.clickHandler('Jira ticket key')} href={issue.url}>{issue.key}</a>
+                    </code> created by {issue.author.username}{assignee ? ` & assigned to ${assignee}` : ''}
+                    <span className="section-status" style={{
+                      color: `${issue.state.colour}`
+                    }}>{issue.state.name}</span>
+                  </p>
+                </div>
+              </div>
+            )
           }
-          return (
-            <div className="section">
-              <div className="section-icon">
-                <div className="icon icon-issue-opened" />
-              </div>
-              <div className="section-content">
-                <h1 className="section-title">
-                  <a onClick={this.clickHandler('Issue title')} href={issue.url}>{issue.title}</a>
-                </h1>
-                <p className="section-body">
-                  <i className={`icon ${issueIcon}`} />
-                  <code>
-                    <a onClick={this.clickHandler('Issue number')} href={issue.url}>#{issue.number}</a>
-                  </code> by {issue.author.login}
-                </p>
-                <span className="section-status">{issue.state.toLowerCase()}</span>
-              </div>
-            </div>
-          )
-        })}
-        {this.props.jiraIssues.map((issue) => {
-          return (
-            <div className="section">
-              <div className="section-icon">
-                <div className="icon stepsize-icon-jira" />
-              </div>
-              <div className="section-content">
-                <h1 className="section-title">
-                  <a onClick={this.clickHandler('Jira ticket title')} href={issue.url}>{issue.summary}</a>
-                </h1>
-                <p className="section-body">
-                  <img className="icon" src={issue.issueType.iconUrl} alt={issue.issueType.name}/>
-                  <code>
-                    <a onClick={this.clickHandler('Jira ticket key')} href={issue.url}>{issue.key}</a>
-                  </code> created by {issue.creator.displayName} & assigned to {issue.assignee.displayName || 'Nobody'}
-                  <span className="section-status" style={{
-                    color: `${issue.status.statusCategory.colorName}`
-                  }}>{issue.status.name.toLowerCase()}</span>
-                </p>
-              </div>
-            </div>
-          )
         })}
         {
           !ConfigManager.get('displayAgeSection') ?

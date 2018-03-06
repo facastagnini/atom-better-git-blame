@@ -24,14 +24,15 @@ class GitHelper {
     const repoMetadata: { [prop: string]: any } = {
       repoName: parsedUrl.name,
       repoOwner: parsedUrl.owner,
-      repoSource: parsedUrl.source,
-      repoRootUrl: parsedUrl.toString('https').replace('.git', ''),
+      repoSource: parsedUrl.resource,                        // .resource include subdomain, .source does not
+      repoSourceBaseUrl: parsedUrl.protocol === 'http' ?
+        `http://${parsedUrl.resource}` : `https://${parsedUrl.resource}`,
+      repoRootUrl: parsedUrl.protocol === 'http' ?
+        parsedUrl.toString('http').replace('.git', '') :
+        parsedUrl.toString('https').replace('.git', ''),
     };
-    if (repoMetadata.repoSource === 'github.com' || repoMetadata.repoSource === 'gitlab.com') {
-      repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commit`;
-    } else if (repoMetadata.repoSource === 'bitbucket.org') {
-      repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commits`;
-    }
+    repoMetadata.repoCommitUrl = repoMetadata.repoSource === 'bitbucket.org' ?
+      `${repoMetadata.repoRootUrl}/commits` : `${repoMetadata.repoRootUrl}/commit`;
     return repoMetadata;
   }
 

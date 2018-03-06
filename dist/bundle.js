@@ -17201,6 +17201,7 @@ class StepsizeHelper {
                 repoName: repoMetadata.repoName,
                 repoOwner: repoMetadata.repoOwner,
                 repoSource: repoMetadata.repoSource,
+                repoSourceBaseUrl: repoMetadata.repoSourceBaseUrl,
                 commitHashes,
             };
             return new Promise((resolve, reject) => {
@@ -17258,41 +17259,11 @@ class StepsizeHelper {
             });
         });
     }
-    /**
-     * This function retrieves the status object that will be used to display the build status of the PR.
-     * We follow GitHub's behaviour and use the potentialMergeCommit's status when it exists (it is a setting
-     * that can be activated). Otherwise, we use the status of the most recent commit on the PR.
-     *
-     * For a merged PR, this most recent commit is the second entry in the PR's commits array (the first commit
-     * in the array is the merge commit).
-     *
-     * For non-merged PRs, the latest commit will be the first entry in the commits array.
-     *
-     * @returns {IStatus}  Build status for the PR
-     */
-    static getStatusObject(pullRequest) {
-        const pr = pullRequest;
-        if (pr.potentialMergeCommit && pr.potentialMergeCommit.status !== null) {
-            return pr.potentialMergeCommit.status;
-        }
-        else if (pr.state === 'MERGED' && pr.commits.length > 0) {
-            if (pr.commits.length > 1) {
-                return pr.commits[1].status;
-            }
-            // In some circumstances, a PR can be merged and have a single commit (the merge commit is absent).
-            // See issue #31 for more details on when that happens.
-            return pr.commits[0].status;
-        }
-        else if (pr.commits.length > 0) {
-            return pr.commits[0].status;
-        }
-        return { state: 'UNKNOWN' };
-    }
 }
 
 var name = "better-git-blame";
 
-var version = "0.3.2";
+var version = "0.4.0";
 
 'use babel';
 class StepsizeOutgoing {
@@ -26941,15 +26912,15 @@ class GitHelper {
         const repoMetadata = {
             repoName: parsedUrl.name,
             repoOwner: parsedUrl.owner,
-            repoSource: parsedUrl.source,
-            repoRootUrl: parsedUrl.toString('https').replace('.git', ''),
+            repoSource: parsedUrl.resource,
+            repoSourceBaseUrl: parsedUrl.protocol === 'http' ?
+                `http://${parsedUrl.resource}` : `https://${parsedUrl.resource}`,
+            repoRootUrl: parsedUrl.protocol === 'http' ?
+                parsedUrl.toString('http').replace('.git', '') :
+                parsedUrl.toString('https').replace('.git', ''),
         };
-        if (repoMetadata.repoSource === 'github.com' || repoMetadata.repoSource === 'gitlab.com') {
-            repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commit`;
-        }
-        else if (repoMetadata.repoSource === 'bitbucket.org') {
-            repoMetadata.repoCommitUrl = `${repoMetadata.repoRootUrl}/commits`;
-        }
+        repoMetadata.repoCommitUrl = repoMetadata.repoSource === 'bitbucket.org' ?
+            `${repoMetadata.repoRootUrl}/commits` : `${repoMetadata.repoRootUrl}/commit`;
         return repoMetadata;
     }
     static getHashesFromBlame(blame) {
@@ -27336,8 +27307,7 @@ db
     repoMetadata: {},
     pullRequests: [],
     pullRequestsCommitsPivot: {},
-    githubIssues: [],
-    jiraIssues: [],
+    issues: [],
 })
     .write();
 window.layerCacheDump = function (path$$1 = __dirname) {
@@ -27909,6 +27879,13 @@ function showIntegrationNotification() {
                 },
             },
             {
+                text: 'GitLab integration',
+                onDidClick: () => {
+                    track('Integration notification button clicked', { type: 'gitlab' });
+                    shell.openExternal('https://stepsize.com/gitlab/setup');
+                },
+            },
+            {
                 text: 'Jira integration',
                 onDidClick: () => {
                     track('Integration notification button clicked', { type: 'jira' });
@@ -27930,11 +27907,10 @@ function trackTooltipShown() {
     notifData.tooltips += 1;
     saveIntegrationNotificationData(notifData);
 }
-function checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues) {
-    const prCount = pullRequests ? Object.keys(pullRequests).length : 0;
-    const giCount = githubIssues ? Object.keys(githubIssues).length : 0;
-    const jiCount = jiraIssues ? Object.keys(jiraIssues).length : 0;
-    if (prCount > 0 || giCount > 0 || jiCount > 0) {
+function checkIntegrationDataRetrieved(pullRequests, issues) {
+    const prCount = Array.isArray(pullRequests) ? Object.keys(pullRequests).length : 0;
+    const issueCount = Array.isArray(issues) ? Object.keys(issues).length : 0;
+    if (prCount > 0 || issueCount > 0) {
         const notifData = getIntegrationNotificationData();
         notifData.wasIntegrationDataRetrieved = true;
         saveIntegrationNotificationData(notifData);
@@ -28002,18 +27978,24 @@ class AgeSection extends index.PureComponent {
 }
 
 'use babel';
+var EBuildStatusState;
+(function (EBuildStatusState) {
+    EBuildStatusState["Success"] = "Success";
+    EBuildStatusState["Failure"] = "Failure";
+    EBuildStatusState["Unknown"] = "Unknown";
+})(EBuildStatusState || (EBuildStatusState = {}));
 class BuildStatus extends index.PureComponent {
     getStatus() {
-        if (this.props.status) {
-            return this.props.status.state;
+        if (this.props.buildStatus) {
+            return this.props.buildStatus.state;
         }
         return null;
     }
     static renderIcon(state) {
         switch (state) {
-            case 'SUCCESS':
+            case EBuildStatusState.Success:
                 return index.createElement("i", { className: "icon icon-check", style: { color: '#2cbe4e' } });
-            case 'FAILURE':
+            case EBuildStatusState.Failure:
                 return index.createElement("i", { className: "icon icon-x", style: { color: '#cb2431' } });
             default:
                 return null;
@@ -28025,8 +28007,8 @@ class BuildStatus extends index.PureComponent {
         };
     }
     render() {
-        if (this.props.status) {
-            return (index.createElement("a", { onClick: this.clickHandler('Build status'), href: this.props.status.contexts[0].targetUrl, className: "build-status", title: this.props.status.contexts[0].description }, BuildStatus.renderIcon(this.getStatus())));
+        if (this.props.buildStatus) {
+            return (index.createElement("a", { onClick: this.clickHandler('Build status'), href: this.props.buildStatus.buildSources[0].url, className: "build-status", title: this.props.buildStatus.buildSources[0].description }, BuildStatus.renderIcon(this.getStatus())));
         }
         return null;
     }
@@ -28090,7 +28072,7 @@ class BlameTooltip extends index.PureComponent {
                 index.createElement("div", { className: "section-content" },
                     index.createElement("h1", { className: "section-title" },
                         index.createElement("a", { onClick: this.clickHandler('Commit title'), href: `${this.props.metadata.repoCommitUrl}/${this.props.commit.commitHash}` }, this.props.commit.subject)),
-                    index.createElement(BuildStatus, { status: this.props.commit.status }),
+                    index.createElement(BuildStatus, { buildStatus: this.props.commit.buildStatus }),
                     index.createElement("p", { className: "section-body" },
                         index.createElement("code", null,
                             index.createElement("a", { onClick: this.clickHandler('Commit hash'), href: `${this.props.metadata.repoCommitUrl}/${this.props.commit.commitHash}` }, this.props.commit.commitHash.substr(0, 6))),
@@ -28111,69 +28093,74 @@ class BlameTooltip extends index.PureComponent {
                             index.createElement("i", { className: "icon icon-diff" }),
                             this.props.commit.filesChanged)))),
             this.props.pullRequests.map((pullRequest) => {
-                const verb = pullRequest.state.toLowerCase();
+                const actor = pullRequest.author.username || pullRequest.author.name;
+                const verb = pullRequest.state === 'Open' ? 'opened' : pullRequest.state.toLowerCase();
+                const verbedAt = verb === 'merged' ? pullRequest.mergedAt : pullRequest.createdAt;
                 return (index.createElement("div", { className: "section" },
                     index.createElement("div", { className: "section-icon" },
                         index.createElement("div", { className: "icon icon-git-pull-request" })),
                     index.createElement("div", { className: "section-content" },
                         index.createElement("h1", { className: "section-title" },
                             index.createElement("a", { onClick: this.clickHandler('Pull Request title'), href: pullRequest.url }, pullRequest.title)),
-                        index.createElement(BuildStatus, { status: pullRequest.status }),
+                        index.createElement(BuildStatus, { buildStatus: pullRequest.buildStatus }),
                         index.createElement("p", { className: "section-body" },
                             index.createElement("code", null,
                                 index.createElement("a", { onClick: this.clickHandler('Pull Request number'), href: pullRequest.url },
-                                    "#",
+                                    pullRequest.source === 'GitLab' ? '!' : '#',
                                     pullRequest.number)),
                             " by ",
-                            pullRequest.author.login,
+                            actor,
                             " ",
                             verb,
                             " on ",
-                            moment(pullRequest.createdAt).format('D MMM')),
+                            moment(verbedAt).format('D MMM')),
                         index.createElement("span", { className: "section-status" },
                             index.createElement("span", { title: "Total Commits" },
                                 index.createElement("i", { className: "icon icon-git-commit" }),
                                 pullRequest.commitCount)))));
             }),
-            this.props.githubIssues.map((issue) => {
-                let issueIcon = 'icon icon-issue-opened green';
-                if (issue.state === 'CLOSED') {
-                    issueIcon = 'icon icon-issue-closed red';
+            this.props.issues.map((issue) => {
+                const assignee = issue.assignees && issue.assignees[0] ? issue.assignees[0].username : null;
+                if (issue.source === 'GitHub' || issue.source === 'GitLab') {
+                    let issueIcon = 'icon icon-issue-opened green';
+                    if (issue.state === 'Closed') {
+                        issueIcon = 'icon icon-issue-closed red';
+                    }
+                    return (index.createElement("div", { className: "section" },
+                        index.createElement("div", { className: "section-icon" },
+                            index.createElement("div", { className: "icon icon-issue-opened" })),
+                        index.createElement("div", { className: "section-content" },
+                            index.createElement("h1", { className: "section-title" },
+                                index.createElement("a", { onClick: this.clickHandler('Issue title'), href: issue.url }, issue.title)),
+                            index.createElement("p", { className: "section-body" },
+                                index.createElement("i", { className: `icon ${issueIcon}` }),
+                                index.createElement("code", null,
+                                    index.createElement("a", { onClick: this.clickHandler('Issue number'), href: issue.url },
+                                        "#",
+                                        issue.key)),
+                                " created by ",
+                                issue.author.username || issue.author.name,
+                                assignee ? ` & assigned to ${assignee}` : ''),
+                            index.createElement("span", { className: "section-status" }, issue.state === 'Opened' ? 'open' : issue.state))));
                 }
-                return (index.createElement("div", { className: "section" },
-                    index.createElement("div", { className: "section-icon" },
-                        index.createElement("div", { className: "icon icon-issue-opened" })),
-                    index.createElement("div", { className: "section-content" },
-                        index.createElement("h1", { className: "section-title" },
-                            index.createElement("a", { onClick: this.clickHandler('Issue title'), href: issue.url }, issue.title)),
-                        index.createElement("p", { className: "section-body" },
-                            index.createElement("i", { className: `icon ${issueIcon}` }),
-                            index.createElement("code", null,
-                                index.createElement("a", { onClick: this.clickHandler('Issue number'), href: issue.url },
-                                    "#",
-                                    issue.number)),
-                            " by ",
-                            issue.author.login),
-                        index.createElement("span", { className: "section-status" }, issue.state.toLowerCase()))));
-            }),
-            this.props.jiraIssues.map((issue) => {
-                return (index.createElement("div", { className: "section" },
-                    index.createElement("div", { className: "section-icon" },
-                        index.createElement("div", { className: "icon stepsize-icon-jira" })),
-                    index.createElement("div", { className: "section-content" },
-                        index.createElement("h1", { className: "section-title" },
-                            index.createElement("a", { onClick: this.clickHandler('Jira ticket title'), href: issue.url }, issue.summary)),
-                        index.createElement("p", { className: "section-body" },
-                            index.createElement("img", { className: "icon", src: issue.issueType.iconUrl, alt: issue.issueType.name }),
-                            index.createElement("code", null,
-                                index.createElement("a", { onClick: this.clickHandler('Jira ticket key'), href: issue.url }, issue.key)),
-                            " created by ",
-                            issue.creator.displayName,
-                            " & assigned to ",
-                            issue.assignee.displayName || 'Nobody',
-                            index.createElement("span", { className: "section-status", style: {
-                                    color: `${issue.status.statusCategory.colorName}`
-                                } }, issue.status.name.toLowerCase())))));
+                else if (issue.source === 'Jira') {
+                    return (index.createElement("div", { className: "section" },
+                        index.createElement("div", { className: "section-icon" },
+                            index.createElement("div", { className: "icon stepsize-icon-jira" })),
+                        index.createElement("div", { className: "section-content" },
+                            index.createElement("h1", { className: "section-title" },
+                                index.createElement("a", { onClick: this.clickHandler('Jira ticket title'), href: issue.url }, issue.title)),
+                            index.createElement("p", { className: "section-body" },
+                                index.createElement("img", { className: "icon", src: issue.type.iconUrl, alt: issue.type.name }),
+                                index.createElement("code", null,
+                                    index.createElement("a", { onClick: this.clickHandler('Jira ticket key'), href: issue.url }, issue.key)),
+                                " created by ",
+                                issue.author.username,
+                                assignee ? ` & assigned to ${assignee}` : '',
+                                index.createElement("span", { className: "section-status", style: {
+                                        color: `${issue.state.colour}`
+                                    } }, issue.state.name)))));
+                }
             }),
             !get('displayAgeSection') ?
                 null :
@@ -28205,50 +28192,41 @@ function getIntegrationDataForFile(filePath) {
 }
 function processIntegrationData(data) {
     return __awaiter(this, void 0, void 0, function* () {
-        const pullRequests = data.pullRequests;
-        const jiraIssues = data.relatedJiraIssues;
-        const githubIssues = data.relatedGitHubIssues;
+        const issues = data.issues;
         db
-            .get('githubIssues')
-            .merge(lodash.toArray(githubIssues))
-            .uniqBy('number')
-            .write();
-        db
-            .get('jiraIssues')
-            .merge(lodash.toArray(jiraIssues))
+            .get('issues')
+            .merge(issues)
             .uniqBy('key')
             .write();
+        const pullRequests = data.pullRequests;
         pullRequestsCommitsPivot(pullRequests);
-        for (const i in pullRequests) {
-            const pullRequest = pullRequests[i];
-            if (db
+        for (const pullRequestIdx of Object.keys(pullRequests)) {
+            const pullRequest = pullRequests[pullRequestIdx];
+            const existingPullRequest = db
                 .get('pullRequests')
                 .find({ number: pullRequest.number })
-                .value()) {
+                .value();
+            if (existingPullRequest) {
                 continue;
             }
-            let toWrite = pullRequest;
+            const toWrite = Object.assign({}, pullRequest);
             toWrite.commitCount = toWrite.commits.length;
-            toWrite.status = StepsizeHelper.getStatusObject(pullRequest);
-            for (const i in pullRequest.commits) {
-                const commit = pullRequest.commits[i];
-                updateCommit(commit.commitHash, {
-                    status: commit.status,
-                });
-            }
-            //delete toWrite.commits;
+            toWrite.relatedIssueKeys = data.pullRequestToIssues[pullRequestIdx].map(idx => issues[idx].key);
             db
                 .get('pullRequests')
                 .push(toWrite)
                 .write();
         }
-        checkIntegrationDataRetrieved(pullRequests, githubIssues, jiraIssues);
+        for (const commit of data.commits) {
+            updateCommit(commit.commitHash, { buildStatus: commit.buildStatus });
+        }
+        checkIntegrationDataRetrieved(pullRequests, issues);
         return db.get('pullRequests').value();
     });
 }
 function pullRequestsCommitsPivot(pullRequests) {
-    const pivot = lodash.reduce(pullRequests, (acc, pullRequest, key) => {
-        acc[key] = lodash.map(pullRequest.commits, 'commitHash');
+    const pivot = !pullRequests ? {} : pullRequests.reduce((acc, pullRequest) => {
+        acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
         return acc;
     }, {});
     db
@@ -28296,17 +28274,9 @@ function getIssue(filePath, issueKey) {
         if (pendingRequests[filePath]) {
             yield pendingRequests[filePath];
         }
-        issueKey = issueKey.toString();
-        // Assume its a Jira issue if its got a hyphen
-        if (issueKey.includes('-')) {
-            return db
-                .get('jiraIssues')
-                .find({ key: issueKey })
-                .value();
-        }
         return db
-            .get('githubIssues')
-            .find({ number: parseInt(issueKey) })
+            .get('issues')
+            .find({ key: issueKey })
             .value();
     });
 }
@@ -28318,8 +28288,7 @@ class GutterItem$2 extends index.Component {
         this.state = {
             commit: {},
             pullRequests: [],
-            jiraIssues: [],
-            githubIssues: [],
+            issues: [],
             metadata: {},
         };
     }
@@ -28354,21 +28323,17 @@ class GutterItem$2 extends index.Component {
     }
     getIssuesForPullRequest(pullRequest) {
         return __awaiter(this, void 0, void 0, function* () {
-            const jiraIssues = [];
-            const githubIssues = [];
-            yield pullRequest.relatedGitHubIssues.map((issueNumber) => __awaiter(this, void 0, void 0, function* () {
-                const issue = yield getIssue(this.state.commit.repoPath, issueNumber);
-                githubIssues.push(issue);
-            }));
-            yield pullRequest.relatedJiraIssues.map((issueKey) => __awaiter(this, void 0, void 0, function* () {
-                const issue = yield getIssue(this.state.commit.repoPath, issueKey);
-                jiraIssues.push(issue);
-            }));
-            this.setState(Object.assign({}, this.state, { githubIssues: githubIssues, jiraIssues: jiraIssues }));
+            if (pullRequest) {
+                const issues = yield Promise.all(pullRequest.relatedIssueKeys.map(issueKey => getIssue(this.state.commit.repoPath, issueKey)));
+                this.setState(Object.assign({}, this.state, { issues }));
+            }
+            else {
+                this.setState(Object.assign({}, this.state, { issues: [] }));
+            }
         });
     }
     tooltip() {
-        return (index.createElement(BlameTooltip, { emitter: this.props.emitter, commit: this.state.commit, commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, pullRequests: this.state.pullRequests, githubIssues: this.state.githubIssues, jiraIssues: this.state.jiraIssues, metadata: this.state.metadata }));
+        return (index.createElement(BlameTooltip, { emitter: this.props.emitter, commit: this.state.commit, commitDay: this.props.commitDay, firstCommitDate: this.props.firstCommitDate, pullRequests: this.state.pullRequests, issues: this.state.issues, metadata: this.state.metadata }));
     }
     formattedText() {
         const commit = this.props.commit;
