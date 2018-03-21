@@ -1,3 +1,6 @@
+## 0.4.1 API Fixes
+* Fixed a bug that would cause POST requests to the API to fail
+
 ## 0.4.0: GitLab support
 * Added support for the GitLab integration!
 * Set it up [here](https://stepsize.com/gitlab/setup) to view Merge Request and Issue info for your GitLab repos.
