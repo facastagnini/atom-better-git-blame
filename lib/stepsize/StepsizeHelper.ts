@@ -43,6 +43,7 @@ class StepsizeHelper {
           headers: {
             'User-Agent': 'Better-Git-Blame-Atom',
             'Content-Type': 'application/json',
+            'Content-Length': new Buffer(JSON.stringify(payload)).byteLength,
           },
         },
         function(response) {
