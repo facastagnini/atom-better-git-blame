@@ -29,6 +29,14 @@
     "@types/lowdb": "^0.15.0",
     "@types/react": "^16.0.5",
     "@types/react-dom": "^15.5.4",
+    "git-url-parse": ">7.0.0",
+    "install": "^0.10.1",
+    "lodash": "^4.17.4",
+    "lowdb": "^1.0.0",
+    "moment": "^2.18.1",
+    "node-color-gradient": "github:Stepsize/node-color-gradient",
+    "preact": "^8.2.5",
+    "preact-compat": "^3.17.0",
     "prettier": "^1.6.1",
     "rollup": "^0.50.0",
     "rollup-plugin-commonjs": "^8.2.1",
@@ -39,15 +47,7 @@
     "rollup-plugin-typescript": "^0.8.1",
     "ts-loader": "^2.3.4",
     "typescript": "^2.5.2",
-    "webpack": "^3.5.5",
-    "git-url-parse": "^7.0.0",
-    "install": "^0.10.1",
-    "lodash": "^4.17.4",
-    "lowdb": "^1.0.0",
-    "moment": "^2.18.1",
-    "node-color-gradient": "github:Stepsize/node-color-gradient",
-    "preact": "^8.2.5",
-    "preact-compat": "^3.17.0",
-    "uuid-v4": "^0.1.0"
+    "uuid-v4": "^0.1.0",
+    "webpack": "^3.5.5"
   }
 }

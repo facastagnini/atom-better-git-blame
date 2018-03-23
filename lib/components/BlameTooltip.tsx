@@ -62,9 +62,13 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
             <BuildStatus buildStatus={this.props.commit.buildStatus}/>
             <p className="section-body">
               <code>
-                <a onClick={this.clickHandler('Commit hash')} href={`${this.props.metadata.repoCommitUrl}/${this.props.commit.commitHash}`}>
+                <button
+                  class='commit-hash-link'
+                  title='Copy commit hash to clipboard'
+                  onClick={() => atom.clipboard.write(this.props.commit.commitHash)}
+                >
                   {this.props.commit.commitHash.substr(0,6)}
-                </a>
+                </button>
               </code> by {this.props.commit.author} committed on {commitedDate}
             </p>
             <span className="section-status">
