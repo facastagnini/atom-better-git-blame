@@ -1,3 +1,6 @@
+## 0.4.3 Add success notification on copy commit hash
+* Improved the UX when copying a commit hash to clipboard by displaying a short-lived success notification
+
 ## 0.4.2 Git URL Parsing fix & copy commit hash
 * Fixed a bug with the parsing of remote Git URLs (#29)
 * Updated the `onClick` handler of the commit hash in the tooltip to copy the hash to the clipboard instead of opening the commit in the browser (#28)

@@ -65,7 +65,15 @@ class BlameTooltip extends React.PureComponent<IBlameTooltipProps, object> {
                 <button
                   class='commit-hash-link'
                   title='Copy commit hash to clipboard'
-                  onClick={() => atom.clipboard.write(this.props.commit.commitHash)}
+                  onClick={() => {
+                    this.clickHandler('Commit hash');
+                    atom.clipboard.write(this.props.commit.commitHash);
+                    const notif = atom.notifications.addSuccess(
+                      'Copied commit hash to your clipboard!',
+                      { dismissable: true }
+                    );
+                    setTimeout(() => notif.dismiss(), 800);
+                  }}
                 >
                   {this.props.commit.commitHash.substr(0,6)}
                 </button>
