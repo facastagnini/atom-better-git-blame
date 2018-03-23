@@ -31,6 +31,13 @@ class GitHelper {
         parsedUrl.toString('http').replace('.git', '') :
         parsedUrl.toString('https').replace('.git', ''),
     };
+
+    // Temporary fix for #29
+    const pathHasSingleElement = !parsedUrl.pathname.slice(1).includes('/');
+    if (parsedUrl.protocol === 'ssh' && parsedUrl.user === 'git' && pathHasSingleElement) {
+      repoMetadata.repoRootUrl = repoMetadata.repoRootUrl.replace('/git/', '/');
+    }
+
     repoMetadata.repoCommitUrl = repoMetadata.repoSource === 'bitbucket.org' ?
       `${repoMetadata.repoRootUrl}/commits` : `${repoMetadata.repoRootUrl}/commit`;
     return repoMetadata;
