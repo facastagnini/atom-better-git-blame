@@ -1,3 +1,7 @@
+## 0.4.2 Git URL Parsing fix & copy commit hash
+* Fixed a bug with the parsing of remote Git URLs (#29)
+* Updated the `onClick` handler of the commit hash in the tooltip to copy the hash to the clipboard instead of opening the commit in the browser (#28)
+
 ## 0.4.1 API Fixes
 * Fixed a bug that would cause POST requests to the API to fail
 
