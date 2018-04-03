@@ -8,6 +8,7 @@
     "blame",
     "pull-request",
     "github",
+    "gitlab",
     "jira",
     "stepsize",
     "layer"

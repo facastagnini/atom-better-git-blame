@@ -28684,16 +28684,28 @@ class CodeSelector {
             const codeFold = this.codeFolds[i];
             const startIndent = codeFold.indentation;
             let foldEnd = parseInt(codeFold.start);
+            let indentation = this.safeIndentationForRow(++foldEnd);
             let skipLine = false;
-            while (this.editor.indentationForBufferRow(++foldEnd) > startIndent || skipLine) {
+            while ((indentation !== undefined && indentation > startIndent) || skipLine) {
                 const nextLineText = this.editor.lineTextForBufferRow(foldEnd + 1);
                 if (nextLineText) {
                     skipLine = nextLineText.match(/^\s+$/) || nextLineText.length === 0;
                 }
+                indentation = this.safeIndentationForRow(++foldEnd);
             }
             codeFold.end = foldEnd;
             codeFold.marker = this.editor.markBufferRange([[codeFold.start, 0], [foldEnd, 9001]]);
         }
+    }
+    // editor.indentationForBufferRow throws when the row number is too large. From what I can tell this
+    // shouldn't happen given how this.codeFolds is built by getFoldStarts, but apparently it does (see #30)
+    safeIndentationForRow(row) {
+        let indentation;
+        try {
+            indentation = this.editor.indentationForBufferRow(row);
+        }
+        catch (error) { }
+        return indentation;
     }
     getFoldForRange(range) {
         const startRow = range.start.row;
