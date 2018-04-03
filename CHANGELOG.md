@@ -1,3 +1,6 @@
+## 0.4.4 Fix issue computing code folds
+* Fixed issue #30 - the code fold logic could crash for certain files
+
 ## 0.4.3 Add success notification on copy commit hash
 * Improved the UX when copying a commit hash to clipboard by displaying a short-lived success notification
 
