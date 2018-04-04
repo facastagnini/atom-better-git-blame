@@ -61,13 +61,13 @@ function showIntegrationNotification() {
           shell.openExternal('https://github.com/apps/layer');
         },
       },
-      {
-        text: 'GitLab integration',
-        onDidClick: () => {
-          Analytics.track('Integration notification button clicked', { type: 'gitlab' });
-          shell.openExternal('https://stepsize.com/gitlab/setup');
-        },
-      },
+      // {
+      //   text: 'GitLab integration',
+      //   onDidClick: () => {
+      //     Analytics.track('Integration notification button clicked', { type: 'gitlab' });
+      //     shell.openExternal('https://stepsize.com/gitlab/setup');
+      //   },
+      // },
       {
         text: 'Jira integration',
         onDidClick: () => {

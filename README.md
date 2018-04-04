@@ -52,7 +52,9 @@ Install the [Layer GitHub app](http://bit.ly/2hzJJkj) to view pull requests and 
 
 #### Setup the GitLab integration
 
-Create a personal access token and share it with us [here](https://stepsize.com/gitlab/setup) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).
+Note: Unfortunately the GitLab integration is **temporarily unavailable**. Apologies.
+
+~~Create a personal access token and share it with us [here](https://stepsize.com/gitlab/setup) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).~~
 
 #### Setup the Jira integration
 
