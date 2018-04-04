@@ -17277,7 +17277,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.4.3";
+var version = "0.4.5";
 
 'use babel';
 class StepsizeOutgoing {
@@ -28127,13 +28127,13 @@ function showIntegrationNotification() {
                     shell.openExternal('https://github.com/apps/layer');
                 },
             },
-            {
-                text: 'GitLab integration',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'gitlab' });
-                    shell.openExternal('https://stepsize.com/gitlab/setup');
-                },
-            },
+            // {
+            //   text: 'GitLab integration',
+            //   onDidClick: () => {
+            //     Analytics.track('Integration notification button clicked', { type: 'gitlab' });
+            //     shell.openExternal('https://stepsize.com/gitlab/setup');
+            //   },
+            // },
             {
                 text: 'Jira integration',
                 onDidClick: () => {

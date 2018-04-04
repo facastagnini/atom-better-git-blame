@@ -1,3 +1,6 @@
+## 0.4.5 Reflect that the GitLab integration is temporarily unavailable
+* We've released a breaking change to our API meaning it's not currently possible to setup a new GitLab integration. Apologies.
+
 ## 0.4.4 Fix issue computing code folds
 * Fixed issue #30 - the code fold logic could crash for certain files
 
