@@ -115,6 +115,8 @@ class GutterItem extends React.Component<IGutterItemProps, any> {
     const date = commit.commitedAt;
     const formattedDate = moment(date).format(ConfigManager.get('gutterDateFormat'));
     let author = commit.author;
+    if (author == 'Not Committed Yet')
+      return `${author}`
     if(ConfigManager.get('truncateGutterNames')){
       const splitAuthor = author.split(' ');
       if(splitAuthor.length > 1){
