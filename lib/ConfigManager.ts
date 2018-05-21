@@ -36,7 +36,8 @@ export const config = {
   },
   displayAgeSection: {
     title: 'Display code age in popover',
-    description: 'When viewing the blame popover, display the section visualising the age of the code',
+    description:
+      'When viewing the blame popover, display the section visualising the age of the code',
     type: 'boolean',
     default: true,
     order: 4,

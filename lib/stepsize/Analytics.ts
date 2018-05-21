@@ -37,22 +37,19 @@ async function segmentRequest(path, body): Promise<any> {
   };
   return new Promise((resolve, reject) => {
     let responseData = '';
-    const req = https.request(
-      requestData,
-      function(response) {
-        let code = response.statusCode;
-        response.on('data', function(chunk) {
-          responseData += chunk;
-        });
-        response.on('end', function() {
-          if (code < 400) {
-            resolve(JSON.parse(responseData));
-          } else {
-            reject({ payload, requestData, responseData: JSON.parse(responseData) });
-          }
-        });
-      }
-    );
+    const req = https.request(requestData, function(response) {
+      let code = response.statusCode;
+      response.on('data', function(chunk) {
+        responseData += chunk;
+      });
+      response.on('end', function() {
+        if (code < 400) {
+          resolve(JSON.parse(responseData));
+        } else {
+          reject({ payload, requestData, responseData: JSON.parse(responseData) });
+        }
+      });
+    });
     req.on('error', function(error) {
       reject({ payload, requestData, errorMessage: error.message });
     });
@@ -117,7 +114,7 @@ export async function init(): Promise<void> {
       } catch (e) {
         console.info(e);
         analyticsFailing = true;
-      };
+      }
     }
   }
 }
@@ -128,7 +125,7 @@ export function track(name, data = {}): void {
       event: `BGB ${name}`,
       userId: userHash,
       properties: data,
-    }).catch((e) => {
+    }).catch(e => {
       console.info(e);
       analyticsFailing = true;
     });
@@ -140,7 +137,9 @@ export interface IAnonymousRepoMetadata {
   repoOwnerHash: string;
   repoSourceHash: string;
 }
-export function anonymiseRepoMetadata(metadata: { [prop: string]: string }): IAnonymousRepoMetadata {
+export function anonymiseRepoMetadata(metadata: {
+  [prop: string]: string;
+}): IAnonymousRepoMetadata {
   const anonymiseField = (field: string): string => {
     const hash = crypto.createHash('sha256');
     hash.update(field);

@@ -44,7 +44,7 @@ class GutterView {
     this.codeSelector = new CodeSelector(this.editor);
     GitData.getRepoRootPath(this.editor.getPath())
       .then(repoRootPath => GitData.getRepoMetadata(repoRootPath))
-      .then(metadata => this.anonymousRepoMetadata = Analytics.anonymiseRepoMetadata(metadata))
+      .then(metadata => (this.anonymousRepoMetadata = Analytics.anonymiseRepoMetadata(metadata)))
       .then(() => this.fetchGutterData())
       .then(() => this.drawGutter())
       .then(() => {
@@ -210,8 +210,9 @@ class GutterView {
         commits.map(hash => {
           this.highlightCommit(
             hash,
-            `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${pullRequests[0]
-              .number}</span>`,
+            `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${
+              pullRequests[0].number
+            }</span>`,
             'pr-line-highlight'
           );
         });
