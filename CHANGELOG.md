@@ -1,3 +1,6 @@
+## 0.4.6 Improve gutter copy for uncommitted code
+* The copy for uncommitted code is now clearer (thanks @Jackymancs4 for your PR #34!)
+
 ## 0.4.5 Reflect that the GitLab integration is temporarily unavailable
 * We've released a breaking change to our API meaning it's not currently possible to setup a new GitLab integration. Apologies.
 
