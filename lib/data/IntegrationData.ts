@@ -17,9 +17,11 @@ export async function getIntegrationDataForFile(filePath: string) {
     pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(
       metadata,
       GitHelper.getHashesFromBlame(blame.lines)
-    ).then(response => {
-      return processIntegrationData(response);
-    }).catch(e => console.info(e));
+    )
+      .then(response => {
+        return processIntegrationData(response);
+      })
+      .catch(e => console.info(e));
   }
   const response = await pendingRequests[repoPath];
   delete pendingRequests[repoPath];
@@ -60,10 +62,12 @@ async function processIntegrationData(data) {
 }
 
 function pullRequestsCommitsPivot(pullRequests) {
-  const pivot = !pullRequests ? {} : pullRequests.reduce((acc, pullRequest) => {
-    acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
-    return acc;
-  }, {});
+  const pivot = !pullRequests
+    ? {}
+    : pullRequests.reduce((acc, pullRequest) => {
+        acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
+        return acc;
+      }, {});
   db
     .get('pullRequestsCommitsPivot')
     .merge(pivot)

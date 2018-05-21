@@ -24,12 +24,15 @@ class GitHelper {
     const repoMetadata: { [prop: string]: any } = {
       repoName: parsedUrl.name,
       repoOwner: parsedUrl.owner,
-      repoSource: parsedUrl.resource,                        // .resource include subdomain, .source does not
-      repoSourceBaseUrl: parsedUrl.protocol === 'http' ?
-        `http://${parsedUrl.resource}` : `https://${parsedUrl.resource}`,
-      repoRootUrl: parsedUrl.protocol === 'http' ?
-        parsedUrl.toString('http').replace('.git', '') :
-        parsedUrl.toString('https').replace('.git', ''),
+      repoSource: parsedUrl.resource, // .resource include subdomain, .source does not
+      repoSourceBaseUrl:
+        parsedUrl.protocol === 'http'
+          ? `http://${parsedUrl.resource}`
+          : `https://${parsedUrl.resource}`,
+      repoRootUrl:
+        parsedUrl.protocol === 'http'
+          ? parsedUrl.toString('http').replace('.git', '')
+          : parsedUrl.toString('https').replace('.git', ''),
     };
 
     // Temporary fix for #29
@@ -38,8 +41,10 @@ class GitHelper {
       repoMetadata.repoRootUrl = repoMetadata.repoRootUrl.replace('/git/', '/');
     }
 
-    repoMetadata.repoCommitUrl = repoMetadata.repoSource === 'bitbucket.org' ?
-      `${repoMetadata.repoRootUrl}/commits` : `${repoMetadata.repoRootUrl}/commit`;
+    repoMetadata.repoCommitUrl =
+      repoMetadata.repoSource === 'bitbucket.org'
+        ? `${repoMetadata.repoRootUrl}/commits`
+        : `${repoMetadata.repoRootUrl}/commit`;
     return repoMetadata;
   }
 
