@@ -17277,7 +17277,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.4.5";
+var version = "0.4.6";
 
 'use babel';
 class StepsizeOutgoing {
@@ -28594,6 +28594,8 @@ class GutterItem$2 extends index.Component {
         const date = commit.commitedAt;
         const formattedDate = moment(date).format(get('gutterDateFormat'));
         let author = commit.author;
+        if (author == 'Not Committed Yet')
+            return `${author}`;
         if (get('truncateGutterNames')) {
             const splitAuthor = author.split(' ');
             if (splitAuthor.length > 1) {
