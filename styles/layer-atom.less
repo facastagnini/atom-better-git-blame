@@ -292,10 +292,10 @@ atom-text-editor {
     }
   }
   .layer-gutter:nth-child(even) {
-    background-color: contrast(
-      @base-background-color,
-      lighten(@base-background-color, 2%),
-      darken(@base-background-color, 2%)
-    );
+    background-color: fade(contrast(
+      @text-color,
+      lighten(@base-background-color, 20%),
+      darken(@base-background-color, 20%)
+    ), 8%);
   }
 }
