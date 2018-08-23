@@ -17277,7 +17277,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.4.6";
+var version = "0.4.7";
 
 'use babel';
 class StepsizeOutgoing {
@@ -27156,19 +27156,22 @@ class GitHelper {
             repoName: parsedUrl.name,
             repoOwner: parsedUrl.owner,
             repoSource: parsedUrl.resource,
-            repoSourceBaseUrl: parsedUrl.protocol === 'http' ?
-                `http://${parsedUrl.resource}` : `https://${parsedUrl.resource}`,
-            repoRootUrl: parsedUrl.protocol === 'http' ?
-                parsedUrl.toString('http').replace('.git', '') :
-                parsedUrl.toString('https').replace('.git', ''),
+            repoSourceBaseUrl: parsedUrl.protocol === 'http'
+                ? `http://${parsedUrl.resource}`
+                : `https://${parsedUrl.resource}`,
+            repoRootUrl: parsedUrl.protocol === 'http'
+                ? parsedUrl.toString('http').replace('.git', '')
+                : parsedUrl.toString('https').replace('.git', ''),
         };
         // Temporary fix for #29
         const pathHasSingleElement = !parsedUrl.pathname.slice(1).includes('/');
         if (parsedUrl.protocol === 'ssh' && parsedUrl.user === 'git' && pathHasSingleElement) {
             repoMetadata.repoRootUrl = repoMetadata.repoRootUrl.replace('/git/', '/');
         }
-        repoMetadata.repoCommitUrl = repoMetadata.repoSource === 'bitbucket.org' ?
-            `${repoMetadata.repoRootUrl}/commits` : `${repoMetadata.repoRootUrl}/commit`;
+        repoMetadata.repoCommitUrl =
+            repoMetadata.repoSource === 'bitbucket.org'
+                ? `${repoMetadata.repoRootUrl}/commits`
+                : `${repoMetadata.repoRootUrl}/commit`;
         return repoMetadata;
     }
     static getHashesFromBlame(blame) {
@@ -28050,7 +28053,6 @@ function init() {
                     console.info(e);
                     analyticsFailing = true;
                 }
-                
             }
         }
     });
@@ -28061,7 +28063,7 @@ function track(name$$1, data = {}) {
             event: `BGB ${name$$1}`,
             userId: userHash,
             properties: data,
-        }).catch((e) => {
+        }).catch(e => {
             console.info(e);
             analyticsFailing = true;
         });
@@ -28434,9 +28436,11 @@ function getIntegrationDataForFile(filePath) {
         const metadata = yield getRepoMetadata(repoPath);
         const blame = yield getBlameForFile(filePath);
         if (!pendingRequests[repoPath]) {
-            pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(metadata, GitHelper.getHashesFromBlame(blame.lines)).then(response => {
+            pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(metadata, GitHelper.getHashesFromBlame(blame.lines))
+                .then(response => {
                 return processIntegrationData(response);
-            }).catch(e => console.info(e));
+            })
+                .catch(e => console.info(e));
         }
         const response = yield pendingRequests[repoPath];
         delete pendingRequests[repoPath];
@@ -28478,10 +28482,12 @@ function processIntegrationData(data) {
     });
 }
 function pullRequestsCommitsPivot(pullRequests) {
-    const pivot = !pullRequests ? {} : pullRequests.reduce((acc, pullRequest) => {
-        acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
-        return acc;
-    }, {});
+    const pivot = !pullRequests
+        ? {}
+        : pullRequests.reduce((acc, pullRequest) => {
+            acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
+            return acc;
+        }, {});
     db
         .get('pullRequestsCommitsPivot')
         .merge(pivot)
@@ -28753,7 +28759,7 @@ class GutterView {
         this.codeSelector = new CodeSelector(this.editor);
         getRepoRootPath(this.editor.getPath())
             .then(repoRootPath => getRepoMetadata(repoRootPath))
-            .then(metadata => this.anonymousRepoMetadata = anonymiseRepoMetadata(metadata))
+            .then(metadata => (this.anonymousRepoMetadata = anonymiseRepoMetadata(metadata)))
             .then(() => this.fetchGutterData())
             .then(() => this.drawGutter())
             .then(() => {
@@ -28894,8 +28900,7 @@ class GutterView {
                 if (commits) {
                     commits = commits.filter(hash => hash != commitHash);
                     commits.map(hash => {
-                        this.highlightCommit(hash, `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${pullRequests[0]
-                            .number}</span>`, 'pr-line-highlight');
+                        this.highlightCommit(hash, `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${pullRequests[0].number}</span>`, 'pr-line-highlight');
                     });
                 }
             }

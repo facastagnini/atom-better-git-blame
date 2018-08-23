@@ -1,3 +1,6 @@
+## 0.4.7 Fix gutter styling incompatability when using light themes
+* Fixed issue #37 - The theming colors now provide contrast for legibility (tooltip improvement included) (thanks @topherfangio for spotting this!)
+
 ## 0.4.6 Improve gutter copy for uncommitted code
 * The copy for uncommitted code is now clearer (thanks @Jackymancs4 for your PR #34!)
 
