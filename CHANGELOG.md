@@ -1,3 +1,6 @@
+## 0.4.8 Update readme to more permanently phase out the GitLab integration
+* In response to #39 we updated the readme to more closely reflect the state of the GitLab integration (TLDR: not for now).
+
 ## 0.4.7 Fix gutter styling incompatability when using light themes
 * Fixed issue #37 - The theming colors now provide contrast for legibility (tooltip improvement included) (thanks @topherfangio for spotting this!)
 
