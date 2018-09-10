@@ -52,13 +52,13 @@ Install the [Layer GitHub app](http://bit.ly/2hzJJkj) to view pull requests and 
 
 #### Setup the GitLab integration
 
-Note: Unfortunately the GitLab integration is **temporarily unavailable**. Apologies.
+Note: Unfortunately the GitLab integration is **temporarily unavailable** (see [#39](https://github.com/Stepsize/atom-better-git-blame/issues/39) for more details). Apologies.
 
 ~~Create a personal access token and share it with us [here](https://stepsize.com/gitlab/setup) to view pull requests and issues in the blame popover. Wondering about permissions? See [here](#permissions).~~
 
 #### Setup the Jira integration
 
-Install our Jira integration to view Jira issues in the blame popover. (This currently requires the GitHub or GitLab integration to work.)
+Install our Jira integration to view Jira issues in the blame popover. (This currently requires the GitHub integration to work.)
 
 Go the `Add-ons` page of your Jira instance (see screenshot below) and search for `Layer connector for Jira`.
 
@@ -72,11 +72,11 @@ Yep.
 
 **Do you integrate with other code hosting tools?**
 
-Currently we support GitHub and GitLab but we plan to support BitBucket in the near future. Let us know that you're interested in another integration by tweeting at us [@StepsizeHQ](https://twitter.com/stepsizehq).
+Currently we only support GitHub. Let us know that you're interested in another integration by tweeting at us [@StepsizeHQ](https://twitter.com/stepsizehq).
 
 **Do you integrate with other project management tools?**
 
-Currently we only support GitHub, GitLab, and Jira, but we plan to support Trello and Pivotal Tracker in the near future. Let us know that you're interested in another integration by tweeting at us [@StepsizeHQ](https://twitter.com/stepsizehq).
+Currently we only support GitHub and Jira. Let us know that you're interested in another integration by tweeting at us [@StepsizeHQ](https://twitter.com/stepsizehq).
 
 **Can I use this plugin if I don't use pull requests or issues?**
 
@@ -101,11 +101,9 @@ Nope, you can use this plugin standalone and can turn off the UDP connection use
 <a name="permissions"></a>
 **Is my code sent anywhere?**
 
-*GitHub & GitLab integrations*
+*GitHub integrations*
 
 Your code is not sent anywhere, but we need read access to code so we can map commits to pull requests. This is just how permissions work for GitHub apps unfortunately.
-
-And the GitLab integration is a simple first pass with personal access tokens. We plan to flesh it out in the future, but for now this means we get the same permissions as you, which include access to code.
 
 *UDP messaging to Layer*
 
@@ -143,6 +141,6 @@ Check us out [here](http://bit.ly/1tvB1HC) or tweet at us [@StepsizeHQ](https://
 
 ## Security and privacy
 
-If you set up the GitHub, GitLab, and/or Jira integrations, you might be interested in our [security statement](http://bit.ly/2gvkQGO) & [privacy policy](http://bit.ly/2gvkSyq).
+If you set up the GitHub and/or Jira integrations, you might be interested in our [security statement](http://bit.ly/2gvkQGO) & [privacy policy](http://bit.ly/2gvkSyq).
 
 You can safely ignore them if you don't use the integrations.
