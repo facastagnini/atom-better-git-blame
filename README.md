@@ -1,4 +1,4 @@
-[![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![bitHound Overall Score](https://www.bithound.io/github/Stepsize/atom-better-git-blame/badges/score.svg)](https://www.bithound.io/github/Stepsize/atom-better-git-blame) [![bitHound Dependencies](https://img.shields.io/bithound/dependencies/github/Stepsize/atom-better-git-blame.svg)](https://www.bithound.io/github/Stepsize/atom-better-git-blame/master/dependencies/npm) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
+[![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
 
 # Better Git Blame Atom package <img src="https://user-images.githubusercontent.com/13640069/31381614-f76a2990-adac-11e7-99d1-c3e53c4f5802.png" alt="better git blame logo" height="48px" align="right" />
 
@@ -14,7 +14,7 @@
 
 ## What makes it better?
 
-TL;DR: it does more than just display `git blame` annotations in the gutter – it helps you visualise the blame info including the age of the changes. 
+TL;DR: it does more than just display `git blame` annotations in the gutter – it helps you visualise the blame info including the age of the changes.
 
 **A rich popover displays summary info about the commit and visualises the commit's age.**
 
@@ -68,7 +68,7 @@ All the software in this repository is released under the MIT License. See [LICE
 
 ## What is Stepsize?
 
-[Stepsize](http://bit.ly/1tvB1HC) is a startup based in London. We're developing a product that automatically documents agile teams' code by piecing together their data to maintain version controlled documentation.
+[Stepsize](http://bit.ly/1tvB1HC) is a startup based in London. We're developing a [VSCode extension](https://marketplace.visualstudio.com/items?itemName=Stepsize.tech-debt-tracker) that helps teams manage technical debt as a team.
 
 Check us out [here](http://bit.ly/1tvB1HC) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
 
