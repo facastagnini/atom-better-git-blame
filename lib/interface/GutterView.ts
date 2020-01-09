@@ -11,7 +11,6 @@ import GutterRange from './GutterRange';
 import GutterItem from './GutterItem';
 import { colorScale } from './ColourScale';
 import * as GitData from '../data/GitData';
-import * as IntegrationData from '../data/IntegrationData';
 import CodeSelector from '../stepsize/CodeSelector';
 import StepsizeOutgoing from '../stepsize/StepsizeOutgoing';
 import * as ConfigManager from '../ConfigManager';
@@ -32,7 +31,6 @@ class GutterView {
   private highlightDecorations: Array<Decoration> = [];
   private codeSelector: CodeSelector;
   private outgoing: StepsizeOutgoing;
-  private integrationData: any;
   private overlayHack: HTMLElement;
 
   constructor(editor: IEditor, outgoing: StepsizeOutgoing) {
@@ -108,9 +106,6 @@ class GutterView {
           item.emitter.on('mouseEnter', () => {
             this.highlightCommit(identifier);
             this.handleLayerSearch(item, marker);
-            if (ConfigManager.get('highlightPullRequestOnHover')) {
-              this.highlightPullRequestForCommit(identifier);
-            }
           });
           item.emitter.on('mouseLeave', () => {
             this.removeHighlight();
@@ -193,33 +188,6 @@ class GutterView {
     }
   }
 
-  async highlightPullRequestForCommit(commitHash) {
-    this.overlayOverflowHack();
-    await this.integrationData;
-    let pullRequests = await IntegrationData.getPullRequestsForCommit(
-      this.editor.getPath(),
-      commitHash
-    );
-    if (pullRequests.length > 0) {
-      let commits = await IntegrationData.getCommitsForPullRequest(
-        this.editor.getPath(),
-        pullRequests[0].number
-      );
-      if (commits) {
-        commits = commits.filter(hash => hash != commitHash);
-        commits.map(hash => {
-          this.highlightCommit(
-            hash,
-            `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${
-              pullRequests[0].number
-            }</span>`,
-            'pr-line-highlight'
-          );
-        });
-      }
-    }
-  }
-
   overlayOverflowHack() {
     this.overlayHack = document.createElement('style');
     document.head.appendChild(this.overlayHack);
@@ -278,7 +246,6 @@ class GutterView {
 
   private async fetchGutterData() {
     const filePath = this.editor.getPath();
-    this.integrationData = IntegrationData.getIntegrationDataForFile(filePath);
     let commits = await GitData.getCommitsForFile(filePath);
     this.commits = commits.commits;
     let ranges = await GitData.getGutterRangesForFile(filePath);

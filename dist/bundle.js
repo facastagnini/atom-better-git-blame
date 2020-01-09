@@ -17277,7 +17277,7 @@ class StepsizeHelper {
 
 var name = "better-git-blame";
 
-var version = "0.4.8";
+var version = "0.5.0";
 
 'use babel';
 class StepsizeOutgoing {
@@ -27741,17 +27741,7 @@ function getCommit(filePath, hash) {
         return toWrite;
     });
 }
-function updateCommit(hash, data) {
-    db
-        .get('commitMessages')
-        .get(hash)
-        .assign(data)
-        .write();
-    return db
-        .get('commitMessages')
-        .get(hash)
-        .value();
-}
+
 function getRepoRootPath(filePath) {
     return __awaiter(this, void 0, void 0, function* () {
         let cached = db.get(`rootPaths.${filePath}`).value();
@@ -28099,73 +28089,16 @@ function saveIntegrationNotificationData(notifData) {
 }
 function handleGutterShown() {
     trackGutterShown();
-    showIntegrationNotificationIfAppropriate();
 }
 function trackGutterShown() {
     const notifData = getIntegrationNotificationData();
     notifData.gutters += 1;
     saveIntegrationNotificationData(notifData);
 }
-function showIntegrationNotificationIfAppropriate() {
-    const notifData = getIntegrationNotificationData();
-    if (notifData.wasNotificationShown || notifData.wasIntegrationDataRetrieved)
-        return;
-    if (notifData.gutters >= 5 && notifData.tooltips >= 5) {
-        track('Integration notification shown');
-        showIntegrationNotification();
-        notifData.wasNotificationShown = true;
-        saveIntegrationNotificationData(notifData);
-    }
-}
-function showIntegrationNotification() {
-    atom.notifications.addInfo('Boss mode blame', {
-        description: 'Want to see pull requests and issues in `better-git-blame` popovers?\n\n<img src="https://i.imgur.com/vUTvxHv.png" width="400" height="172" />\n\nJust setup one of our integrations to level up 🔥',
-        dismissable: true,
-        buttons: [
-            {
-                text: 'GitHub integration',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'github' });
-                    shell.openExternal('https://github.com/apps/layer');
-                },
-            },
-            // {
-            //   text: 'GitLab integration',
-            //   onDidClick: () => {
-            //     Analytics.track('Integration notification button clicked', { type: 'gitlab' });
-            //     shell.openExternal('https://stepsize.com/gitlab/setup');
-            //   },
-            // },
-            {
-                text: 'Jira integration',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'jira' });
-                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#setup-the-jira-integration');
-                },
-            },
-            {
-                text: 'Tell me more',
-                onDidClick: () => {
-                    track('Integration notification button clicked', { type: 'more' });
-                    shell.openExternal('https://github.com/Stepsize/atom-better-git-blame#how-do-i-get-setup');
-                },
-            },
-        ],
-    });
-}
 function trackTooltipShown() {
     const notifData = getIntegrationNotificationData();
     notifData.tooltips += 1;
     saveIntegrationNotificationData(notifData);
-}
-function checkIntegrationDataRetrieved(pullRequests, issues) {
-    const prCount = Array.isArray(pullRequests) ? Object.keys(pullRequests).length : 0;
-    const issueCount = Array.isArray(issues) ? Object.keys(issues).length : 0;
-    if (prCount > 0 || issueCount > 0) {
-        const notifData = getIntegrationNotificationData();
-        notifData.wasIntegrationDataRetrieved = true;
-        saveIntegrationNotificationData(notifData);
-    }
 }
 
 'use babel';
@@ -28431,71 +28364,7 @@ class BlameTooltip extends index.PureComponent {
 
 'use babel';
 let pendingRequests = {};
-function getIntegrationDataForFile(filePath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const repoPath = yield getRepoRootPath(filePath);
-        const metadata = yield getRepoMetadata(repoPath);
-        const blame = yield getBlameForFile(filePath);
-        if (!pendingRequests[repoPath]) {
-            pendingRequests[repoPath] = StepsizeHelper.fetchIntegrationData(metadata, GitHelper.getHashesFromBlame(blame.lines))
-                .then(response => {
-                return processIntegrationData(response);
-            })
-                .catch(e => console.info(e));
-        }
-        const response = yield pendingRequests[repoPath];
-        delete pendingRequests[repoPath];
-        return response;
-    });
-}
-function processIntegrationData(data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const issues = data.issues;
-        db
-            .get('issues')
-            .merge(issues)
-            .uniqBy('key')
-            .write();
-        const pullRequests = data.pullRequests;
-        pullRequestsCommitsPivot(pullRequests);
-        for (const pullRequestIdx of Object.keys(pullRequests)) {
-            const pullRequest = pullRequests[pullRequestIdx];
-            const existingPullRequest = db
-                .get('pullRequests')
-                .find({ number: pullRequest.number })
-                .value();
-            if (existingPullRequest) {
-                continue;
-            }
-            const toWrite = Object.assign({}, pullRequest);
-            toWrite.commitCount = toWrite.commits.length;
-            toWrite.relatedIssueKeys = data.pullRequestToIssues[pullRequestIdx].map(idx => issues[idx].key);
-            db
-                .get('pullRequests')
-                .push(toWrite)
-                .write();
-        }
-        for (const commit of data.commits) {
-            updateCommit(commit.commitHash, { buildStatus: commit.buildStatus });
-        }
-        checkIntegrationDataRetrieved(pullRequests, issues);
-        return db.get('pullRequests').value();
-    });
-}
-function pullRequestsCommitsPivot(pullRequests) {
-    const pivot = !pullRequests
-        ? {}
-        : pullRequests.reduce((acc, pullRequest) => {
-            acc[pullRequest.number] = pullRequest.commits.map(commit => commit.commitHash);
-            return acc;
-        }, {});
-    db
-        .get('pullRequestsCommitsPivot')
-        .merge(pivot)
-        .uniq()
-        .write();
-    return db.get('pullRequestsCommitsPivot').value();
-}
+
 function getPullRequestsForCommit(filePath, commitHash) {
     return __awaiter(this, void 0, void 0, function* () {
         if (pendingRequests[filePath]) {
@@ -28518,17 +28387,7 @@ function getPullRequestsForCommit(filePath, commitHash) {
         });
     });
 }
-function getCommitsForPullRequest(filePath, pullRequestNumber) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (pendingRequests[filePath]) {
-            yield pendingRequests[filePath];
-        }
-        return db
-            .get('pullRequestsCommitsPivot')
-            .get(pullRequestNumber)
-            .value();
-    });
-}
+
 function getIssue(filePath, issueKey) {
     return __awaiter(this, void 0, void 0, function* () {
         if (pendingRequests[filePath]) {
@@ -28820,9 +28679,6 @@ class GutterView {
                     item.emitter.on('mouseEnter', () => {
                         this.highlightCommit(identifier);
                         this.handleLayerSearch(item, marker);
-                        if (get('highlightPullRequestOnHover')) {
-                            this.highlightPullRequestForCommit(identifier);
-                        }
                     });
                     item.emitter.on('mouseLeave', () => {
                         this.removeHighlight();
@@ -28891,22 +28747,6 @@ class GutterView {
             }
         }
     }
-    highlightPullRequestForCommit(commitHash) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.overlayOverflowHack();
-            yield this.integrationData;
-            let pullRequests = yield getPullRequestsForCommit(this.editor.getPath(), commitHash);
-            if (pullRequests.length > 0) {
-                let commits = yield getCommitsForPullRequest(this.editor.getPath(), pullRequests[0].number);
-                if (commits) {
-                    commits = commits.filter(hash => hash != commitHash);
-                    commits.map(hash => {
-                        this.highlightCommit(hash, `<span class="icon icon-git-pull-request"></span><span class="highlight-label">#${pullRequests[0].number}</span>`, 'pr-line-highlight');
-                    });
-                }
-            }
-        });
-    }
     overlayOverflowHack() {
         this.overlayHack = document.createElement('style');
         document.head.appendChild(this.overlayHack);
@@ -28957,7 +28797,6 @@ class GutterView {
     fetchGutterData() {
         return __awaiter(this, void 0, void 0, function* () {
             const filePath = this.editor.getPath();
-            this.integrationData = getIntegrationDataForFile(filePath);
             let commits = yield getCommitsForFile(filePath);
             this.commits = commits.commits;
             let ranges = yield getGutterRangesForFile(filePath);
