@@ -1,3 +1,6 @@
+## 0.5.0 Remove support for integrations and clarify we're no longer supporting the plugin
+* We've removed the support for code hosting and project management integrations because we are no longer supporting this extension. Thank you for using our product, check out what [we're up to now](https://www.stepsize.com/?utm_source=product_linking&utm_medium=product_linking&utm_campaign=product_linking-bgb-2020-01-09&utm_content=bgb_link)!
+
 ## 0.4.8 Update readme to more permanently phase out the GitLab integration
 * In response to #39 we updated the readme to more closely reflect the state of the GitLab integration (TLDR: not for now).
 

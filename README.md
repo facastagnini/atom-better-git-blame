@@ -1,6 +1,6 @@
 [![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
 
-⚠️ You can still use this plugin but it's no longer maintained. We're working on [this](http://bit.ly/1tvB1HC) instead. ⚠️
+⚠️ You can still use this plugin but it's no longer maintained. We're working on [this](https://www.stepsize.com/?utm_source=product_linking&utm_medium=product_linking&utm_campaign=product_linking-bgb-2020-01-09&utm_content=bgb_link) instead. ⚠️
 
 # Better Git Blame Atom package <img src="https://user-images.githubusercontent.com/13640069/31381614-f76a2990-adac-11e7-99d1-c3e53c4f5802.png" alt="better git blame logo" height="48px" align="right" />
 
@@ -51,6 +51,6 @@ All the software in this repository is released under the MIT License. See [LICE
 
 ## What is Stepsize?
 
-[Stepsize](http://bit.ly/1tvB1HC) is a startup based in London. We're developing a product to help teams manage technical debt together, guided by clear metrics.
+[Stepsize](https://www.stepsize.com/?utm_source=product_linking&utm_medium=product_linking&utm_campaign=product_linking-bgb-2020-01-09&utm_content=bgb_link) is a startup based in London. We're developing a product to help teams manage technical debt together, guided by clear metrics.
 
-Check us out [here](http://bit.ly/1tvB1HC) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
+Check us out [here](https://www.stepsize.com/?utm_source=product_linking&utm_medium=product_linking&utm_campaign=product_linking-bgb-2020-01-09&utm_content=bgb_link) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
