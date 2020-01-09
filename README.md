@@ -1,28 +1,29 @@
 [![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
 
+⚠️ You can still use this plugin but it's no longer maintained. We're working on [this](http://bit.ly/1tvB1HC) instead. ⚠️
+
 # Better Git Blame Atom package <img src="https://user-images.githubusercontent.com/13640069/31381614-f76a2990-adac-11e7-99d1-c3e53c4f5802.png" alt="better git blame logo" height="48px" align="right" />
 
 **A better way to view git blame info in Atom.**
 
 - [What makes it better?](#what-makes-it-better)
 - [How do I use it?](#how-do-i-use-it)
-- [FAQ](#faq)
-- [Contributing](#contributing)
+- [How do I get setup?](#how-do-i-get-setup)
+- [Telemetry](#telemetry)
 - [License](#license)
 - [What is Stepsize?](#what-is-stepsize)
-- [Security and privacy](#security-and-privacy)
 
 ## What makes it better?
 
-TL;DR: it does more than just display `git blame` annotations in the gutter – it helps you visualise the blame info including the age of the changes.
+TL;DR: it does more than just display `git blame` annotations in the gutter – it helps you visualise the blame info including the age of the code.
 
 **A rich popover displays summary info about the commit and visualises the commit's age.**
 
-![Better Git Blame popover](https://i.imgur.com/Un1v31P.png)
+![Better Git Blame popover](https://user-images.githubusercontent.com/4775299/72082000-6883cb00-32f7-11ea-9041-e8572903fd48.png)
 
 **Line highlighting makes it clear which other lines were introduced by the blame commit.**
 
-![Line highlighting](https://i.imgur.com/PV8YfdR.png)
+![Line highlighting](https://user-images.githubusercontent.com/4775299/72082001-691c6180-32f7-11ea-98a1-ddf493c08023.png)
 
 Oh and it's also fast and nicely designed.
 
@@ -36,31 +37,13 @@ Hover over the blame text to display the popover & line highlighting.
 
 ## How do I get setup?
 
-#### Install the Atom package
-
 Run `apm install better-git-blame` and restart Atom. You can also install it from Atom's Settings pane.
 
-That's all you need to get going, but if you want to see info about pull requests and issues, you'll need to install one of our integrations.
+## Telemetry
 
-## FAQ
+We collect anonymous usage data. We do not track any sensitive or personally identifiable data, and what we collect is only used to improve the plugin.
 
-**Is this free?**
-
-Yep.
-
-**Does the plugin do any dodgy stuff I should know about?**
-
-No it doesn't, although you may find the fact that we collect usage analytics dodgy.
-
-To be completely transparent, we offer this plugin for free in the hope that it will entice you to try out other Stepsize products. We're a business, after all, and developing this and hosting the backend for it costs us money, so we'd like to measure its worth.
-
-Our analytics are completely anonymous, do not track any sensitive or personally identifiable data, and will only be used to improve Stepsize products.
-
-We hope you understand, but if you don't you can turn off absolutely all the analytics and use the plugin under the radar. You can also poke around the code to see for yourself what is tracked.
-
-## Contributing
-
-If you'd like to contribute we'd love to hear from you - just tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) or email us at hello@stepsize.com. Alternatively you can just fork the plugin and submit a PR.
+You can turn off absolutely all the analytics and use the plugin under the radar. You can also poke around the code to see for yourself what is tracked.
 
 ## License
 
@@ -68,10 +51,6 @@ All the software in this repository is released under the MIT License. See [LICE
 
 ## What is Stepsize?
 
-[Stepsize](http://bit.ly/1tvB1HC) is a startup based in London. We're developing a [VSCode extension](https://marketplace.visualstudio.com/items?itemName=Stepsize.tech-debt-tracker) that helps teams manage technical debt as a team.
+[Stepsize](http://bit.ly/1tvB1HC) is a startup based in London. We're developing a product to help teams manage technical debt together, guided by clear metrics.
 
 Check us out [here](http://bit.ly/1tvB1HC) or tweet at us [@StepsizeHQ](https://twitter.com/stepsizehq) 🙏
-
-## Security and privacy
-
-You might be interested in our [privacy policy](http://terms.stepsize.com/privacy-policy).
