@@ -25,9 +25,8 @@ jobs:
           cache: npm
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      # waiting on https://github.com/ljharb/ls-engines/pull/23 to be fixed
-      # - name: Ensure dependencies are compatible with the version of node
-      #   run: npx ls-engines
+      - name: Ensure dependencies are compatible with the version of node
+        run: npx ls-engines
       # - run: npm test
   test:
     runs-on: ubuntu-latest
@@ -39,5 +38,5 @@ jobs:
           node-version: 16
           cache: npm
       - run: npm ci
-      - run: npm run lint
+      # - run: npm run lint
       - run: npx lockfile-lint --path package-lock.json
