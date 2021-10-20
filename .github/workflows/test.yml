@@ -1,0 +1,40 @@
+# example https://github.com/semantic-release/apm-config/blob/master/.github/workflows/test.yml
+name: Test
+"on":
+  push:
+    branches:
+      - master
+      - renovate/**
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  test_matrix:
+    strategy:
+      matrix:
+        node-version:
+          - '14.17'
+          - 16
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          cache: npm
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      # - run: npm test
+  test:
+    runs-on: ubuntu-latest
+    needs: test_matrix
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: npm
+      - run: npm ci
+      # - run: npm run lint
+      - run: npx lockfile-lint --path package-lock.json
