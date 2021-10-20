@@ -12,7 +12,7 @@ var https = require('https');
 var childProcess = require('child_process');
 var path = _interopDefault(require('path'));
 var crypto = _interopDefault(require('crypto'));
-var shell = _interopDefault(require('shell'));
+var shell = _interopDefault(require("electron").shell);
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -17110,7 +17110,7 @@ var lodash = createCommonjsModule(function (module, exports) {
 
     // Define as an anonymous module so, through path mapping, it can be
     // referenced as the "underscore" module.
-    
+
   }
   // Check for `exports` after `define` in case a build optimizer adds it.
   else if (freeModule) {
@@ -17413,7 +17413,7 @@ class GutterResizeHandle {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * 
+ *
  */
 
 function makeEmptyFunction(arg) {
