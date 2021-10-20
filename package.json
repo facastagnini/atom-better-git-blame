@@ -1,5 +1,5 @@
 {
-  "name": "better-git-blame",
+  "name": "better-git-blame-fork",
   "main": "dist/bundle.js",
   "version": "0.5.2",
   "description": "Git blame gutter with pull requests, related issues, and age color-coding of code.",
@@ -13,7 +13,7 @@
     "stepsize",
     "layer"
   ],
-  "repository": "https://github.com/Stepsize/atom-better-git-blame",
+  "repository": "https://github.com/facastagnini/atom-better-git-blame",
   "license": "MIT",
   "scripts": {
     "dev": "tsc --watch",

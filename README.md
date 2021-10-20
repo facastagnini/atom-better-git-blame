@@ -1,6 +1,9 @@
 [![Downloads](https://img.shields.io/apm/dm/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![Version](https://img.shields.io/apm/v/better-git-blame.svg)](https://atom.io/packages/better-git-blame) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![License](https://img.shields.io/apm/l/better-git-blame.svg)](https://github.com/Stepsize/atom-better-git-blame/blob/master/LICENSE.md)
 
-⚠️ You can still use this plugin but it's no longer maintained. We're working on [this](https://www.stepsize.com/?utm_source=product_linking&utm_medium=product_linking&utm_campaign=product_linking-bgb-2020-01-09&utm_content=bgb_link) instead. ⚠️
+# This is a maintained fork
+
+Since the original project [it's no longer maintained](https://github.com/Stepsize/atom-better-git-blame), I decided to fork it and support it here.
+Thanks a lot to [StepSize](https://www.stepsize.com) for the original work.
 
 # Better Git Blame Atom package <img src="https://user-images.githubusercontent.com/13640069/31381614-f76a2990-adac-11e7-99d1-c3e53c4f5802.png" alt="better git blame logo" height="48px" align="right" />
 
